@@ -17,11 +17,15 @@ import {
   UserIcon as UserIconSolid,
   Squares2X2Icon as ShopIconSolid,
 } from "@heroicons/react/24/solid";
+import { useWishlist } from "@/lib/wishlist";
+import { useSearch } from "@/lib/search";
 
 export default function MobileNav() {
   const t = useTranslations("common");
   const locale = useLocale();
   const pathname = usePathname();
+  const { itemCount: wishlistCount } = useWishlist();
+  const { openSearch } = useSearch();
 
   const tabs = [
     {
@@ -38,15 +42,17 @@ export default function MobileNav() {
     },
     {
       label: t("search"),
-      href: `/${locale}/search`,
+      href: "#search",
       icon: MagnifyingGlassIcon,
       activeIcon: SearchIconSolid,
+      action: openSearch,
     },
     {
       label: t("wishlist"),
       href: `/${locale}/wishlist`,
       icon: HeartIcon,
       activeIcon: HeartIconSolid,
+      badge: wishlistCount,
     },
     {
       label: t("account"),
@@ -66,15 +72,35 @@ export default function MobileNav() {
               : pathname.startsWith(tab.href);
           const Icon = isActive ? tab.activeIcon : tab.icon;
 
+          if (tab.action) {
+            return (
+              <button
+                key={tab.label}
+                onClick={tab.action}
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] text-charcoal/50"
+              >
+                <Icon className="w-5 h-5" />
+                <span className="text-[10px] font-medium">{tab.label}</span>
+              </button>
+            );
+          }
+
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] ${
                 isActive ? "text-gold" : "text-charcoal/50"
               }`}
             >
-              <Icon className="w-5 h-5" />
+              <div className="relative">
+                <Icon className="w-5 h-5" />
+                {tab.badge && tab.badge > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-gold text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center">
+                    {tab.badge > 9 ? "9+" : tab.badge}
+                  </span>
+                )}
+              </div>
               <span className="text-[10px] font-medium">{tab.label}</span>
             </Link>
           );

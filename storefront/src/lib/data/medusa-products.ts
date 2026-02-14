@@ -171,6 +171,9 @@ interface ProductCardData {
   thumbnail: string;
   hoverImage?: string;
   badge?: "new" | "sale" | "bestseller";
+  colors?: string[];
+  sizes?: string[];
+  collection?: string;
 }
 
 function toCardFormat(p: ScrapedProduct): ProductCardData {
@@ -184,6 +187,9 @@ function toCardFormat(p: ScrapedProduct): ProductCardData {
     thumbnail: p.images[0] || "",
     hoverImage: p.images[1],
     badge: p.salePrice ? "sale" : isNew ? "new" : undefined,
+    colors: p.colors.length > 0 ? p.colors : undefined,
+    sizes: p.sizes.length > 0 ? p.sizes : undefined,
+    collection: p.collection || (p.categories.length > 0 ? p.categories[0] : undefined),
   };
 }
 
@@ -412,6 +418,29 @@ export async function fetchProductsByCategoryForCards(
 ): Promise<ProductCardData[]> {
   const products = await fetchProductsByCategory(categoryHandle);
   return products.map(toCardFormat);
+}
+
+// --- Search function ---
+
+export async function searchProducts(query: string, limit = 12): Promise<ProductCardData[]> {
+  try {
+    const data = await medusaFetch<{ products: MedusaProduct[] }>(
+      "/store/products",
+      {
+        q: query,
+        fields: PRODUCT_FIELDS,
+        limit,
+      }
+    );
+    return data.products.map(toScrapedProduct).map(toCardFormat);
+  } catch (error) {
+    console.error("Failed to search products:", error);
+    const { products } = await import("./products");
+    return products
+      .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, limit)
+      .map(toCardFormat);
+  }
 }
 
 // --- Category cover image helper ---

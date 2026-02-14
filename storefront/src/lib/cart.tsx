@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useCallback,
+  useEffect,
   type ReactNode,
 } from "react";
 
@@ -34,11 +35,45 @@ interface CartContextType {
   subtotal: number;
 }
 
+const STORAGE_KEY = "aksa_cart";
+
 const CartContext = createContext<CartContextType | null>(null);
+
+function loadCart(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveCart(items: CartItem[]) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  } catch {
+    // localStorage full or unavailable
+  }
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
+
+  // Hydrate from localStorage on mount
+  useEffect(() => {
+    setItems(loadCart());
+    setHydrated(true);
+  }, []);
+
+  // Persist to localStorage on change (after hydration)
+  useEffect(() => {
+    if (hydrated) {
+      saveCart(items);
+    }
+  }, [items, hydrated]);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
@@ -113,10 +148,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const CART_DEFAULTS: CartContextType = {
+  items: [],
+  isOpen: false,
+  openCart: () => {},
+  closeCart: () => {},
+  toggleCart: () => {},
+  addItem: () => {},
+  removeItem: () => {},
+  updateQuantity: () => {},
+  clearCart: () => {},
+  itemCount: 0,
+  subtotal: 0,
+};
+
 export function useCart() {
   const context = useContext(CartContext);
-  if (!context) {
-    throw new Error("useCart must be used within a CartProvider");
-  }
-  return context;
+  return context ?? CART_DEFAULTS;
 }

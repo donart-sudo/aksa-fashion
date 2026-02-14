@@ -8,7 +8,11 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 import CartDrawer from "@/components/cart/CartDrawer";
+import SearchModal from "@/components/search/SearchModal";
 import { CartProvider } from "@/lib/cart";
+import { WishlistProvider } from "@/lib/wishlist";
+import { SearchProvider } from "@/lib/search";
+import { AuthProvider } from "@/lib/auth";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -52,13 +56,20 @@ export default async function LocaleLayout({
         className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-cream text-charcoal`}
       >
         <NextIntlClientProvider messages={messages}>
-          <CartProvider>
-            <Header />
-            <main className="min-h-screen">{children}</main>
-            <Footer />
-            <MobileNav />
-            <CartDrawer />
-          </CartProvider>
+          <AuthProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <SearchProvider>
+                  <Header />
+                  <main className="min-h-screen">{children}</main>
+                  <Footer />
+                  <MobileNav />
+                  <CartDrawer />
+                  <SearchModal />
+                </SearchProvider>
+              </WishlistProvider>
+            </CartProvider>
+          </AuthProvider>
         </NextIntlClientProvider>
       </body>
     </html>

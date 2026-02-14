@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { motion } from "framer-motion";
-import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
+import Image from "next/image";
 
 export default function Newsletter() {
   const t = useTranslations("home");
@@ -20,48 +18,71 @@ export default function Newsletter() {
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-warm-white">
-      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal mb-4">
-            {t("newsletterTitle")}
-          </h2>
-          <p className="text-charcoal/60 mb-8">{t("newsletterSubtitle")}</p>
+    <section className="relative bg-charcoal overflow-hidden">
+      <div className="flex flex-col lg:flex-row lg:min-h-[420px]">
+        {/* Image panel */}
+        <div className="relative h-52 sm:h-60 lg:h-auto lg:flex-[40] overflow-hidden">
+          <Image
+            src="https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-scaled.jpg"
+            alt="Aksa Fashion"
+            fill
+            className="object-cover object-[50%_30%]"
+            sizes="(max-width: 1024px) 100vw, 40vw"
+          />
+          <div className="absolute inset-0 bg-charcoal/20" />
+          <div className="absolute bottom-4 left-5 lg:bottom-8 lg:left-8">
+            <span className="text-[10px] tracking-[0.4em] uppercase text-white/40 font-medium">
+              {t("estLine")}
+            </span>
+          </div>
+        </div>
 
-          {submitted ? (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="bg-gold/10 border border-gold/20 rounded p-6"
-            >
-              <p className="text-gold font-serif text-lg">
-                Thank you for subscribing!
-              </p>
-            </motion.div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-            >
-              <Input
-                type="email"
-                placeholder={t("newsletterPlaceholder")}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="flex-1"
-              />
-              <Button type="submit" variant="primary">
-                {t("newsletterButton")}
-              </Button>
-            </form>
-          )}
-        </motion.div>
+        {/* Content panel */}
+        <div className="flex-1 lg:flex-[60] flex items-center px-6 py-12 sm:px-10 lg:px-16 xl:px-24 lg:py-16">
+          <div className="w-full max-w-md">
+            <span className="block h-[2px] w-8 bg-gold mb-6" />
+
+            <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-white leading-tight mb-3">
+              {t("newsletterTitle")}
+            </h2>
+            <p className="text-sm text-white/60 leading-relaxed mb-8 max-w-sm">
+              {t("newsletterSubtitle")}
+            </p>
+
+            {submitted ? (
+              <div className="border border-gold/40 px-6 py-5">
+                <p className="text-gold font-serif text-xl">
+                  {t("newsletterSuccess")}
+                </p>
+                <p className="text-sm text-white/50 mt-1">
+                  {t("newsletterSuccessDetail")}
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <input
+                    type="email"
+                    placeholder={t("newsletterPlaceholder")}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="flex-1 bg-transparent border-b border-white/30 px-0 py-3 text-sm text-white placeholder:text-white/35 focus:border-gold focus:outline-none transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="px-7 py-3 text-xs font-medium tracking-widest uppercase bg-gold text-white hover:bg-gold-dark transition-colors duration-300 min-h-[44px]"
+                  >
+                    {t("newsletterButton")}
+                  </button>
+                </div>
+                <p className="text-[11px] text-white/30">
+                  {t("newsletterDisclaimer")}
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
       </div>
     </section>
   );

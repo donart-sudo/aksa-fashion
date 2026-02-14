@@ -160,7 +160,7 @@ export default function CartDrawer() {
                             <button
                               onClick={() => removeItem(item.id)}
                               className="p-1.5 text-charcoal/30 hover:text-red-500 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-                              aria-label="Remove item"
+                              aria-label={t("cart.removeItem")}
                             >
                               <TrashIcon className="w-4 h-4" />
                             </button>
@@ -185,7 +185,7 @@ export default function CartDrawer() {
                   </span>
                 </div>
                 <p className="text-xs text-charcoal/40">
-                  {t("common.shipping")} calculated at checkout
+                  {t("cart.shippingAtCheckout")}
                 </p>
                 <Link href={`/${locale}/checkout`} onClick={closeCart}>
                   <Button variant="primary" size="lg" className="w-full">
