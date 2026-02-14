@@ -2,6 +2,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localh
 
 class MedusaAdminClient {
   private token: string | null = null
+  private sessionActive = false
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -10,12 +11,16 @@ class MedusaAdminClient {
   }
 
   private async request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+    // Restore session if we have a token but no active session
+    if (this.token && !this.sessionActive && !path.startsWith('/auth')) {
+      await this.restoreSession()
+    }
+
     const res = await fetch(`${BACKEND_URL}${path}`, {
       ...options,
       credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(this.token ? { Authorization: `Bearer ${this.token}` } : {}),
         ...options.headers,
       },
     })
@@ -34,17 +39,44 @@ class MedusaAdminClient {
   // ── Auth ──────────────────────────────────────────────────────────────
 
   async login(email: string, password: string) {
-    const { token } = await this.request<{ token: string }>('/auth/user/emailpass', {
+    // Step 1: Get JWT token from auth endpoint
+    const authRes = await fetch(`${BACKEND_URL}/auth/user/emailpass`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     })
+    if (!authRes.ok) {
+      const body = await authRes.json().catch(() => ({}))
+      throw new Error(body.message || 'Login failed')
+    }
+    const { token } = await authRes.json()
     this.token = token
+
+    // Step 2: Create session cookie (required for admin API access)
+    await fetch(`${BACKEND_URL}/auth/session`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    this.sessionActive = true
     localStorage.setItem('medusa_admin_token', token)
     return token
   }
 
   logout() {
+    // Destroy session
+    if (this.sessionActive) {
+      fetch(`${BACKEND_URL}/auth/session`, {
+        method: 'DELETE',
+        credentials: 'include',
+      }).catch(() => {})
+    }
     this.token = null
+    this.sessionActive = false
     if (typeof window !== 'undefined') {
       localStorage.removeItem('medusa_admin_token')
     }
@@ -52,6 +84,25 @@ class MedusaAdminClient {
 
   isAuthenticated() {
     return !!this.token
+  }
+
+  async restoreSession() {
+    if (!this.token) return false
+    try {
+      // Re-create session from stored token
+      const res = await fetch(`${BACKEND_URL}/auth/session`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.token}`,
+        },
+      })
+      this.sessionActive = res.ok
+      return res.ok
+    } catch {
+      return false
+    }
   }
 
   // ── Health ────────────────────────────────────────────────────────────

@@ -29,8 +29,15 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       setBackendOnline(online)
 
       if (adminMedusa.isAuthenticated()) {
-        setAuthed(true)
-        setEmail(localStorage.getItem('medusa_admin_email'))
+        // Restore session cookie from stored JWT token
+        const restored = await adminMedusa.restoreSession()
+        if (restored) {
+          setAuthed(true)
+          setEmail(localStorage.getItem('medusa_admin_email'))
+        } else {
+          // Token expired or invalid — clear it
+          adminMedusa.logout()
+        }
       }
       setReady(true)
     }
