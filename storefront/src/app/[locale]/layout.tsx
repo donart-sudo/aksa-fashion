@@ -1,0 +1,66 @@
+import { NextIntlClientProvider, hasLocale } from "next-intl";
+import { getMessages } from "next-intl/server";
+import { notFound } from "next/navigation";
+import { Playfair_Display, Inter } from "next/font/google";
+import { routing } from "@/i18n/routing";
+import { isRtl, type Locale } from "@/i18n/config";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import MobileNav from "@/components/layout/MobileNav";
+import CartDrawer from "@/components/cart/CartDrawer";
+import { CartProvider } from "@/lib/cart";
+
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
+  const messages = await getMessages();
+  const rtl = isRtl(locale as Locale);
+
+  return (
+    <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#B8926A" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Aksa Fashion" />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
+      <body
+        className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-cream text-charcoal`}
+      >
+        <NextIntlClientProvider messages={messages}>
+          <CartProvider>
+            <Header />
+            <main className="min-h-screen">{children}</main>
+            <Footer />
+            <MobileNav />
+            <CartDrawer />
+          </CartProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}

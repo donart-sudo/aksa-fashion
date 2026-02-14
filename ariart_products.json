@@ -1,0 +1,242 @@
+[
+  {
+    "url": "https://ariart.shop/product/ari-art-emerald/",
+    "name": "Ari Art Emerald",
+    "price": 96000,
+    "sale_price": null,
+    "description": "Ari Art Emerald Glow shines like a precious gem with every step. Golden embroidery and ruby accents embrace the emerald green hue, while its regal silhouette and refined details turn this gown into a masterpiece that leaves an unforgettable impression. Features handcrafted corset, intricate golden embroidery, and ruby accents. Couture silhouette design.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Ari-Art-Emerald-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Ari-Art-Emerald-1-scaled.jpg"
+    ],
+    "categories": [],
+    "collection": null,
+    "color": "Green",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/royal-lilac-aura/",
+    "name": "Royal Lilac Aura",
+    "price": 115000,
+    "sale_price": null,
+    "description": "A couture gown in soft lilac tones, featuring a sculpted silhouette adorned with intricate crystal detailing and bold, cascading ruffle sleeves that create a regal and unforgettable presence. Hand-embellished crystal embroidery with dramatic lilac ruffled sleeves.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-1-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Lilac",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/snow/",
+    "name": "Snow",
+    "price": 147000,
+    "sale_price": null,
+    "description": "A white couture gown with floral embroidery, a fitted silhouette, and elegant transparency for a luxurious look. Designed for gala nights and red carpet moments with intricate white embellishments. The gown is see-through but will include lining, with options for different lining types and customization to match skin tone.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Snow-1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Snow-scaled.jpg"
+    ],
+    "categories": ["Bridal"],
+    "collection": null,
+    "color": "White",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/verdant-grace/",
+    "name": "Verdant Grace",
+    "price": 98000,
+    "sale_price": null,
+    "description": "A sophisticated nude dress enhanced by a grand green cape that adds movement, depth, and couture presence. The dress is see-through with lining options available. Customization available including alterations, color changes, and tailored measurements.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Verdant-Grace-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Verdant-Grace-1-scaled.jpg"
+    ],
+    "categories": [],
+    "collection": null,
+    "color": "Nude",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/cora/",
+    "name": "Cora",
+    "price": 68000,
+    "sale_price": null,
+    "description": "Mint beaded fabric embellished with shiny leafs and rhinestones. Mermaid silhouette. Deep V line.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/1-5-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/2-5-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Silhouette Whisper",
+    "color": "Mint",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "sold_out": true
+  },
+  {
+    "url": "https://ariart.shop/product/daphne/",
+    "name": "Daphne",
+    "price": 57000,
+    "sale_price": null,
+    "description": "Emerald green velvet adorned with off-white lace and green rhinestone embellishments. Featuring an irregular cut-out, shoulder pads with hanging silver tassels, and a daring high side slit for a bold, sophisticated look.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/10-4-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/9-4-scaled.jpg"
+    ],
+    "categories": ["Evening Dress"],
+    "collection": null,
+    "color": "Emerald Green",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/linus/",
+    "name": "Linus",
+    "price": 58000,
+    "sale_price": null,
+    "description": "A luxurious black velvet dress with a deep V-neckline, ruched detailing on the hips, and a daring high side slit. The richly embellished corset features an off-shoulder design adorned with elegant black tassels, exuding glamour and sophistication.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/7-3-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/8-3-scaled.jpg"
+    ],
+    "categories": ["Evening Dress"],
+    "collection": null,
+    "color": "Black",
+    "sizes": ["XS", "S", "M", "L", "XL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/ophelia/",
+    "name": "Ophelia",
+    "price": 58000,
+    "sale_price": null,
+    "description": "Navy blue velvet with gray lace embellished with silver rhinestones and hanging silver tassels. Middle cut-out in belly and bust. Mermaid silhouette.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/5-2-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/6-2-scaled.jpg"
+    ],
+    "categories": ["Evening Dress"],
+    "collection": null,
+    "color": "Navy Blue",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/pandora/",
+    "name": "Pandora",
+    "price": 58000,
+    "sale_price": null,
+    "description": "Champagne velvet dress with richly embellished corset, featuring middle cut-out in belly and bust, draped on the hips for a more curved appearance. Mermaid silhouette.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/3-2-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/4-2-scaled.jpg"
+    ],
+    "categories": ["Evening Dress"],
+    "collection": null,
+    "color": "Champagne",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/kassia/",
+    "name": "Kassia",
+    "price": 58000,
+    "sale_price": null,
+    "description": "Black satin dress with a deep V-neckline and a sleek mermaid silhouette. Featuring satin sleeves, a daring high side slit, and sparkling silver tassels adorned with rhinestones for a glamorous finish.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/1-3-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/2-3-scaled.jpg"
+    ],
+    "categories": ["Evening Dress"],
+    "collection": null,
+    "color": "Black",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/mira/",
+    "name": "Mira",
+    "price": 67000,
+    "sale_price": null,
+    "description": "The Mira gown from the Lunar Reverie Collection is a striking blend of elegance and allure. Designed in a rich green hue, this gown features delicate hanging tassels that add movement and texture. Key features include hanging tassels, long sleeves, mermaid silhouette, and embellishment with green stones.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/26-1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/25-1-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Lunar Reverie",
+    "color": "Green",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/aloa/",
+    "name": "Aloa",
+    "price": 74000,
+    "sale_price": null,
+    "description": "Embellished with white and gold pearls, high slit, corset shape. A stunning fusion of opulence and elegance with a figure-flattering corset shape. The daring high slit adds a modern edge to the design.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/24-1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/23-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Lunar Reverie",
+    "color": "Custom",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/crystal-bloom/",
+    "name": "Crystal Bloom",
+    "price": 125000,
+    "sale_price": null,
+    "description": "A handcrafted gown adorned with sparkling stones and 3D flowers, blending elegance and delicate beauty in every detail. Stone-studded design with 3D floral beauty.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-scaled.jpg"
+    ],
+    "categories": ["Bridal"],
+    "collection": null,
+    "color": "White",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "url": "https://ariart.shop/product/nathalie/",
+    "name": "Nathalie",
+    "price": 125000,
+    "sale_price": 62500,
+    "description": "Hanging tassels short sleeves, mermaid silhouette, beading details. A breathtaking blend of glamour and sophistication featuring intricate beadwork, deep illusion neckline, and figure-hugging silhouette. See-through design with lining options available.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2025/06/Nathalie-2-scaled.avif",
+      "https://ariart.shop/wp-content/uploads/2025/06/Nathalie-scaled.avif"
+    ],
+    "categories": ["Bridal"],
+    "collection": null,
+    "color": "Off White",
+    "sizes": ["L", "M"],
+    "sold_out": true
+  },
+  {
+    "url": "https://ariart.shop/product/anais/",
+    "name": "Anais",
+    "price": 147000,
+    "sale_price": null,
+    "description": "Bold, sculptural, and seductively elegant \u2014 a form-fitting mermaid gown crafted with sheer illusion fabric and dramatic bead embroidery. Features a deep sweetheart neckline, hand-beaded pearl and sequin embellishments, long fitted illusion sleeves, and a fishtail hem.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2025/06/Anais-2.avif",
+      "https://ariart.shop/wp-content/uploads/2025/06/Anais.avif"
+    ],
+    "categories": ["Bridal"],
+    "collection": null,
+    "color": "Off White",
+    "sizes": ["S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  }
+]

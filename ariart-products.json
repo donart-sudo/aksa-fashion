@@ -1,0 +1,290 @@
+[
+  {
+    "name": "Ari Royal Pink",
+    "slug": "ari-royal-pink",
+    "url": "https://ariart.shop/product/ari-royal-pink/",
+    "sku": "5261",
+    "price": 88000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A pink dress that radiates finesse and romance, designed to emphasize the natural elegance of the silhouette. Features diamonds that shine with scarves hanging from the neck for luxury appeal.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Ari-royal-pink-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Ari-royal-pink-1-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Pink",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Diva",
+    "slug": "diva",
+    "url": "https://ariart.shop/product/diva/",
+    "sku": null,
+    "price": 96000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A black masterpiece adorned with delicate floral details. Where luxury meets timeless sophistication.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Diva1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Diva-scaled.jpg"
+    ],
+    "categories": [],
+    "collection": null,
+    "color": "Black",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Lumi",
+    "slug": "lumi",
+    "url": "https://ariart.shop/product/lumi/",
+    "sku": null,
+    "price": 94000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "LUMI is a vision of modern elegance. Featuring intricate crystal embellishments, dramatic puff sleeves, and fluid cape drapes, this gown delivers refined glamour with a bold couture edge — perfect for unforgettable evening moments. Features sculpted figure-hugging silhouette, hand-embellished crystal detailing, statement puff sleeves, flowing draped cape panels, and elegant floor-length finish.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Lumi-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Lumi1-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Baby Blue",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Royal Lilac",
+    "slug": "royal-lilac",
+    "url": "https://ariart.shop/product/royal-lilac/",
+    "sku": null,
+    "price": 73000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A gown of elegance and grace, adorned with shimmering beads and flowing capes, making every step a statement of royalty. Features a figure-hugging silhouette adorned with intricate hand-beaded pearls and crystals, with flowing cape sleeves adding a dramatic and unique effect.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac1-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Lilac",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Lilac Queen Gown",
+    "slug": "lilac-queen-gown",
+    "url": "https://ariart.shop/product/lilac-queen-gown/",
+    "sku": "5296",
+    "price": 93000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "Elegant lavender gown embellished with crystals and luxurious details. Features an illusion neckline, figure-hugging silhouette, and a long flowing cape for a glamorous look. Perfect for special events and gala evenings.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Lilac-Queen-Gown1-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Lilac-Queen-gown-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Lilac",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Ellea",
+    "slug": "ellea",
+    "url": "https://ariart.shop/product/ellea/",
+    "sku": null,
+    "price": 95000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "ELLEA is the definition of refined glamour. Designed with a sculpted silhouette, delicate embellishments, and a flowing cape with an elegant train, this gown radiates confidence and sophistication. Features glamorous fitted silhouette, elegant cape with dramatic flow, luxurious hand-embellished details, soft illusion sleeves, and statement train for red-carpet impact.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Ellea-1-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Peach",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Midnight Gold",
+    "slug": "midnight-gold",
+    "url": "https://ariart.shop/product/midnight-gold/",
+    "sku": "5310",
+    "price": 96000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A black couture gown with gold details, designed for elegance and shine. An elegant black evening gown with gold embroidery and a figure-hugging silhouette. A luxurious choice for gala nights and special occasions.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-1-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Silhouette Whisper",
+    "color": "Black",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Maison",
+    "slug": "maison",
+    "url": "https://ariart.shop/product/maison/",
+    "sku": null,
+    "price": 93000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A nude dress that emphasizes the body, with some green leaves and a variety of stones that shine as much as the dress. Something you need to shine at any party to inspire and feel special and elegant.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Maison-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Maison-1-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Silhouette Whisper",
+    "color": "Nude",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Solar Elegance",
+    "slug": "solar-elegance",
+    "url": "https://ariart.shop/product/solar-elegance/",
+    "sku": "5345",
+    "price": 88000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "The rays of the sun embrace this majestic gown with a long train, illuminating the elegance and beauty of every woman with every step.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-1-scaled.jpg"
+    ],
+    "categories": ["Ruffled Dream"],
+    "collection": "Ruffled Dream",
+    "color": "Yellow",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Vlera",
+    "slug": "vlera",
+    "url": "https://ariart.shop/product/vlera/",
+    "sku": "5352",
+    "price": 65000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "The Royale Vlera is a magnificent dress in deep cherry color, symbolizing passion, power, and timeless elegance.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Vlera-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Vlera1-scaled.jpg"
+    ],
+    "categories": ["Royal Over Train"],
+    "collection": "Royal Over Train",
+    "color": "Cherry",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Crimson Empress",
+    "slug": "crimson-empress",
+    "url": "https://ariart.shop/product/crimson-empress/",
+    "sku": "5040",
+    "price": 98000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "One-shoulder gown in deep red velvet, adorned with lavish crystal embellishments that radiate power and feminine luxury. Crimson Empress features a sheer, hand-embroidered bodice with sparkling crystals and bold velvet floral appliqu\u00e9s. The flowing velvet drape and asymmetric design create a regal and dramatic silhouette \u2014 perfect for grand entrances and red-carpet moments.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2025/10/Crimson-Empress-1-scaled.webp",
+      "https://ariart.shop/wp-content/uploads/2025/10/Crimson-Empress-2-scaled.webp",
+      "https://ariart.shop/wp-content/uploads/2025/10/Crimson-Empress-3-scaled.webp"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Cherry Red",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": true
+  },
+  {
+    "name": "Arbennelle Gold",
+    "slug": "arbennelle-gold",
+    "url": "https://ariart.shop/product/arbennelle-gold/",
+    "sku": "5331",
+    "price": 93000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "A golden gown with unique handcrafted detailing cascading gracefully, designed to radiate elegance and charm with every step. Handcrafted golden elegance: Arbennelle Gold blends luxurious detail with timeless style.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Arbennelle-gold-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Arbennelle-gold-1-scaled.jpg"
+    ],
+    "categories": ["Silhouette Whisper"],
+    "collection": "Silhouette Whisper",
+    "color": "Gold",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Mont Enneig\u00e8",
+    "slug": "mont-enneige",
+    "url": "https://ariart.shop/product/mont-enneige/",
+    "sku": null,
+    "price": 84000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "Handcrafted with refined details featuring a clean design and a half cape secured at the waist, adorned with shimmering diamonds. Designed for women who own every room they enter.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2026/01/Mont-enneige-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2026/01/Mont-enneige-1-scaled.jpg"
+    ],
+    "categories": [],
+    "collection": null,
+    "color": "Multiple (Black, Brown, Fuchsia, Gold, Lilac, Navy Blue, Orange, Pink, Red)",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": false
+  },
+  {
+    "name": "Seraphina",
+    "slug": "seraphina",
+    "url": "https://ariart.shop/product/seraphina/",
+    "sku": null,
+    "price": 52000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "An evening/bridal wear dress with customization options available.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2024/12/1-2.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/2-2.jpg",
+      "https://ariart.shop/wp-content/uploads/2024/12/3-1.jpg"
+    ],
+    "categories": [],
+    "collection": null,
+    "color": "Baby Pink",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": true
+  },
+  {
+    "name": "Sahara Glow",
+    "slug": "sahara-glow",
+    "url": "https://ariart.shop/product/sahara-glow/",
+    "sku": null,
+    "price": 75000,
+    "sale_price": null,
+    "currency": "EUR",
+    "description": "Yellow sand color, ruffled detail from waist up to shoulder, exaggerated large crystal choker necklace, one side tail and silver rhinestones.",
+    "images": [
+      "https://ariart.shop/wp-content/uploads/2025/02/Sahara-Glow-1-min-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2025/02/Sahara-Glow-2-min-scaled.jpg",
+      "https://ariart.shop/wp-content/uploads/2025/02/Sahara-Glow-3-min-scaled.jpg"
+    ],
+    "categories": ["Cape and Train Elegance"],
+    "collection": "Cape and Train Elegance",
+    "color": "Sand Yellow (also available in: Burgundy, Green, Mint, Navy Blue, Orange, Pale Pink, Red, Yellow)",
+    "sizes": ["XS", "S", "M", "L", "XL", "XXL"],
+    "sold_out": true
+  }
+]
