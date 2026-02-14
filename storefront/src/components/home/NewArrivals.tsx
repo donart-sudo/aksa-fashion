@@ -4,13 +4,24 @@ import { useTranslations, useLocale } from "next-intl";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
-import { getProductsForCards } from "@/lib/data/products";
 
-export default function NewArrivals() {
+interface NewArrivalsProps {
+  products: {
+    id: string;
+    title: string;
+    handle: string;
+    price: number;
+    originalPrice?: number;
+    thumbnail: string;
+    hoverImage?: string;
+    badge?: "new" | "sale" | "bestseller";
+  }[];
+}
+
+export default function NewArrivals({ products }: NewArrivalsProps) {
   const t = useTranslations("home");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const products = getProductsForCards(4);
 
   return (
     <section className="py-20 lg:py-28">

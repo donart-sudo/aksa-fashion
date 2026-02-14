@@ -1,15 +1,16 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import {
-  getProductsByCategory,
-  getProductsForCards,
-  getNewProducts,
-  getSaleProducts,
-  categories,
-} from "@/lib/data/products";
+  fetchCategories,
+  fetchProductsForCards,
+  fetchNewProductsForCards,
+  fetchSaleProductsForCards,
+  fetchProductsByCategoryForCards,
+} from "@/lib/data/medusa-products";
 
 export async function generateStaticParams() {
+  const categories = await fetchCategories();
   const staticHandles = categories.map((c) => ({ handle: c.handle }));
   staticHandles.push({ handle: "new" }, { handle: "sale" }, { handle: "all" });
   return staticHandles;
@@ -21,7 +22,7 @@ export default async function CollectionPage({
   params: Promise<{ handle: string; locale: string }>;
 }) {
   const { handle, locale } = await params;
-  const t = useTranslations();
+  const t = await getTranslations();
 
   const titleMap: Record<string, string> = {
     all: t("common.collections"),
@@ -48,19 +49,19 @@ export default async function CollectionPage({
   let filteredProducts;
   switch (handle) {
     case "new":
-      filteredProducts = getNewProducts();
+      filteredProducts = await fetchNewProductsForCards();
       break;
     case "sale":
-      filteredProducts = getSaleProducts();
+      filteredProducts = await fetchSaleProductsForCards();
       break;
     case "all":
-      filteredProducts = getProductsForCards();
+      filteredProducts = await fetchProductsForCards();
       break;
     default:
-      filteredProducts = getProductsByCategory(handle);
+      filteredProducts = await fetchProductsByCategoryForCards(handle);
       // Fallback to all products if category not found
       if (filteredProducts.length === 0) {
-        filteredProducts = getProductsForCards();
+        filteredProducts = await fetchProductsForCards();
       }
       break;
   }

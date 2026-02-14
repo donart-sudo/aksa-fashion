@@ -1,22 +1,26 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import Link from "next/link";
 import Image from "next/image";
-import { categories, getProductsByCategory } from "@/lib/data/products";
+import {
+  fetchCategories,
+  fetchProductsByCategory,
+} from "@/lib/data/medusa-products";
 
-// Use real product images as covers for each category
-function getCategoryCover(handle: string): string {
-  const products = getProductsByCategory(handle);
-  return products[0]?.thumbnail || "";
-}
+export default async function CollectionsPage() {
+  const t = await getTranslations();
 
-export default function CollectionsPage() {
-  const t = useTranslations();
+  const categories = await fetchCategories();
 
-  const displayCategories = categories.map((cat) => ({
-    ...cat,
-    image: getCategoryCover(cat.handle),
-    count: getProductsByCategory(cat.handle).length,
-  }));
+  const displayCategories = await Promise.all(
+    categories.map(async (cat) => {
+      const products = await fetchProductsByCategory(cat.handle);
+      return {
+        ...cat,
+        image: products[0]?.images[0] || "",
+        count: products.length,
+      };
+    })
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">

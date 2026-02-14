@@ -1,9 +1,10 @@
 import { notFound } from "next/navigation";
-import { getProductBySlug, products } from "@/lib/data/products";
+import { fetchProduct, fetchProductHandles } from "@/lib/data/medusa-products";
 import ProductDetail from "./ProductDetail";
 
 export async function generateStaticParams() {
-  return products.map((p) => ({ handle: p.slug }));
+  const handles = await fetchProductHandles();
+  return handles.map((handle) => ({ handle }));
 }
 
 export async function generateMetadata({
@@ -12,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ handle: string; locale: string }>;
 }) {
   const { handle } = await params;
-  const product = getProductBySlug(handle);
+  const product = await fetchProduct(handle);
   if (!product) return { title: "Product Not Found" };
 
   return {
@@ -32,7 +33,7 @@ export default async function ProductDetailPage({
   params: Promise<{ handle: string; locale: string }>;
 }) {
   const { handle } = await params;
-  const product = getProductBySlug(handle);
+  const product = await fetchProduct(handle);
 
   if (!product) {
     notFound();
