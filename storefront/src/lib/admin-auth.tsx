@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
 import { adminMedusa } from './admin-medusa'
 
 interface AdminAuthState {
@@ -23,26 +23,34 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string | null>(null)
   const [backendOnline, setBackendOnline] = useState(false)
 
+  const doLogout = useCallback(() => {
+    adminMedusa.logout()
+    setAuthed(false)
+    setEmail(null)
+    setDemo(false)
+  }, [])
+
   useEffect(() => {
+    // Wire up 401 handler so API failures auto-logout
+    adminMedusa.setOnUnauthorized(doLogout)
+
     async function init() {
       const online = await adminMedusa.healthCheck()
       setBackendOnline(online)
 
       if (adminMedusa.isAuthenticated()) {
-        // Restore session cookie from stored JWT token
-        const restored = await adminMedusa.restoreSession()
-        if (restored) {
+        const valid = await adminMedusa.verifyToken()
+        if (valid) {
           setAuthed(true)
           setEmail(localStorage.getItem('medusa_admin_email'))
         } else {
-          // Token expired or invalid — clear it
           adminMedusa.logout()
         }
       }
       setReady(true)
     }
     init()
-  }, [])
+  }, [doLogout])
 
   async function login(em: string, pw: string) {
     await adminMedusa.login(em, pw)
@@ -52,14 +60,6 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('medusa_admin_email', em)
   }
 
-  function logout() {
-    adminMedusa.logout()
-    setAuthed(false)
-    setEmail(null)
-    setDemo(false)
-    localStorage.removeItem('medusa_admin_email')
-  }
-
   function enterDemo() {
     setDemo(true)
     setAuthed(true)
@@ -67,7 +67,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <Ctx.Provider value={{ ready, authed, demo, email, backendOnline, login, logout, enterDemo }}>
+    <Ctx.Provider value={{ ready, authed, demo, email, backendOnline, login, logout: doLogout, enterDemo }}>
       {children}
     </Ctx.Provider>
   )

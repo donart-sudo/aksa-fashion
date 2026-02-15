@@ -163,8 +163,16 @@
     "privacyPolicy": "Gizlilik Politikas\u0131",
     "termsConditions": "\u015eartlar & Ko\u015fullar",
     "followUs": "Bizi Takip Edin",
+    "visitAtelier": "Atelyemizi Ziyaret Edin",
     "copyright": "\u00a9 {year} Aksa Fashion. T\u00fcm haklar\u0131 sakl\u0131d\u0131r.",
-    "madeWith": "Pri\u015ftine, Kosova\u2019da tasarland\u0131 & el yap\u0131m\u0131"
+    "madeWith": "Pri\u015ftine, Kosova\u2019da tasarland\u0131 & el yap\u0131m\u0131",
+    "securePayments": "G\u00fcvenli \u00d6deme",
+    "freeShipping": "\u20ac150 \u00fczeri \u00fccretsiz kargo",
+    "freeReturns": "14 g\u00fcn i\u00e7inde \u00fccretsiz iade",
+    "handcrafted": "Kosova\u2019da el yap\u0131m\u0131",
+    "secureCheckout": "%100 G\u00fcvenli Al\u0131\u015fveri\u015f",
+    "weAccept": "Kabul Ediyoruz",
+    "account": "Hesap"
   },
   "search": {
     "placeholder": "Ne ar\u0131yorsunuz?",

@@ -163,8 +163,16 @@
     "privacyPolicy": "Privacy Policy",
     "termsConditions": "Terms & Conditions",
     "followUs": "Follow Us",
+    "visitAtelier": "Visit Our Atelier",
     "copyright": "\u00a9 {year} Aksa Fashion. All rights reserved.",
-    "madeWith": "Designed & handcrafted in Prishtina, Kosovo"
+    "madeWith": "Designed & handcrafted in Prishtina, Kosovo",
+    "securePayments": "Secure Payments",
+    "freeShipping": "Free shipping over \u20ac150",
+    "freeReturns": "Free returns within 14 days",
+    "handcrafted": "Handcrafted in Kosovo",
+    "secureCheckout": "100% Secure Checkout",
+    "weAccept": "We Accept",
+    "account": "Account"
   },
   "search": {
     "placeholder": "What are you looking for?",

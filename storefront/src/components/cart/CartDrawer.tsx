@@ -4,9 +4,14 @@ import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { XMarkIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  XMarkIcon,
+  MinusIcon,
+  PlusIcon,
+  ShoppingBagIcon,
+  ArrowRightIcon,
+} from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/cart";
-import Button from "@/components/ui/Button";
 import { formatPrice } from "@/lib/utils";
 import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
 
@@ -41,7 +46,7 @@ export default function CartDrawer() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 z-50"
+            className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-[80]"
             onClick={closeCart}
           />
 
@@ -50,151 +55,186 @@ export default function CartDrawer() {
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
-            transition={{ type: "tween", duration: 0.3 }}
-            className="fixed top-0 right-0 bottom-0 w-full sm:w-[420px] bg-white z-50 flex flex-col"
+            transition={{ type: "tween", duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed top-0 right-0 bottom-0 w-full sm:w-[400px] bg-cream z-[81] flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-soft-gray/50">
-              <h2 className="font-serif text-xl text-charcoal">
-                {t("cart.title")} ({itemCount})
-              </h2>
+            <div className="flex items-center justify-between px-6 h-16 flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <ShoppingBagIcon className="w-5 h-5 text-charcoal/40" />
+                <h2 className="text-[15px] font-bold tracking-tight text-charcoal uppercase">
+                  {t("cart.title")}
+                </h2>
+                <span className="text-[12px] text-charcoal/30">
+                  ({itemCount})
+                </span>
+              </div>
               <button
                 onClick={closeCart}
-                className="p-2 hover:text-gold transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
+                className="p-2 -mr-2 text-charcoal/40 hover:text-charcoal transition-colors min-w-[44px] min-h-[44px] flex items-center justify-center"
                 aria-label={t("common.close")}
               >
-                <XMarkIcon className="w-6 h-6" />
+                <XMarkIcon className="w-5 h-5" />
               </button>
             </div>
 
             {/* Free shipping bar */}
-            <div className="px-4 py-3 bg-cream">
+            <div className="px-6 pb-4 flex-shrink-0">
               {subtotal >= FREE_SHIPPING_THRESHOLD ? (
-                <p className="text-xs text-gold font-medium text-center">
-                  {t("cart.freeShippingMessage")}
-                </p>
+                <div className="flex items-center justify-center gap-2 py-2.5 bg-charcoal/[0.03] border border-charcoal/[0.06]">
+                  <span className="text-[11px] tracking-[0.1em] uppercase text-gold font-medium">
+                    {t("cart.freeShippingMessage")}
+                  </span>
+                </div>
               ) : (
-                <>
-                  <p className="text-xs text-charcoal/60 text-center mb-2">
-                    {t("cart.freeShippingProgress", {
-                      amount: amountToFreeShipping.toFixed(0),
-                    })}
-                  </p>
-                  <div className="w-full h-1.5 bg-soft-gray/50 rounded-full overflow-hidden">
+                <div className="py-2.5 px-4 bg-charcoal/[0.03] border border-charcoal/[0.06]">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] text-charcoal/40">
+                      {t("cart.freeShippingProgress", {
+                        amount: amountToFreeShipping.toFixed(0),
+                      })}
+                    </span>
+                    <span className="text-[10px] text-charcoal/25">
+                      {Math.round(shippingProgress)}%
+                    </span>
+                  </div>
+                  <div className="w-full h-[3px] bg-charcoal/[0.06] overflow-hidden">
                     <motion.div
-                      className="h-full bg-gold rounded-full"
+                      className="h-full bg-charcoal"
                       initial={{ width: 0 }}
                       animate={{ width: `${shippingProgress}%` }}
                       transition={{ duration: 0.5 }}
                     />
                   </div>
-                </>
+                </div>
               )}
             </div>
 
             {/* Items */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto px-6">
               {items.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                  <p className="text-charcoal/40 mb-4">{t("cart.empty")}</p>
-                  <Button variant="primary" onClick={closeCart}>
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <ShoppingBagIcon className="w-12 h-12 text-charcoal/10 mb-4" />
+                  <p className="text-[14px] text-charcoal/35 mb-6">
+                    {t("cart.empty")}
+                  </p>
+                  <button
+                    onClick={closeCart}
+                    className="text-[11px] font-bold tracking-[0.15em] uppercase text-charcoal border-b border-charcoal pb-0.5 hover:text-gold hover:border-gold transition-colors"
+                  >
                     {t("common.continueShopping")}
-                  </Button>
+                  </button>
                 </div>
               ) : (
-                <ul className="divide-y divide-soft-gray/30">
-                  {items.map((item) => (
-                    <li key={item.id} className="p-4">
-                      <div className="flex gap-4">
-                        {/* Thumbnail */}
-                        <div className="relative w-20 h-24 bg-soft-gray/30 flex-shrink-0">
-                          <Image
-                            src={item.thumbnail}
-                            alt={item.title}
-                            fill
-                            className="object-cover"
-                            sizes="80px"
-                          />
-                        </div>
+                <div className="space-y-0">
+                  {items.map((item, i) => (
+                    <div
+                      key={item.id}
+                      className={`flex gap-4 py-5 ${
+                        i < items.length - 1
+                          ? "border-b border-charcoal/[0.06]"
+                          : ""
+                      }`}
+                    >
+                      {/* Thumbnail */}
+                      <Link
+                        href={`/${locale}/products/${item.productId}`}
+                        onClick={closeCart}
+                        className="relative w-[80px] h-[104px] bg-[#f0eeeb] flex-shrink-0 overflow-hidden"
+                      >
+                        <Image
+                          src={item.thumbnail}
+                          alt={item.title}
+                          fill
+                          className="object-cover object-top"
+                          sizes="80px"
+                        />
+                      </Link>
 
-                        {/* Details */}
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm font-medium text-charcoal truncate">
+                      {/* Details */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-[13px] font-semibold text-charcoal truncate">
                             {item.title}
                           </h3>
                           {(item.size || item.color) && (
-                            <p className="text-xs text-charcoal/40 mt-0.5">
+                            <p className="text-[11px] text-charcoal/35 mt-0.5">
                               {[item.color, item.size]
                                 .filter(Boolean)
                                 .join(" / ")}
                             </p>
                           )}
-                          <p className="text-sm font-medium text-charcoal mt-1">
-                            {formatPrice(item.price)}
+                          <p className="text-[14px] font-bold text-charcoal mt-1.5">
+                            {formatPrice(item.price * item.quantity)}
                           </p>
+                        </div>
 
-                          {/* Quantity + Remove */}
-                          <div className="flex items-center justify-between mt-2">
-                            <div className="flex items-center border border-soft-gray">
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity - 1)
-                                }
-                                disabled={item.quantity <= 1}
-                                className="px-2.5 py-1 text-xs text-charcoal/60 hover:text-charcoal disabled:opacity-30 min-w-[32px] min-h-[32px]"
-                              >
-                                −
-                              </button>
-                              <span className="px-2.5 py-1 text-xs font-medium min-w-[28px] text-center">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  updateQuantity(item.id, item.quantity + 1)
-                                }
-                                className="px-2.5 py-1 text-xs text-charcoal/60 hover:text-charcoal min-w-[32px] min-h-[32px]"
-                              >
-                                +
-                              </button>
-                            </div>
+                        {/* Quantity + Remove */}
+                        <div className="flex items-center justify-between mt-3">
+                          <div className="flex items-center">
                             <button
-                              onClick={() => removeItem(item.id)}
-                              className="p-1.5 text-charcoal/30 hover:text-red-500 transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center"
-                              aria-label={t("cart.removeItem")}
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity - 1)
+                              }
+                              disabled={item.quantity <= 1}
+                              className="w-8 h-8 flex items-center justify-center border border-charcoal/10 text-charcoal/50 hover:text-charcoal hover:border-charcoal/30 disabled:opacity-20 disabled:hover:border-charcoal/10 transition-colors"
                             >
-                              <TrashIcon className="w-4 h-4" />
+                              <MinusIcon className="w-3 h-3" />
+                            </button>
+                            <span className="w-10 h-8 flex items-center justify-center text-[12px] font-semibold text-charcoal border-y border-charcoal/10">
+                              {item.quantity}
+                            </span>
+                            <button
+                              onClick={() =>
+                                updateQuantity(item.id, item.quantity + 1)
+                              }
+                              className="w-8 h-8 flex items-center justify-center border border-charcoal/10 text-charcoal/50 hover:text-charcoal hover:border-charcoal/30 transition-colors"
+                            >
+                              <PlusIcon className="w-3 h-3" />
                             </button>
                           </div>
+                          <button
+                            onClick={() => removeItem(item.id)}
+                            className="text-[10px] tracking-[0.1em] uppercase text-charcoal/25 hover:text-red-500 transition-colors"
+                            aria-label={t("cart.removeItem")}
+                          >
+                            {t("cart.removeItem")}
+                          </button>
                         </div>
                       </div>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </div>
 
             {/* Footer */}
             {items.length > 0 && (
-              <div className="border-t border-soft-gray/50 p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-charcoal/60">
+              <div className="flex-shrink-0 border-t border-charcoal/[0.06] bg-white px-6 pt-5 pb-6">
+                {/* Subtotal */}
+                <div className="flex items-center justify-between mb-5">
+                  <span className="text-[12px] tracking-[0.1em] uppercase text-charcoal/40">
                     {t("common.subtotal")}
                   </span>
-                  <span className="text-lg font-medium text-charcoal">
+                  <span className="text-[18px] font-bold text-charcoal">
                     {formatPrice(subtotal)}
                   </span>
                 </div>
-                <p className="text-xs text-charcoal/40">
-                  {t("cart.shippingAtCheckout")}
-                </p>
-                <Link href={`/${locale}/checkout`} onClick={closeCart}>
-                  <Button variant="primary" size="lg" className="w-full">
-                    {t("common.checkout")}
-                  </Button>
+
+                {/* Checkout button */}
+                <Link
+                  href={`/${locale}/checkout`}
+                  onClick={closeCart}
+                  className="flex items-center justify-center gap-2 w-full py-4 bg-charcoal text-white text-[11px] font-bold tracking-[0.15em] uppercase hover:bg-charcoal/90 transition-colors"
+                >
+                  {t("common.checkout")}
+                  <ArrowRightIcon className="w-3.5 h-3.5" />
                 </Link>
+
+                {/* Continue shopping */}
                 <button
                   onClick={closeCart}
-                  className="w-full text-center text-sm text-charcoal/60 hover:text-gold transition-colors py-2"
+                  className="w-full text-center text-[11px] tracking-[0.1em] uppercase text-charcoal/30 hover:text-charcoal transition-colors mt-4"
                 >
                   {t("common.continueShopping")}
                 </button>

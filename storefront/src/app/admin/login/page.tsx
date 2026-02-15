@@ -2,14 +2,15 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Sparkles, AlertCircle } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff, Store, Loader2 } from 'lucide-react'
 import { useAdminAuth } from '@/lib/admin-auth'
 
 export default function AdminLoginPage() {
   const { login, enterDemo, backendOnline, ready, authed } = useAdminAuth()
   const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('admin@aksafashion.com')
+  const [password, setPassword] = useState('admin')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -39,78 +40,120 @@ export default function AdminLoginPage() {
     router.push('/admin')
   }
 
+  if (!ready) {
+    return (
+      <div className="login-page">
+        <div className="login-loader">
+          <Loader2 className="login-spinner" />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-screen bg-nav flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px]">
+    <div className="login-page">
+      {/* Decorative background */}
+      <div className="login-bg-top" />
+
+      <div className="login-container">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-accent" />
+        <div className="login-logo">
+          <div className="login-logo-icon">
+            <Store strokeWidth={1.5} />
           </div>
-          <span className="text-[20px] font-semibold text-white">Aksa Fashion</span>
         </div>
 
-        {/* Login card */}
-        <div className="card p-6">
-          <h1 className="text-[16px] font-semibold text-ink mb-1">Log in</h1>
-          <p className="text-[13px] text-ink-light mb-5">
-            Continue to Aksa Fashion admin
+        {/* Card */}
+        <div className="login-card">
+          <h1 className="login-title">Log in to Aksa Fashion</h1>
+          <p className="login-subtitle">
+            Enter your credentials to access the admin dashboard
           </p>
 
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-crit-surface text-crit-text text-[13px] mb-4">
-              <AlertCircle className="w-4 h-4 shrink-0" />
-              {error}
+            <div className="login-error">
+              <AlertCircle className="login-error-icon" />
+              <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
-            <div>
-              <label className="block text-[13px] font-medium text-ink mb-1">Email</label>
+          {!backendOnline && (
+            <div className="login-warning">
+              <span className="login-warning-dot" />
+              <span>Backend offline — start with <code>cd backend && npx medusa develop</code></span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-field">
+              <label htmlFor="email" className="login-label">Email address</label>
               <input
+                id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@aksafashion.com"
-                className="input w-full"
+                className="login-input"
                 autoFocus
+                autoComplete="email"
               />
             </div>
-            <div>
-              <label className="block text-[13px] font-medium text-ink mb-1">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="input w-full"
-              />
+
+            <div className="login-field">
+              <label htmlFor="password" className="login-label">Password</label>
+              <div className="login-input-wrapper">
+                <input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="login-input login-input-pw"
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="login-eye-btn"
+                  tabIndex={-1}
+                >
+                  {showPassword
+                    ? <EyeOff className="login-eye-icon" />
+                    : <Eye className="login-eye-icon" />
+                  }
+                </button>
+              </div>
             </div>
+
             <button
               type="submit"
               disabled={loading || !email || !password}
-              className="btn btn-primary w-full disabled:opacity-50"
+              className="login-submit"
             >
-              {loading ? 'Logging in...' : 'Log in'}
+              {loading ? (
+                <>
+                  <Loader2 className="login-submit-spinner" />
+                  Logging in…
+                </>
+              ) : (
+                'Log in'
+              )}
             </button>
           </form>
 
-          {!backendOnline && (
-            <p className="text-[12px] text-warn-text bg-warn-surface rounded-lg p-2.5 mt-4 text-center">
-              Backend is offline. Start it with: cd backend && npx medusa develop
-            </p>
-          )}
-        </div>
+          <div className="login-divider">
+            <span>or</span>
+          </div>
 
-        {/* Demo mode */}
-        <div className="mt-4 text-center">
-          <button
-            onClick={handleDemo}
-            className="text-[13px] text-white/60 hover:text-white/90 underline underline-offset-2 transition-colors"
-          >
-            Continue with demo data
+          <button onClick={handleDemo} className="login-demo-btn">
+            Explore with demo data
           </button>
         </div>
+
+        {/* Footer */}
+        <p className="login-footer">
+          Aksa Fashion Admin &middot; Powered by Medusa
+        </p>
       </div>
     </div>
   )

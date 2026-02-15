@@ -22,7 +22,7 @@ export default function DashboardLayout({
   if (!ready) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="skeleton w-8 h-8 rounded-full" />
+        <div className="w-8 h-8 rounded-full skeleton" />
       </div>
     );
   }
@@ -32,7 +32,9 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen">
       <Sidebar />
-      <main className="flex-1 ml-[240px]">{children}</main>
+      <main className="flex-1 min-w-0 min-h-screen overflow-x-hidden">
+        {children}
+      </main>
     </div>
   );
 }

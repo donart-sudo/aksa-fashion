@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import ProductCard from "@/components/product/ProductCard";
 import type { ProductCardData } from "@/components/product/ProductCard";
 
-const ITEMS_PER_PAGE = 4;
+const ITEMS_PER_PAGE = 8;
 
 interface NewArrivalsProps {
   products: ProductCardData[];
@@ -26,48 +26,71 @@ export default function NewArrivals({
   const locale = useLocale();
   const [visible, setVisible] = useState(ITEMS_PER_PAGE);
 
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [gridVisible, setGridVisible] = useState(false);
+
   const displayedProducts = products.slice(0, visible);
   const hasMore = visible < products.length;
 
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setGridVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section className="py-14 lg:py-20">
+    <section className="py-12 lg:py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="flex items-end justify-between mb-8 lg:mb-10">
-          <div className="flex items-start gap-4 lg:gap-6">
-            {sectionNumber && (
-              <span className="hidden sm:block font-serif text-[3.5rem] lg:text-[4.5rem] leading-none text-charcoal/[0.06] select-none -mt-2 tabular-nums">
-                {sectionNumber}
-              </span>
-            )}
-            <div>
-              <span className="block h-px w-8 bg-gold mb-4" />
-              <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-charcoal leading-tight mb-1.5">
-                {title || t("newArrivalsTitle")}
-              </h2>
-              <p className="text-sm text-charcoal/70">
-                {t("newArrivalsSubtitle")}
-              </p>
-            </div>
-          </div>
-
+        <div className="text-center mb-10 lg:mb-12">
+          {sectionNumber && (
+            <span className="text-[11px] tracking-[0.3em] text-charcoal/20 tabular-nums block mb-3">
+              {sectionNumber}
+            </span>
+          )}
+          <h2 className="text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-black uppercase tracking-tight text-charcoal leading-none">
+            {title || t("newArrivalsTitle")}
+          </h2>
+          <p className="text-xs sm:text-sm text-charcoal/35 tracking-wide mt-3">
+            {t("newArrivalsSubtitle")}
+          </p>
           {showViewAll && (
             <Link
               href={`/${locale}/collections/new`}
-              className="hidden sm:inline-flex items-center gap-3 group"
+              className="inline-flex items-center gap-2 mt-5 group"
             >
-              <span className="text-xs tracking-widest uppercase text-charcoal/60 group-hover:text-charcoal transition-colors duration-300">
+              <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/40 group-hover:text-charcoal transition-colors duration-300 border-b border-charcoal/15 group-hover:border-charcoal pb-0.5">
                 {tCommon("viewAll")}
               </span>
-              <span className="block h-px bg-charcoal/30 w-6 group-hover:w-10 group-hover:bg-charcoal transition-all duration-500" />
+              <span className="text-charcoal/30 group-hover:text-charcoal group-hover:translate-x-1 transition-all duration-300 text-sm">→</span>
             </Link>
           )}
         </div>
 
         {/* Product grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
+        <div ref={gridRef} className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5">
           {displayedProducts.map((product, i) => (
-            <ProductCard key={product.id} product={product} priority={i < 4} />
+            <div
+              key={product.id}
+              style={{
+                opacity: gridVisible ? 1 : 0,
+                transform: gridVisible ? "none" : "translateY(40px) scale(0.97)",
+                transition: `opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 100}ms, transform 700ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 100}ms`,
+                willChange: "opacity, transform",
+              }}
+            >
+              <ProductCard product={product} priority={i < 4} />
+            </div>
           ))}
         </div>
 
@@ -88,15 +111,17 @@ export default function NewArrivals({
 
         {/* Mobile view all */}
         {showViewAll && !hasMore && (
-          <div className="sm:hidden text-center mt-8">
+          <div className="sm:hidden text-center mt-10">
             <Link
               href={`/${locale}/collections/new`}
               className="inline-flex items-center gap-3 group"
             >
-              <span className="text-xs tracking-widest uppercase text-charcoal/60 group-hover:text-charcoal transition-colors duration-300">
+              <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/40 group-hover:text-charcoal transition-colors duration-300 border-b border-charcoal/15 pb-0.5">
                 {tCommon("viewAll")}
               </span>
-              <span className="block h-px bg-charcoal/30 w-6 group-hover:w-10 group-hover:bg-charcoal transition-all duration-500" />
+              <span className="text-charcoal/30 group-hover:text-charcoal group-hover:translate-x-1 transition-all duration-300">
+                →
+              </span>
             </Link>
           </div>
         )}

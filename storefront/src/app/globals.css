@@ -10,12 +10,12 @@
   --color-gold-light: #D4B896;
   --color-gold-dark: #9A7856;
 
-  --font-serif: var(--font-playfair);
+  --font-serif: var(--font-inter);
   --font-sans: var(--font-inter);
 }
 
-/* Base styles */
-body {
+/* Base styles — scoped to storefront (not admin) */
+body:not(.admin-body) {
   background-color: var(--color-cream);
   color: var(--color-charcoal);
   font-family: var(--font-sans);
@@ -29,36 +29,36 @@ body {
 }
 
 /* Smooth scrolling */
-html {
+html:not(.admin-html) {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
+/* Custom scrollbar — storefront only */
+body:not(.admin-body) ::-webkit-scrollbar {
   width: 6px;
 }
 
-::-webkit-scrollbar-track {
+body:not(.admin-body) ::-webkit-scrollbar-track {
   background: var(--color-cream);
 }
 
-::-webkit-scrollbar-thumb {
+body:not(.admin-body) ::-webkit-scrollbar-thumb {
   background: var(--color-soft-gray);
   border-radius: 3px;
 }
 
-::-webkit-scrollbar-thumb:hover {
+body:not(.admin-body) ::-webkit-scrollbar-thumb:hover {
   background: var(--color-gold);
 }
 
-/* Selection color */
-::selection {
+/* Selection color — storefront only */
+body:not(.admin-body) ::selection {
   background-color: var(--color-gold);
   color: white;
 }
 
-/* Focus styles */
-*:focus-visible {
+/* Focus styles — storefront only */
+body:not(.admin-body) *:focus-visible {
   outline: 2px solid var(--color-gold);
   outline-offset: 2px;
 }

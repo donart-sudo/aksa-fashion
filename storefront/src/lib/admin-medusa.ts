@@ -2,7 +2,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localh
 
 class MedusaAdminClient {
   private token: string | null = null
-  private sessionActive = false
+  private onUnauthorized: (() => void) | null = null
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -10,22 +10,33 @@ class MedusaAdminClient {
     }
   }
 
+  setOnUnauthorized(cb: () => void) {
+    this.onUnauthorized = cb
+  }
+
   private async request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
-    // Restore session if we have a token but no active session
-    if (this.token && !this.sessionActive && !path.startsWith('/auth')) {
-      await this.restoreSession()
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string> || {}),
+    }
+
+    // Use Bearer token for all authenticated requests
+    if (this.token && !path.startsWith('/auth')) {
+      headers['Authorization'] = `Bearer ${this.token}`
     }
 
     const res = await fetch(`${BACKEND_URL}${path}`, {
       ...options,
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     })
+
     if (res.status === 401) {
-      this.logout()
+      this.token = null
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('medusa_admin_token')
+        localStorage.removeItem('medusa_admin_email')
+      }
+      if (this.onUnauthorized) this.onUnauthorized()
       throw new Error('Session expired')
     }
     if (!res.ok) {
@@ -39,7 +50,6 @@ class MedusaAdminClient {
   // ── Auth ──────────────────────────────────────────────────────────────
 
   async login(email: string, password: string) {
-    // Step 1: Get JWT token from auth endpoint
     const authRes = await fetch(`${BACKEND_URL}/auth/user/emailpass`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -47,38 +57,19 @@ class MedusaAdminClient {
     })
     if (!authRes.ok) {
       const body = await authRes.json().catch(() => ({}))
-      throw new Error(body.message || 'Login failed')
+      throw new Error(body.message || 'Invalid email or password')
     }
     const { token } = await authRes.json()
     this.token = token
-
-    // Step 2: Create session cookie (required for admin API access)
-    await fetch(`${BACKEND_URL}/auth/session`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-      },
-    })
-
-    this.sessionActive = true
     localStorage.setItem('medusa_admin_token', token)
     return token
   }
 
   logout() {
-    // Destroy session
-    if (this.sessionActive) {
-      fetch(`${BACKEND_URL}/auth/session`, {
-        method: 'DELETE',
-        credentials: 'include',
-      }).catch(() => {})
-    }
     this.token = null
-    this.sessionActive = false
     if (typeof window !== 'undefined') {
       localStorage.removeItem('medusa_admin_token')
+      localStorage.removeItem('medusa_admin_email')
     }
   }
 
@@ -86,19 +77,17 @@ class MedusaAdminClient {
     return !!this.token
   }
 
-  async restoreSession() {
+  getToken() {
+    return this.token
+  }
+
+  async verifyToken(): Promise<boolean> {
     if (!this.token) return false
     try {
-      // Re-create session from stored token
-      const res = await fetch(`${BACKEND_URL}/auth/session`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.token}`,
-        },
+      // Try a lightweight admin request to verify the token works
+      const res = await fetch(`${BACKEND_URL}/admin/store`, {
+        headers: { Authorization: `Bearer ${this.token}` },
       })
-      this.sessionActive = res.ok
       return res.ok
     } catch {
       return false
@@ -153,7 +142,49 @@ class MedusaAdminClient {
   }
 
   async getOrder(id: string) {
-    return this.request<{ order: MedusaOrder }>(`/admin/orders/${id}`)
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${id}?fields=*fulfillments,*fulfillments.labels`)
+  }
+
+  async updateOrder(id: string, data: Record<string, unknown>) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async createFulfillment(orderId: string, data: { items: { id: string; quantity: number }[]; location_id?: string; no_notification?: boolean; metadata?: Record<string, unknown> }) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${orderId}/fulfillments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async createShipment(orderId: string, fulfillmentId: string, data: { items: { id: string; quantity: number }[]; labels?: { tracking_number: string; tracking_url?: string }[]; no_notification?: boolean }) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${orderId}/fulfillments/${fulfillmentId}/shipments`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async markDelivered(orderId: string, fulfillmentId: string) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${orderId}/fulfillments/${fulfillmentId}/mark-as-delivered`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  }
+
+  async completeOrder(orderId: string) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${orderId}/complete`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
+  }
+
+  async cancelOrder(orderId: string) {
+    return this.request<{ order: MedusaOrder }>(`/admin/orders/${orderId}/cancel`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    })
   }
 
   // ── Customers ─────────────────────────────────────────────────────────
@@ -167,6 +198,158 @@ class MedusaAdminClient {
 
   async getStore() {
     return this.request<{ store: MedusaStore }>('/admin/store')
+  }
+
+  // ── Collections ──────────────────────────────────────────────────────
+
+  async getCollections(params?: Record<string, string>) {
+    const q = params ? '?' + new URLSearchParams(params).toString() : ''
+    return this.request<{ collections: MedusaCollection[]; count: number }>(`/admin/collections${q}`)
+  }
+
+  async createCollection(data: Record<string, unknown>) {
+    return this.request<{ collection: MedusaCollection }>('/admin/collections', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateCollection(id: string, data: Record<string, unknown>) {
+    return this.request<{ collection: MedusaCollection }>(`/admin/collections/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteCollection(id: string) {
+    return this.request(`/admin/collections/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Categories ──────────────────────────────────────────────────────
+
+  async getCategories(params?: Record<string, string>) {
+    const q = params ? '?' + new URLSearchParams(params).toString() : ''
+    return this.request<{ product_categories: MedusaCategory[]; count: number }>(`/admin/product-categories${q}`)
+  }
+
+  async createCategory(data: Record<string, unknown>) {
+    return this.request<{ product_category: MedusaCategory }>('/admin/product-categories', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateCategory(id: string, data: Record<string, unknown>) {
+    return this.request<{ product_category: MedusaCategory }>(`/admin/product-categories/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteCategory(id: string) {
+    return this.request(`/admin/product-categories/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Promotions (Discounts) ──────────────────────────────────────────
+
+  async getPromotions(params?: Record<string, string>) {
+    const q = params ? '?' + new URLSearchParams(params).toString() : ''
+    return this.request<{ promotions: MedusaPromotion[]; count: number }>(`/admin/promotions${q}`)
+  }
+
+  async createPromotion(data: Record<string, unknown>) {
+    return this.request<{ promotion: MedusaPromotion }>('/admin/promotions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updatePromotion(id: string, data: Record<string, unknown>) {
+    return this.request<{ promotion: MedusaPromotion }>(`/admin/promotions/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deletePromotion(id: string) {
+    return this.request(`/admin/promotions/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Product Tags ───────────────────────────────────────────────────
+
+  async getProductTags(params?: Record<string, string>) {
+    const q = params ? '?' + new URLSearchParams(params).toString() : ''
+    return this.request<{ product_tags: MedusaProductTag[]; count: number }>(`/admin/product-tags${q}`)
+  }
+
+  async createProductTag(data: Record<string, unknown>) {
+    return this.request<{ product_tag: MedusaProductTag }>('/admin/product-tags', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async updateProductTag(id: string, data: Record<string, unknown>) {
+    return this.request<{ product_tag: MedusaProductTag }>(`/admin/product-tags/${id}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteProductTag(id: string) {
+    return this.request(`/admin/product-tags/${id}`, { method: 'DELETE' })
+  }
+
+  // ── Inventory ──────────────────────────────────────────────────────
+
+  async getStockLocations() {
+    return this.request<{ stock_locations: { id: string; name: string }[] }>('/admin/stock-locations')
+  }
+
+  async getInventoryItems(params?: Record<string, string>) {
+    const q = params ? '?' + new URLSearchParams(params).toString() : ''
+    return this.request<{ inventory_items: InventoryItem[]; count: number }>(`/admin/inventory-items${q}`)
+  }
+
+  async updateInventoryLevel(inventoryItemId: string, locationId: string, data: { stocked_quantity: number }) {
+    return this.request(`/admin/inventory-items/${inventoryItemId}/location-levels/${locationId}`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  // ── Store API (public, no auth needed) ──────────────────────────────
+
+  async getStoreProducts(params?: Record<string, string>) {
+    const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
+    // First get region for pricing context
+    let regionId = params?.region_id || ''
+    if (!regionId) {
+      try {
+        const regionRes = await fetch(`${BACKEND_URL}/store/regions`, {
+          headers: { 'x-publishable-api-key': publishableKey },
+        })
+        if (regionRes.ok) {
+          const regionData = await regionRes.json()
+          regionId = regionData.regions?.[0]?.id || ''
+        }
+      } catch { /* proceed without region */ }
+    }
+
+    const allParams: Record<string, string> = {
+      ...params,
+      fields: '+variants.calculated_price',
+    }
+    if (regionId) allParams.region_id = regionId
+
+    const q = '?' + new URLSearchParams(allParams).toString()
+    const res = await fetch(`${BACKEND_URL}/store/products${q}`, {
+      headers: {
+        'x-publishable-api-key': publishableKey,
+      },
+    })
+    if (!res.ok) throw new Error(`Store API error: ${res.status}`)
+    return res.json() as Promise<{ products: StoreProduct[]; count: number }>
   }
 }
 
@@ -201,7 +384,10 @@ export interface MedusaOrder {
   items: { id: string; title: string; quantity: number; unit_price: number; thumbnail: string | null }[]
   customer: { id: string; first_name: string; last_name: string; email: string } | null
   shipping_address: { address_1: string; city: string; country_code: string } | null
+  fulfillments?: { id: string; packed_at: string | null; shipped_at: string | null; delivered_at: string | null; canceled_at: string | null; labels?: { tracking_number: string; tracking_url: string }[] }[]
+  metadata: Record<string, unknown> | null
   created_at: string
+  updated_at: string
 }
 
 export interface MedusaCustomer {
@@ -219,6 +405,82 @@ export interface MedusaStore {
   name: string
   default_currency_code: string
   currencies: { code: string }[]
+}
+
+export interface StoreProduct {
+  id: string
+  title: string
+  subtitle: string | null
+  description: string | null
+  handle: string
+  status: string
+  thumbnail: string | null
+  images: { id: string; url: string }[]
+  variants: { id: string; title: string; calculated_price?: { calculated_amount: number; currency_code: string }; inventory_quantity?: number }[]
+  collection: { id: string; title: string; handle: string } | null
+  categories: { id: string; name: string }[]
+  created_at: string
+  updated_at: string
+}
+
+export interface MedusaCollection {
+  id: string
+  title: string
+  handle: string
+  metadata: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface MedusaCategory {
+  id: string
+  name: string
+  handle: string
+  description: string
+  rank: number
+  parent_category_id: string | null
+  parent_category: MedusaCategory | null
+  category_children: MedusaCategory[]
+  created_at: string
+  updated_at: string
+}
+
+export interface MedusaPromotion {
+  id: string
+  code: string
+  type: 'standard' | 'buyget'
+  is_automatic: boolean
+  status: string
+  campaign_id: string | null
+  application_method: {
+    type: 'fixed' | 'percentage'
+    value: number
+    max_quantity: number | null
+    currency_code: string | null
+    target_type: string
+  } | null
+  rules: { attribute: string; operator: string; values: string[] }[]
+  created_at: string
+  updated_at: string
+}
+
+export interface MedusaProductTag {
+  id: string
+  value: string
+  metadata: Record<string, unknown> | null
+  created_at: string
+  updated_at: string
+}
+
+export interface InventoryItem {
+  id: string
+  sku: string | null
+  title: string | null
+  description: string | null
+  requires_shipping: boolean
+  stocked_quantity?: number
+  reserved_quantity?: number
+  location_levels?: { id: string; location_id: string; stocked_quantity: number; reserved_quantity: number; incoming_quantity: number }[]
 }
 
 export const adminMedusa = new MedusaAdminClient()

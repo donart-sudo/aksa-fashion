@@ -90,41 +90,39 @@ export default async function CollectionPage({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs text-charcoal/50 pt-6 pb-4 tracking-wide">
+      <nav className="flex items-center gap-2 text-[11px] text-charcoal/40 pt-6 pb-4 tracking-wide">
         <Link
           href={`/${locale}`}
           className="hover:text-charcoal transition-colors"
         >
           {t("common.home")}
         </Link>
-        <span className="text-charcoal/25">/</span>
+        <span className="text-charcoal/20">/</span>
         <Link
           href={`/${locale}/collections`}
           className="hover:text-charcoal transition-colors"
         >
           {t("common.collections")}
         </Link>
-        <span className="text-charcoal/25">/</span>
+        <span className="text-charcoal/20">/</span>
         <span className="text-charcoal font-medium">{title}</span>
       </nav>
 
-      {/* Editorial header */}
-      <div className="pb-8 lg:pb-10 border-b border-soft-gray/40">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal leading-tight">
-              {title}
-            </h1>
-            <p className="text-sm text-charcoal/60 mt-2">
-              {filteredProducts.length} {filteredProducts.length === 1 ? t("common.product") : t("common.products")}
-            </p>
-          </div>
-          <span className="hidden sm:block h-[2px] w-12 bg-gold mb-3" />
-        </div>
+      {/* Header */}
+      <div className="text-center pt-4 pb-8 lg:pb-10">
+        <h1 className="text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-black uppercase tracking-tight text-charcoal leading-none">
+          {title}
+        </h1>
+        <p className="text-xs sm:text-sm text-charcoal/35 tracking-wide mt-3">
+          {filteredProducts.length}{" "}
+          {filteredProducts.length === 1
+            ? t("common.product")
+            : t("common.products")}
+        </p>
       </div>
 
       {/* Content */}
-      <div className="py-6 lg:py-8">
+      <div className="pb-8 lg:pb-12">
         <CollectionClient
           products={filteredProducts}
           allSizes={allSizes}

@@ -43,56 +43,6 @@ interface ProductCardProps {
   priority?: boolean;
 }
 
-const COLOR_MAP: Record<string, string> = {
-  white: "#FFFFFF",
-  ivory: "#FFFFF0",
-  cream: "#FFFDD0",
-  champagne: "#F7E7CE",
-  nude: "#E8BEAC",
-  blush: "#DE98AB",
-  pink: "#F4C2C2",
-  rose: "#C08081",
-  red: "#C41E3A",
-  burgundy: "#800020",
-  wine: "#722F37",
-  coral: "#FF7F50",
-  orange: "#E8711E",
-  gold: "#D4AF37",
-  yellow: "#F5D300",
-  green: "#2D5F2D",
-  emerald: "#50C878",
-  sage: "#B2AC88",
-  teal: "#008080",
-  blue: "#2B4F81",
-  navy: "#1B2A4A",
-  royal: "#4169E1",
-  lavender: "#B57EDC",
-  purple: "#6A0DAD",
-  lilac: "#C8A2C8",
-  silver: "#C0C0C0",
-  gray: "#808080",
-  grey: "#808080",
-  charcoal: "#36454F",
-  black: "#1A1A1A",
-  brown: "#6B3A2A",
-  bronze: "#CD7F32",
-  copper: "#B87333",
-  "dusty rose": "#DCAE96",
-  "baby pink": "#F4C2C2",
-  "light blue": "#ADD8E6",
-  "dark green": "#1B4D2E",
-  "off-white": "#FAF0E6",
-  beige: "#D9C5A0",
-  taupe: "#B5A08E",
-  mauve: "#E0B0FF",
-  peach: "#FFCBA4",
-  turquoise: "#40E0D0",
-};
-
-function getColorHex(name: string): string | null {
-  const lower = name.toLowerCase().trim();
-  return COLOR_MAP[lower] ?? null;
-}
 
 export default function ProductCard({ product, priority }: ProductCardProps) {
   const t = useTranslations("common");
@@ -136,11 +86,6 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
     [toggleItem, product]
   );
 
-  // Resolve color dots
-  const colorDots = product.colors
-    ?.slice(0, 4)
-    .map((c) => ({ name: c, hex: getColorHex(c) }))
-    .filter((c) => c.hex) ?? [];
 
   return (
     <div
@@ -148,87 +93,67 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* ═══ IMAGE ═══ */}
+      {/* Image */}
       <Link
         href={`/${locale}/products/${product.handle}`}
-        className="block relative aspect-[3/4] overflow-hidden bg-soft-gray/20"
+        className="block relative aspect-[3/4] overflow-hidden bg-[#f0eeeb]"
       >
-        {/* Primary image */}
         <Image
           src={product.thumbnail}
           alt={product.title}
           fill
-          className={`object-cover transition-all duration-700 ease-out ${
+          className={`object-cover object-top transition-all duration-700 ease-out ${
             hovered && product.hoverImage
-              ? "opacity-0 scale-[1.02]"
-              : hovered && !product.hoverImage
-                ? "scale-[1.06]"
-                : "opacity-100 scale-100"
+              ? "opacity-0 scale-[1.03]"
+              : hovered
+                ? "scale-[1.05]"
+                : "scale-100"
           }`}
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           priority={priority}
         />
 
-        {/* Hover image */}
         {product.hoverImage && (
           <Image
             src={product.hoverImage}
             alt={product.title}
             fill
-            className={`object-cover transition-all duration-700 ease-out ${
-              hovered ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
+            className={`object-cover object-top transition-all duration-700 ease-out ${
+              hovered ? "opacity-100 scale-100" : "opacity-0 scale-[1.03]"
             }`}
             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
         )}
 
-        {/* ═══ BADGE ═══ */}
+        {/* Badge — top left */}
         {product.badge && (
-          <div className="absolute top-3 left-3 z-10">
-            {product.badge === "new" && (
-              <span className="inline-block px-3 py-1.5 bg-charcoal text-white text-[10px] font-semibold tracking-widest uppercase">
-                {t("newArrival")}
-              </span>
-            )}
-            {product.badge === "sale" && (
-              <span className="inline-block px-3 py-1.5 bg-red-600 text-white text-[10px] font-semibold tracking-widest uppercase">
-                &minus;{discount}%
-              </span>
-            )}
-            {product.badge === "bestseller" && (
-              <span className="inline-block px-3 py-1.5 bg-gold text-white text-[10px] font-semibold tracking-widest uppercase">
-                {t("bestSeller")}
-              </span>
-            )}
-          </div>
+          <span className="absolute top-3 left-3 z-10 inline-block px-2.5 py-1 text-[9px] font-bold tracking-[0.15em] uppercase bg-charcoal text-white">
+            {product.badge === "sale" ? <>&minus;{discount}%</> : product.badge === "new" ? t("newArrival") : t("bestSeller")}
+          </span>
         )}
 
-        {/* ═══ WISHLIST HEART ═══ */}
+        {/* Wishlist — always visible */}
         <button
           onClick={handleToggleWishlist}
-          className={`absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full transition-all duration-300 min-w-[36px] min-h-[36px] ${
-            wishlisted
-              ? "bg-white shadow-sm opacity-100"
-              : "bg-white/90 shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
-          }`}
+          className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center min-w-[36px] min-h-[36px]"
           aria-label={wishlisted ? t("removeFromWishlist") : t("addToWishlist")}
         >
           {wishlisted ? (
-            <HeartIconSolid className="w-[18px] h-[18px] text-red-500" />
+            <HeartIconSolid className="w-[22px] h-[22px] text-red-500 drop-shadow-md" />
           ) : (
-            <HeartIcon className="w-[18px] h-[18px] text-charcoal/70" />
+            <HeartIcon className="w-[22px] h-[22px] text-white drop-shadow-md" />
           )}
         </button>
 
-        {/* ═══ QUICK ADD TO CART ═══ */}
+        {/* Quick add — desktop hover */}
         <div
-          className={`absolute bottom-0 left-0 right-0 z-10 transition-all duration-300 ease-out ${
-            hovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+          className={`absolute bottom-0 inset-x-0 z-10 p-2.5 transition-all duration-300 ease-out hidden sm:block ${
+            hovered ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
           }`}
         >
           <button
             onClick={handleAddToCart}
-            className={`w-full flex items-center justify-center gap-2 py-3.5 text-xs font-semibold tracking-widest uppercase transition-all duration-300 min-h-[48px] ${
+            className={`w-full flex items-center justify-center gap-2 py-2.5 text-[10px] font-bold tracking-[0.15em] uppercase transition-all duration-200 ${
               added
                 ? "bg-charcoal text-white"
                 : "bg-white text-charcoal hover:bg-charcoal hover:text-white"
@@ -236,12 +161,12 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
           >
             {added ? (
               <>
-                <CheckIcon className="w-4 h-4" />
+                <CheckIcon className="w-3.5 h-3.5" />
                 {t("added")}
               </>
             ) : (
               <>
-                <ShoppingBagIcon className="w-4 h-4" />
+                <ShoppingBagIcon className="w-3.5 h-3.5" />
                 {t("addToCart")}
               </>
             )}
@@ -249,56 +174,37 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
         </div>
       </Link>
 
-      {/* ═══ PRODUCT INFO ═══ */}
-      <div className="mt-3 px-0.5">
-        {/* Collection label */}
-        {product.collection && (
-          <p className="text-[10px] font-medium tracking-widest uppercase text-charcoal/45 mb-0.5 line-clamp-1">
-            {product.collection}
-          </p>
-        )}
-
-        {/* Title */}
-        <Link href={`/${locale}/products/${product.handle}`} className="block">
-          <h3 className="text-sm font-semibold text-charcoal leading-snug group-hover:text-charcoal/80 transition-colors line-clamp-1">
-            {product.title}
-          </h3>
-        </Link>
-
-        {/* Price row */}
-        <div className="flex items-baseline gap-2 mt-1">
-          <span
-            className={`text-sm font-bold ${
-              product.originalPrice ? "text-red-600" : "text-charcoal"
-            }`}
-          >
+      {/* Info */}
+      <div className="mt-3 pb-4">
+        {/* Row 1: Title + Price inline */}
+        <div className="flex items-baseline justify-between gap-3">
+          <Link href={`/${locale}/products/${product.handle}`} className="min-w-0 flex-1">
+            <h3 className="text-[14px] font-semibold text-charcoal truncate group-hover:text-charcoal/70 transition-colors">
+              {product.title}
+            </h3>
+          </Link>
+          <span className="text-[14px] font-bold text-charcoal flex-shrink-0">
             {formatPrice(product.price)}
           </span>
+        </div>
+
+        {/* Row 2: Collection + Sale price */}
+        <div className="flex items-baseline justify-between gap-3 mt-1">
+          <span className="text-[11px] tracking-wide text-charcoal/35 truncate">
+            {product.collection || "\u00A0"}
+          </span>
           {product.originalPrice && (
-            <span className="text-xs text-charcoal/45 line-through">
-              {formatPrice(product.originalPrice)}
-            </span>
+            <div className="flex items-baseline gap-1.5 flex-shrink-0">
+              <span className="text-[12px] text-charcoal/30 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+              <span className="text-[10px] font-bold text-red-500">
+                -{discount}%
+              </span>
+            </div>
           )}
         </div>
 
-        {/* Color dots */}
-        {colorDots.length > 0 && (
-          <div className="flex items-center gap-1.5 mt-2">
-            {colorDots.map((c) => (
-              <span
-                key={c.name}
-                className="w-3 h-3 rounded-full border border-soft-gray/60"
-                style={{ backgroundColor: c.hex! }}
-                title={c.name}
-              />
-            ))}
-            {product.colors && product.colors.length > 4 && (
-              <span className="text-[10px] text-charcoal/40 ml-0.5">
-                +{product.colors.length - 4}
-              </span>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );

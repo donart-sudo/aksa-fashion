@@ -30,69 +30,77 @@ export default async function CollectionsPage({
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Breadcrumbs */}
-      <nav className="flex items-center gap-2 text-xs text-charcoal/50 pt-6 pb-4 tracking-wide">
+      <nav className="flex items-center gap-2 text-[11px] text-charcoal/40 pt-6 pb-4 tracking-wide">
         <Link
           href={`/${locale}`}
           className="hover:text-charcoal transition-colors"
         >
           {t("common.home")}
         </Link>
-        <span className="text-charcoal/25">/</span>
+        <span className="text-charcoal/20">/</span>
         <span className="text-charcoal font-medium">
           {t("common.collections")}
         </span>
       </nav>
 
-      {/* Editorial header */}
-      <div className="pb-8 lg:pb-12 border-b border-soft-gray/40">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal leading-tight">
-              {t("common.collections")}
-            </h1>
-            <p className="text-sm text-charcoal/60 mt-2">
-              {t("home.featuredSubtitle")}
-            </p>
-          </div>
-          <span className="hidden sm:block h-[2px] w-12 bg-gold mb-3" />
-        </div>
+      {/* Header */}
+      <div className="text-center pt-4 pb-10 lg:pb-14">
+        <h1 className="text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-black uppercase tracking-tight text-charcoal leading-none">
+          {t("common.collections")}
+        </h1>
+        <p className="text-xs sm:text-sm text-charcoal/35 tracking-wide mt-3">
+          {t("home.featuredSubtitle")}
+        </p>
       </div>
 
-      {/* Category grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-5 py-8 lg:py-12">
+      {/* Category grid — first item spans full width */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 lg:gap-4 pb-12 lg:pb-20">
         {displayCategories.map(
           (col, i) =>
             col.image && (
               <Link
                 key={col.handle}
                 href={`/${locale}/collections/${col.handle}`}
-                className="group block relative aspect-[3/4] overflow-hidden"
+                className={`group block relative overflow-hidden ${
+                  i === 0
+                    ? "col-span-2 lg:col-span-2 aspect-[16/9] lg:aspect-[2/1]"
+                    : "aspect-[3/4]"
+                }`}
               >
                 <Image
                   src={col.image}
                   alt={col.title}
                   fill
-                  className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
-                  sizes="(max-width: 768px) 50vw, 33vw"
+                  className="object-cover object-top transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
+                  sizes={
+                    i === 0
+                      ? "(max-width: 768px) 100vw, 66vw"
+                      : "(max-width: 768px) 50vw, 33vw"
+                  }
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/15 to-transparent group-hover:from-black/75 transition-all duration-500" />
-
-                {/* Ghost number */}
-                <span className="absolute top-4 right-5 lg:top-6 lg:right-7 font-serif text-[3rem] lg:text-[4rem] leading-none text-white/[0.08] select-none tabular-nums">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/70 transition-all duration-500" />
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-6">
-                  <span className="block h-[2px] w-5 bg-gold mb-2.5 group-hover:w-8 transition-all duration-500" />
-                  <h2 className="font-serif text-lg lg:text-2xl text-white leading-tight mb-1">
+                  <h2
+                    className={`font-black uppercase tracking-tight text-white leading-none mb-1.5 ${
+                      i === 0
+                        ? "text-xl sm:text-2xl lg:text-3xl"
+                        : "text-base lg:text-xl"
+                    }`}
+                  >
                     {col.title}
                   </h2>
-                  <p className="text-xs text-white/50 font-medium mb-1.5">
-                    {col.count} {col.count === 1 ? t("common.product") : t("common.products")}
-                  </p>
-                  <span className="text-xs text-white/60 tracking-widest uppercase group-hover:text-gold font-medium transition-colors">
-                    {t("common.viewAll")} →
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] text-white/45 tracking-wide">
+                      {col.count}{" "}
+                      {col.count === 1
+                        ? t("common.product")
+                        : t("common.products")}
+                    </span>
+                    <span className="text-[11px] text-white/35 group-hover:text-white transition-colors tracking-[0.15em] uppercase">
+                      {t("common.viewAll")} →
+                    </span>
+                  </div>
                 </div>
               </Link>
             )

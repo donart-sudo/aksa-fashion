@@ -16,14 +16,8 @@ export default function AdminRootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>
+    <html lang="en" className="admin-html">
+      <body className="admin-body">
         <AdminAuthProvider>{children}</AdminAuthProvider>
       </body>
     </html>

@@ -8,11 +8,11 @@ import { ChevronDownIcon } from "@heroicons/react/24/outline";
 const CATEGORIES = [
   { key: "bridal", handle: "bridal" },
   { key: "evening", handle: "evening-dress" },
-  { key: "cape", handle: "cape-and-train-elegance", label: "Cape & Train" },
-  { key: "ball", handle: "ball-gown", label: "Ball Gown" },
-  { key: "silhouette", handle: "silhouette-whisper", label: "Silhouette" },
-  { key: "royal", handle: "royal-over-train", label: "Royal Over Train" },
-  { key: "ruffled", handle: "ruffled-dream", label: "Ruffled Dream" },
+  { key: "cape", handle: "cape-and-train-elegance" },
+  { key: "ball", handle: "ball-gown" },
+  { key: "silhouette", handle: "silhouette-whisper" },
+  { key: "royal", handle: "royal-over-train" },
+  { key: "ruffled", handle: "ruffled-dream" },
 ];
 
 export default function ShopDropdown() {
@@ -32,12 +32,12 @@ export default function ShopDropdown() {
 
   const categoryLabels: Record<string, string> = {
     bridal: t("nav.bridalGowns"),
-    evening: t("nav.eveningWear"),
-    cape: "Cape & Train",
-    ball: "Ball Gown",
-    silhouette: "Silhouette",
-    royal: "Royal Over Train",
-    ruffled: "Ruffled Dream",
+    evening: t("nav.eveningDress"),
+    cape: t("nav.capeAndTrain"),
+    ball: t("nav.ballGown"),
+    silhouette: t("nav.silhouetteWhisper"),
+    royal: t("nav.royalOverTrain"),
+    ruffled: t("nav.ruffledDream"),
   };
 
   return (
@@ -48,35 +48,39 @@ export default function ShopDropdown() {
     >
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1 text-sm tracking-wide text-charcoal/80 hover:text-gold transition-colors uppercase"
+        className="flex items-center gap-1 px-3 py-2 text-[12px] tracking-[0.15em] uppercase text-charcoal/60 hover:text-charcoal transition-colors duration-300 relative group"
       >
         {t("common.shop")}
         <ChevronDownIcon
-          className={`w-3.5 h-3.5 transition-transform duration-200 ${
+          className={`w-3 h-3 transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         />
+        <span className="absolute bottom-1 left-3 right-3 h-[1px] bg-charcoal scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-2 w-56 bg-white shadow-lg border border-soft-gray/30 py-2 z-50">
-          {/* New & Sale */}
+        <div className="absolute top-full left-0 mt-1 w-64 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.08)] border border-charcoal/[0.06] py-3 z-50">
+          {/* Featured links */}
           <Link
             href={`/${locale}/collections/new`}
             onClick={() => setOpen(false)}
-            className="block px-5 py-2.5 text-sm text-gold font-medium hover:bg-cream transition-colors"
+            className="flex items-center justify-between px-6 py-2.5 text-[12px] tracking-[0.1em] uppercase text-gold font-medium hover:bg-cream/50 transition-colors"
           >
             {t("nav.newCollection")}
+            <span className="text-[9px] tracking-wider bg-gold/10 text-gold px-1.5 py-0.5">
+              New
+            </span>
           </Link>
           <Link
             href={`/${locale}/collections/sale`}
             onClick={() => setOpen(false)}
-            className="block px-5 py-2.5 text-sm text-red-500 font-medium hover:bg-cream transition-colors"
+            className="block px-6 py-2.5 text-[12px] tracking-[0.1em] uppercase text-red-500 font-medium hover:bg-cream/50 transition-colors"
           >
             {t("nav.saleItems")}
           </Link>
 
-          <div className="border-t border-soft-gray/30 my-1" />
+          <div className="border-t border-charcoal/[0.06] my-2 mx-6" />
 
           {/* Categories */}
           {CATEGORIES.map((cat) => (
@@ -84,20 +88,21 @@ export default function ShopDropdown() {
               key={cat.handle}
               href={`/${locale}/collections/${cat.handle}`}
               onClick={() => setOpen(false)}
-              className="block px-5 py-2.5 text-sm text-charcoal/70 hover:text-gold hover:bg-cream transition-colors"
+              className="block px-6 py-2.5 text-[12px] tracking-[0.1em] uppercase text-charcoal/50 hover:text-charcoal hover:bg-cream/50 transition-colors"
             >
-              {cat.label || categoryLabels[cat.key]}
+              {categoryLabels[cat.key]}
             </Link>
           ))}
 
-          <div className="border-t border-soft-gray/30 my-1" />
+          <div className="border-t border-charcoal/[0.06] my-2 mx-6" />
 
           <Link
             href={`/${locale}/collections`}
             onClick={() => setOpen(false)}
-            className="block px-5 py-2.5 text-xs tracking-wider uppercase text-charcoal/50 hover:text-gold transition-colors"
+            className="flex items-center gap-1 px-6 py-2.5 text-[11px] tracking-[0.15em] uppercase text-charcoal/30 hover:text-charcoal transition-colors"
           >
-            {t("common.viewAll")} →
+            {t("common.viewAll")}
+            <span className="text-charcoal/20">→</span>
           </Link>
         </div>
       )}

@@ -1,7 +1,7 @@
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { routing } from "@/i18n/routing";
 import { isRtl, type Locale } from "@/i18n/config";
 import Header from "@/components/layout/Header";
@@ -13,12 +13,6 @@ import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 import { SearchProvider } from "@/lib/search";
 import { AuthProvider } from "@/lib/auth";
-
-const playfair = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  display: "swap",
-});
 
 const inter = Inter({
   subsets: ["latin"],
@@ -53,7 +47,7 @@ export default async function LocaleLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body
-        className={`${playfair.variable} ${inter.variable} font-sans antialiased bg-cream text-charcoal`}
+        className={`${inter.variable} font-sans antialiased bg-cream text-charcoal`}
       >
         <NextIntlClientProvider messages={messages}>
           <AuthProvider>
