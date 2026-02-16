@@ -4,63 +4,57 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
-import { formatPrice } from "@/lib/utils";
+import { isRtl } from "@/i18n/config";
 
 const SLIDE_DURATION = 6000;
 
 const HERO_SLIDES = [
   {
     image: "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
-    name: "Royal Lilac Aura",
     alt: "Royal Lilac Aura luxury ball gown by Aksa Fashion",
-    handle: "royal-lilac-aura",
-    price: 115000,
-    origin: "center center",
+    ctaLink: "collections",
+    key: "slide0",
   },
   {
     image: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
-    name: "Crystal Bloom",
     alt: "Crystal Bloom handcrafted bridal gown with beaded bodice",
-    handle: "crystal-bloom",
-    price: 125000,
-    origin: "70% 30%",
+    ctaLink: "collections/bridal",
+    key: "slide1",
   },
   {
     image: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
-    name: "Midnight Gold",
     alt: "Midnight Gold evening dress with gold embroidery details",
-    handle: "midnight-gold",
-    price: 96000,
-    origin: "30% 60%",
+    ctaLink: "collections/evening-dress",
+    key: "slide2",
   },
   {
     image: "https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-scaled.jpg",
-    name: "Solar Elegance",
     alt: "Solar Elegance silhouette gown in warm golden fabric",
-    handle: "solar-elegance",
-    price: 88000,
-    origin: "60% 20%",
+    ctaLink: "collections/silhouette-whisper",
+    key: "slide3",
   },
 ];
 
 export default function EditorialBanner() {
   const t = useTranslations("home");
   const locale = useLocale();
+  const rtl = isRtl(locale as "sq" | "en" | "tr" | "ar");
 
   const [current, setCurrent] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const [transitioning, setTransitioning] = useState(false);
+  const [animKey, setAnimKey] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0.5, y: 0.5 });
   const touchStartX = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval>>(undefined);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoaded(true), 100);
-    return () => clearTimeout(timer);
-  }, []);
+  const imageContainerRef = useRef<HTMLDivElement>(null);
 
   const resetTimer = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrent((p) => (p + 1) % HERO_SLIDES.length);
+      setAnimKey((k) => k + 1);
+      setTransitioning(true);
+      setTimeout(() => setTransitioning(false), 1200);
     }, SLIDE_DURATION);
   }, []);
 
@@ -73,11 +67,23 @@ export default function EditorialBanner() {
 
   const goToSlide = useCallback(
     (i: number) => {
+      if (i === current || transitioning) return;
       setCurrent(i);
+      setAnimKey((k) => k + 1);
+      setTransitioning(true);
       resetTimer();
+      setTimeout(() => setTransitioning(false), 1200);
     },
-    [resetTimer]
+    [current, transitioning, resetTimer]
   );
+
+  const goNext = useCallback(() => {
+    goToSlide((current + 1) % HERO_SLIDES.length);
+  }, [current, goToSlide]);
+
+  const goPrev = useCallback(() => {
+    goToSlide((current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  }, [current, goToSlide]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
@@ -86,193 +92,257 @@ export default function EditorialBanner() {
   const handleTouchEnd = (e: React.TouchEvent) => {
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 60) {
-      goToSlide(
-        diff > 0
-          ? (current + 1) % HERO_SLIDES.length
-          : (current - 1 + HERO_SLIDES.length) % HERO_SLIDES.length
-      );
+      diff > 0 ? goNext() : goPrev();
     }
   };
 
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!imageContainerRef.current) return;
+    const rect = imageContainerRef.current.getBoundingClientRect();
+    setMousePos({
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    });
+  }, []);
+
   const slide = HERO_SLIDES[current];
+  const parallaxX = (mousePos.x - 0.5) * -12;
+  const parallaxY = (mousePos.y - 0.5) * -8;
+
+  // Clip-path: wipe from left (or right for RTL)
+  const clipFrom = rtl ? "inset(0 0 0 100%)" : "inset(0 100% 0 0)";
+  const clipTo = "inset(0)";
 
   return (
-    <section
-      className="relative h-[calc(100svh-3.5rem)] lg:h-[calc(100svh-6.75rem)] overflow-hidden"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* ═══ Full-bleed image slideshow ═══ */}
-      <div
-        className="absolute inset-0 transition-all duration-[1500ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-        style={{
-          clipPath: loaded ? "inset(0)" : "inset(2%)",
-          transform: loaded ? "scale(1)" : "scale(1.03)",
-        }}
-      >
-        {HERO_SLIDES.map((s, i) => (
+    <section className="relative h-[100svh] min-h-[600px] overflow-hidden flex flex-col-reverse lg:flex-row">
+      {/* ═══ Left: Text panel ═══ */}
+      <div className="relative flex-shrink-0 w-full lg:w-[45%] bg-[#1a1a1a] flex items-center">
+        {/* Decorative radial glow */}
+        <div
+          className="absolute inset-0 pointer-events-none opacity-30"
+          style={{
+            background: "radial-gradient(ellipse at 30% 60%, rgba(184,146,106,0.15) 0%, transparent 70%)",
+          }}
+        />
+
+        <div className="relative z-10 w-full px-8 sm:px-12 lg:px-16 xl:px-20 py-10 lg:py-0">
+          {/* Gold accent line */}
           <div
-            key={i}
-            className={`absolute inset-0 transition-opacity duration-[1200ms] ease-in-out ${
-              i === current ? "opacity-100 z-10" : "opacity-0 z-0"
-            }`}
-          >
-            <div
-              className="absolute inset-0"
-              style={{
-                transformOrigin: s.origin,
-                animation: "hero-zoom 14s ease-in-out infinite alternate",
-                animationDelay: `${-i * 3.5}s`,
-              }}
-            >
-              <Image
-                src={s.image}
-                alt={s.alt}
-                fill
-                className="object-cover object-top"
-                priority={i === 0}
-                sizes="100vw"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ═══ Cinematic gradient overlay ═══ */}
-      <div className="absolute inset-0 z-20 pointer-events-none bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-
-      {/* ═══ Text overlay — bottom-left ═══ */}
-      <div className="absolute inset-0 z-30 flex items-end">
-        <div className="w-full px-6 sm:px-10 lg:px-16 xl:px-20 pb-20 sm:pb-24 lg:pb-28">
-          <div className="flex items-end justify-between gap-8">
-            {/* Left: branding + CTA */}
-            <div className="max-w-3xl">
-              {/* Heading */}
-              <h1
-                className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.08] mb-5 transition-all duration-1000 ease-[cubic-bezier(0.16,1,0.3,1)]"
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "none" : "translateY(40px)",
-                  transitionDelay: "400ms",
-                }}
-              >
-                {t("heroTitle")}
-              </h1>
-
-              {/* Subtitle */}
-              <p
-                className="text-white/60 text-sm sm:text-base leading-relaxed max-w-md mb-8 transition-all duration-800 ease-out"
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "none" : "translateY(20px)",
-                  transitionDelay: "650ms",
-                }}
-              >
-                {t("heroSubtitle")}
-              </p>
-
-              {/* Primary CTA */}
-              <div
-                className="transition-all duration-800 ease-out"
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transform: loaded ? "none" : "translateY(20px)",
-                  transitionDelay: "850ms",
-                }}
-              >
-                <Link
-                  href={`/${locale}/collections`}
-                  className="inline-flex items-center justify-center px-9 py-4 bg-white text-charcoal text-[13px] font-semibold tracking-wide hover:bg-gold hover:text-white transition-all duration-300"
-                >
-                  {t("heroCta")}
-                </Link>
-              </div>
-
-              {/* Dot indicators */}
-              <div
-                className="flex items-center gap-2.5 mt-10 transition-all duration-700 ease-out"
-                style={{
-                  opacity: loaded ? 1 : 0,
-                  transitionDelay: "1100ms",
-                }}
-              >
-                {HERO_SLIDES.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goToSlide(i)}
-                    className={`transition-all duration-300 rounded-full ${
-                      i === current
-                        ? "w-8 h-2 bg-white"
-                        : "w-2 h-2 bg-white/40 hover:bg-white/70"
-                    }`}
-                    aria-label={`Slide ${i + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Right: "Shop this look" product link — desktop only */}
-            <div
-              className="hidden lg:block flex-shrink-0 text-right transition-all duration-700 ease-out"
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "none" : "translateY(16px)",
-                transitionDelay: "1000ms",
-              }}
-            >
-              <Link
-                href={`/${locale}/products/${slide.handle}`}
-                className="group inline-flex flex-col items-end gap-2"
-              >
-                <span className="text-[10px] tracking-[0.3em] uppercase text-white/40 group-hover:text-white/60 transition-colors">
-                  {t("heroShopLook")}
-                </span>
-                <span className="text-[15px] text-white/70 group-hover:text-white transition-colors font-medium">
-                  {slide.name}
-                </span>
-                <span className="text-[13px] text-gold/70 group-hover:text-gold transition-colors">
-                  {formatPrice(slide.price)}
-                </span>
-                <span className="h-[1px] w-8 bg-white/20 group-hover:w-12 group-hover:bg-gold transition-all duration-300 mt-1" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Mobile: product link below dots */}
-          <div
-            className="lg:hidden mt-6 transition-all duration-700 ease-out"
+            key={`accent-${animKey}`}
+            className="w-[2px] h-16 bg-gold mb-8 animate-accent-grow"
             style={{
-              opacity: loaded ? 1 : 0,
-              transitionDelay: "1200ms",
+              animationDelay: "50ms",
+              boxShadow: "0 0 12px rgba(184,146,106,0.3)",
             }}
+          />
+
+          {/* Subtitle tag */}
+          <p
+            key={`sub-${animKey}`}
+            className="text-gold text-[11px] sm:text-[12px] tracking-[0.3em] uppercase font-medium mb-5 animate-hero-fade-up"
+          >
+            {t(`${slide.key}Subtitle`)}
+          </p>
+
+          {/* Heading — two-line split reveal */}
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-5">
+            <span className="block overflow-hidden">
+              <span
+                key={`h1a-${animKey}`}
+                className="block animate-hero-line-up"
+                style={{ animationDelay: "100ms" }}
+              >
+                {t(`${slide.key}Title1`)}
+              </span>
+            </span>
+            <span className="block overflow-hidden">
+              <span
+                key={`h1b-${animKey}`}
+                className="block animate-hero-line-up"
+                style={{ animationDelay: "220ms" }}
+              >
+                {t(`${slide.key}Title2`)}
+              </span>
+            </span>
+          </h1>
+
+          {/* Description */}
+          <p
+            key={`desc-${animKey}`}
+            className="text-white/50 text-sm sm:text-base leading-relaxed max-w-md mb-8 animate-hero-fade-up"
+            style={{ animationDelay: "350ms" }}
+          >
+            {t(`${slide.key}Desc`)}
+          </p>
+
+          {/* CTA button */}
+          <div
+            key={`cta-${animKey}`}
+            className="animate-hero-fade-up mb-10 lg:mb-12"
+            style={{ animationDelay: "500ms" }}
           >
             <Link
-              href={`/${locale}/products/${slide.handle}`}
-              className="group inline-flex items-center gap-3"
+              href={`/${locale}/${slide.ctaLink}`}
+              className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
             >
-              <span className="text-[12px] text-white/50 group-hover:text-white transition-colors">
-                {slide.name} &middot; {formatPrice(slide.price)}
-              </span>
-              <span className="text-[12px] text-gold/50 group-hover:text-gold group-hover:translate-x-1 transition-all duration-300">
-                &rarr;
-              </span>
+              {t(`${slide.key}Cta`)}
+              <svg
+                className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
             </Link>
+          </div>
+
+          {/* Slide indicators */}
+          <div className="flex items-center gap-2.5">
+            {HERO_SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => goToSlide(i)}
+                className={`relative h-[3px] overflow-hidden rounded-full transition-all duration-400 ${
+                  i === current ? "w-10" : "w-5 hover:w-7"
+                }`}
+                aria-label={`Slide ${i + 1}`}
+              >
+                <span className="absolute inset-0 bg-white/20 rounded-full" />
+                {i === current && (
+                  <span
+                    key={`prog-${animKey}`}
+                    className="absolute inset-0 bg-gold rounded-full origin-left"
+                    style={{
+                      animation: `hero-progress ${SLIDE_DURATION}ms linear forwards`,
+                    }}
+                  />
+                )}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* ═══ Scroll hint arrow ═══ */}
+      {/* ═══ Right: Image panel with clip-path transitions ═══ */}
       <div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 hidden sm:flex flex-col items-center gap-1.5 animate-bounce"
-        style={{
-          opacity: loaded ? 0.5 : 0,
-          transition: "opacity 1000ms ease-out 1500ms",
-        }}
+        ref={imageContainerRef}
+        className="relative flex-1 h-[55vh] lg:h-auto overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseMove={handleMouseMove}
       >
-        <span className="text-[9px] tracking-[0.3em] uppercase text-white/50">Scroll</span>
-        <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
-        </svg>
+        {HERO_SLIDES.map((s, i) => {
+          const isActive = i === current;
+          return (
+            <div
+              key={i}
+              className="absolute inset-0"
+              style={{
+                zIndex: isActive ? 2 : 1,
+                clipPath: isActive ? clipTo : clipFrom,
+                transition: isActive
+                  ? "clip-path 1200ms cubic-bezier(0.77, 0, 0.175, 1)"
+                  : "clip-path 0ms linear 1200ms",
+              }}
+            >
+              <div
+                className="absolute inset-[-20px]"
+                style={{
+                  transform: isActive
+                    ? `translate(${parallaxX}px, ${parallaxY}px) scale(1.05)`
+                    : "scale(1.05)",
+                  transition: "transform 8s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              >
+                <Image
+                  src={s.image}
+                  alt={s.alt}
+                  fill
+                  className="object-cover object-top"
+                  priority={i === 0}
+                  sizes="(max-width: 1024px) 100vw, 55vw"
+                />
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Subtle edge vignette */}
+        <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-black/10 lg:bg-gradient-to-r lg:from-[#1a1a1a]/30 lg:via-transparent lg:to-transparent" />
+
+        {/* ═══ Navigation arrows ═══ */}
+        <div className="absolute inset-0 z-20 pointer-events-none">
+          {/* Previous */}
+          <button
+            onClick={goPrev}
+            disabled={transitioning}
+            className="pointer-events-auto absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 group"
+            aria-label="Previous slide"
+          >
+            <span className="flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
+              <svg
+                className="w-5 h-5 lg:w-6 lg:h-6 text-white/70 group-hover:text-gold transition-all duration-500 group-hover:-translate-x-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1}
+              >
+                <line
+                  x1="19" y1="12" x2="5" y2="12"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  className="origin-right transition-all duration-500 group-hover:[stroke-dasharray:20] [stroke-dasharray:14]"
+                />
+                <polyline
+                  points="11,5 4,12 11,19"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </span>
+          </button>
+
+          {/* Next */}
+          <button
+            onClick={goNext}
+            disabled={transitioning}
+            className="pointer-events-auto absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 group"
+            aria-label="Next slide"
+          >
+            <span className="flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
+              <svg
+                className="w-5 h-5 lg:w-6 lg:h-6 text-white/70 group-hover:text-gold transition-all duration-500 group-hover:translate-x-0.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1}
+              >
+                <line
+                  x1="5" y1="12" x2="19" y2="12"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  className="origin-left transition-all duration-500 group-hover:[stroke-dasharray:20] [stroke-dasharray:14]"
+                />
+                <polyline
+                  points="13,5 20,12 13,19"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              </svg>
+            </span>
+          </button>
+
+          {/* Slide counter — bottom right */}
+          <div className="pointer-events-none absolute bottom-6 right-6 hidden lg:flex items-baseline gap-1 text-white/40">
+            <span className="text-[22px] font-light text-white/80 tabular-nums">{String(current + 1).padStart(2, "0")}</span>
+            <span className="text-[13px] font-light">/</span>
+            <span className="text-[13px] font-light tabular-nums">{String(HERO_SLIDES.length).padStart(2, "0")}</span>
+          </div>
+        </div>
       </div>
     </section>
   );

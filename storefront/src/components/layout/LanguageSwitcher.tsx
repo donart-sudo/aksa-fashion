@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { GlobeAltIcon } from "@heroicons/react/24/outline";
 import { locales, localeNames, type Locale } from "@/i18n/config";
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ className }: { className?: string }) {
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const router = useRouter();
@@ -34,7 +34,7 @@ export default function LanguageSwitcher() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen(!open)}
-        className="p-2 hover:text-gold transition-colors flex items-center gap-1"
+        className={`p-2 hover:text-gold transition-colors flex items-center gap-1 ${className || ""}`}
         aria-label="Switch language"
       >
         <GlobeAltIcon className="w-5 h-5" />

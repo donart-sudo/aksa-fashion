@@ -1,4 +1,12 @@
 {
+  "topBar": {
+    "ann1": "Transporti falas p\u00ebr porosi mbi \u20ac150",
+    "ann2": "Pun\u00eb dore me dashuri n\u00eb Prishtin\u00eb, Kosov\u00eb",
+    "ann3": "B\u00ebrhet sipas mas\u00ebs suaj \u00b7 Gati n\u00eb 2\u20135 dit\u00eb",
+    "ann4": "Koleksioni i ri sapo mbrriti \u2014 Zbuloni tani",
+    "chatWithUs": "Na shkruani",
+    "storeHours": "H\u00ebn\u2013Sht: 10\u202f\u2013\u202f20"
+  },
   "common": {
     "brandName": "Aksa Fashion",
     "tagline": "Fustane Luksoze p\u00ebr Nuse & Mbr\u00ebmje",
@@ -106,10 +114,29 @@
     "eveningDress": "Fustane Mbr\u00ebmjeje"
   },
   "home": {
-    "heroTitle": "Arti i t\u00eb Qenit e Paharrueshme",
-    "heroSubtitle": "\u00c7do fustan n\u00eb atelen\u00eb ton\u00eb n\u00eb Prishtin\u00eb \u00ebsht\u00eb formuar me dor\u00eb \u2014 p\u00eblhura Europiane, detaje t\u00eb p\u00ebrpikta, dhe nj\u00eb siluet\u00eb q\u00eb l\u00ebviz me ju",
-    "heroCta": "Eksploro Koleksionin",
-    "heroShopLook": "Blej k\u00ebt\u00eb pamje",
+    "slide0Subtitle": "Haute Couture",
+    "slide0Title1": "Arti i të Qenit",
+    "slide0Title2": "e Paharrueshme",
+    "slide0Desc": "Çdo fustan në atelenë tonë në Prishtinë është formuar me dorë — pëlhura Europiane, detaje të përpikta, dhe një siluetë që lëviz me ju",
+    "slide0Cta": "Eksploro Koleksionin",
+
+    "slide1Subtitle": "Koleksioni i Nusërisë",
+    "slide1Title1": "Ku Ëndrrat",
+    "slide1Title2": "Marrin Formë",
+    "slide1Desc": "Kristale të qepura me dorë, dantellë Europiane, dhe një përshtatje e krijuar për çdo kthesë tuajën — fustani juaj i jetës, bërë në Prishtinë",
+    "slide1Cta": "Zbulo Nusërinë",
+
+    "slide2Subtitle": "Veshje Mbrëmjesh",
+    "slide2Title1": "Komandoni Çdo",
+    "slide2Title2": "Dhomë ku Hyni",
+    "slide2Desc": "Silueta të guximshme takojnë qëndisjen delikate me ar — fustane për gala, dasma, dhe netë që kanë rëndësi",
+    "slide2Cta": "Blej Mbrëmjesh",
+
+    "slide3Subtitle": "Linja e Firmës",
+    "slide3Title1": "Elegancë që",
+    "slide3Title2": "Lëviz me Ju",
+    "slide3Desc": "E mbështjellë në ngrohtësi, e përcaktuar nga zejtaria — pëlhura rrjedhëse dhe linja të pastra për gruan që udhëheq me hir",
+    "slide3Cta": "Shiko Koleksionin",
     "featuredTitle": "T\u00eb P\u00ebrzgjedhura p\u00ebr Ju",
     "featuredSubtitle": "Koleksione t\u00eb ve\u00e7anta nga ateleja jon\u00eb",
     "newArrivalsTitle": "Sapo Arrit\u00ebn",

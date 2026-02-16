@@ -1,4 +1,12 @@
 {
+  "topBar": {
+    "ann1": "\u20ac150 \u00fczeri sipari\u015flerde \u00fccretsiz kargo",
+    "ann2": "Pri\u015ftine, Kosova\u2019da el i\u015f\u00e7ili\u011fiyle \u00fcretildi",
+    "ann3": "\u00d6l\u00e7\u00fclerinize \u00f6zel dikim \u00b7 2\u20135 g\u00fcnde haz\u0131r",
+    "ann4": "Yeni koleksiyon geldi \u2014 Ke\u015ffedin",
+    "chatWithUs": "Bize yaz\u0131n",
+    "storeHours": "Pzt\u2013Cmt: 10\u202f\u2013\u202f20"
+  },
   "common": {
     "brandName": "Aksa Fashion",
     "tagline": "Lüks Gelinlik & Abiye",
@@ -106,10 +114,29 @@
     "eveningDress": "Abiye Elbise"
   },
   "home": {
-    "heroTitle": "Unutulmaz Olmanın Sanatı",
-    "heroSubtitle": "Priştine atölyemizde her elbise el işçiliğiyle şekillenir — Avrupa kumaşları, titiz detaylar ve sizinle hareket eden bir siluet",
-    "heroCta": "Koleksiyonu Keşfet",
-    "heroShopLook": "Bu görünümü al",
+    "slide0Subtitle": "Haute Couture",
+    "slide0Title1": "Unutulmaz Olmanın",
+    "slide0Title2": "Sanatı",
+    "slide0Desc": "Priştine atölyemizde her elbise el işçiliğiyle şekillenir — Avrupa kumaşları, titiz detaylar ve sizinle hareket eden bir siluet",
+    "slide0Cta": "Koleksiyonu Keşfet",
+
+    "slide1Subtitle": "Gelinlik Koleksiyonu",
+    "slide1Title1": "Hayallerin",
+    "slide1Title2": "Şekil Aldığı Yer",
+    "slide1Desc": "El dikimi kristaller, Avrupa danteli ve her kıvrımınıza göre tasarlanmış bir kalıp — ömür boyu bir kez giyeceğiniz elbise, Priştine'de yapıldı",
+    "slide1Cta": "Gelinlikleri Keşfet",
+
+    "slide2Subtitle": "Gece Kıyafetleri",
+    "slide2Title1": "Girdiğiniz Her",
+    "slide2Title2": "Odaya Hükmedin",
+    "slide2Desc": "Cesur siluetler zarif altın işlemelerle buluşuyor — galalar, düğünler ve önemli geceler için etkileyici elbiseler",
+    "slide2Cta": "Gece Koleksiyonu",
+
+    "slide3Subtitle": "İmza Serisi",
+    "slide3Title1": "Sizinle Hareket",
+    "slide3Title2": "Eden Zarafet",
+    "slide3Desc": "Sıcaklıkla sarılmış, ustalıkla tanımlanmış — zarafetle öncülük eden kadın için akıcı kumaşlar ve sade çizgiler",
+    "slide3Cta": "Koleksiyonu Gör",
     "featuredTitle": "Sizin İçin Seçildi",
     "featuredSubtitle": "Atölyemizden imza koleksiyonlar",
     "newArrivalsTitle": "Yeni Gelenler",

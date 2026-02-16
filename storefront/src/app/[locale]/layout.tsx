@@ -10,7 +10,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
 import CartDrawer from "@/components/cart/CartDrawer";
-import SearchModal from "@/components/search/SearchModal";
 import { CartProvider } from "@/lib/cart";
 import { WishlistProvider } from "@/lib/wishlist";
 import { SearchProvider } from "@/lib/search";
@@ -124,7 +123,6 @@ export default async function LocaleLayout({
                   <Footer />
                   <MobileNav />
                   <CartDrawer />
-                  <SearchModal />
                   <WhatsAppButton />
                 </SearchProvider>
               </WishlistProvider>
