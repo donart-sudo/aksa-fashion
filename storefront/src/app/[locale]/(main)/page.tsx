@@ -1,11 +1,78 @@
-import Image from "next/image";
 import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, CONTACT_INFO } from "@/lib/constants";
 import EditorialBanner from "@/components/home/EditorialBanner";
+import TrustBar from "@/components/home/TrustBar";
+import CuratedForYou from "@/components/home/CuratedForYou";
+import EditorialBand from "@/components/home/EditorialBand";
 import FeaturedCollections from "@/components/home/FeaturedCollections";
-import NewArrivals from "@/components/home/NewArrivals";
+import Appointment from "@/components/home/Appointment";
+import MoreToDiscover from "@/components/home/MoreToDiscover";
+import Testimonials from "@/components/home/Testimonials";
+import AsSeenIn from "@/components/home/AsSeenIn";
 import Newsletter from "@/components/home/Newsletter";
 import ScrollReveal from "@/components/ui/ScrollReveal";
 import { fetchNewProductsForCards, fetchProductsForCards } from "@/lib/data/medusa-products";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "home" });
+
+  return {
+    title: `${SITE_NAME} — ${t("heroTitle")}`,
+    description: SITE_DESCRIPTION,
+    alternates: {
+      canonical: `${SITE_URL}/${locale}`,
+    },
+  };
+}
+
+/* JSON-LD structured data for LocalBusiness + Organization */
+function StructuredData({ locale }: { locale: string }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "ClothingStore",
+    name: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: `${SITE_URL}/${locale}`,
+    logo: `${SITE_URL}/icons/icon-512.png`,
+    image: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
+    telephone: CONTACT_INFO.phone,
+    email: CONTACT_INFO.email,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "Prishtina",
+      addressCountry: "XK",
+    },
+    openingHours: "Mo-Sa 10:00-20:00",
+    priceRange: "€€€",
+    sameAs: [
+      "https://instagram.com/aksafashion",
+      "https://facebook.com/aksafashion",
+      "https://tiktok.com/@aksafashion",
+    ],
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Bridal & Evening Wear",
+      itemListElement: [
+        { "@type": "OfferCatalog", name: "Bridal Gowns" },
+        { "@type": "OfferCatalog", name: "Evening Dresses" },
+        { "@type": "OfferCatalog", name: "Ball Gowns" },
+      ],
+    },
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+    />
+  );
+}
 
 export default async function HomePage({
   params,
@@ -22,59 +89,48 @@ export default async function HomePage({
 
   return (
     <>
+      <StructuredData locale={locale} />
+
       {/* 1. Hero */}
       <EditorialBanner />
 
-      {/* 2. New Arrivals */}
+      {/* 2. Trust Bar */}
+      <TrustBar />
+
+      {/* 3. Curated for You — bento grid */}
       <ScrollReveal>
-        <NewArrivals products={newProducts} sectionNumber="01" />
+        <CuratedForYou products={newProducts} />
       </ScrollReveal>
 
-      {/* 3. Editorial Image Band — parallax */}
-      <section className="relative h-[35vh] sm:h-[40vh] lg:h-[50vh] overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg"
-            alt="Handcrafted in Prishtina"
-            fill
-            className="object-cover object-[50%_30%]"
-            sizes="100vw"
-          />
-        </div>
-        <div className="absolute inset-0 bg-charcoal/55" />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 z-10">
-          <ScrollReveal delay={100} distance={15} duration={600}>
-            <span className="block h-[2px] w-10 bg-gold mx-auto mb-5" />
-          </ScrollReveal>
-          <ScrollReveal delay={250} distance={20} duration={700}>
-            <p className="text-2xl sm:text-3xl lg:text-[2.75rem] font-black uppercase tracking-tight text-white mb-3 leading-none">
-              {t("editorialLine")}
-            </p>
-          </ScrollReveal>
-          <ScrollReveal delay={400} distance={15} duration={700}>
-            <p className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-white/40">
-              {t("editorialSubline")}
-            </p>
-          </ScrollReveal>
-        </div>
-      </section>
+      {/* 4. Editorial Image Band */}
+      <EditorialBand />
 
-      {/* 4. Shop by Category */}
+      {/* 5. Shop by Category */}
       <ScrollReveal distance={50} duration={900}>
         <FeaturedCollections locale={locale} />
       </ScrollReveal>
 
-      {/* 5. More to Explore */}
-      <ScrollReveal>
-        <NewArrivals
-          products={moreProducts}
-          title={t("moreToExplore")}
-          showViewAll={false}
-          sectionNumber="02"
-        />
+      {/* 6. Appointment — primary conversion for bridal */}
+      <ScrollReveal direction="up" distance={40} duration={900}>
+        <Appointment />
       </ScrollReveal>
 
-      {/* 6. Newsletter */}
+      {/* 7. More to Discover — horizontal carousel */}
+      <ScrollReveal>
+        <MoreToDiscover products={moreProducts} />
+      </ScrollReveal>
+
+      {/* 8. Testimonials — Real Brides */}
+      <ScrollReveal>
+        <Testimonials />
+      </ScrollReveal>
+
+      {/* 9. As Seen In — Press credibility */}
+      <ScrollReveal>
+        <AsSeenIn />
+      </ScrollReveal>
+
+      {/* 10. Newsletter */}
       <ScrollReveal direction="up" distance={40} duration={900}>
         <Newsletter />
       </ScrollReveal>

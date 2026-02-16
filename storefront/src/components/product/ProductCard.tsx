@@ -6,23 +6,11 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
-
-/*
- * Luxury product card — Zalando/Zara inspired
- *
- * - Clean image with smooth hover swap or zoom
- * - Wishlist heart fades in on hover (always visible on mobile)
- * - Quick-add slides up on hover with "Added!" feedback
- * - Bold readable typography
- * - Sale prices in red with strikethrough
- * - Color dots when available
- * - Collection label above title
- */
 
 export interface ProductCardData {
   id: string;
@@ -43,7 +31,6 @@ interface ProductCardProps {
   priority?: boolean;
 }
 
-
 export default function ProductCard({ product, priority }: ProductCardProps) {
   const t = useTranslations("common");
   const locale = useLocale();
@@ -51,30 +38,72 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
   const { toggleItem, isWishlisted } = useWishlist();
   const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
+  const [showSizes, setShowSizes] = useState(false);
 
   const wishlisted = isWishlisted(product.id);
+  const hasSizes = product.sizes && product.sizes.length > 0;
 
   const discount = product.originalPrice
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0;
+
+  const addToCartDirect = useCallback(() => {
+    addItem({
+      productId: product.id,
+      variantId: product.id,
+      title: product.title,
+      thumbnail: product.thumbnail,
+      price: product.price,
+      quantity: 1,
+    });
+    setAdded(true);
+    setShowSizes(false);
+    setTimeout(() => setAdded(false), 1800);
+  }, [addItem, product]);
+
+  const addToCartWithSize = useCallback(
+    (e: React.MouseEvent, size: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      addItem({
+        productId: product.id,
+        variantId: `${product.id}-${size}`,
+        title: product.title,
+        thumbnail: product.thumbnail,
+        price: product.price,
+        quantity: 1,
+        size,
+      });
+      setAdded(true);
+      setShowSizes(false);
+      setTimeout(() => setAdded(false), 1800);
+    },
+    [addItem, product]
+  );
 
   const handleAddToCart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
       if (added) return;
-      addItem({
-        productId: product.id,
-        variantId: product.id,
-        title: product.title,
-        thumbnail: product.thumbnail,
-        price: product.price,
-        quantity: 1,
-      });
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1800);
+
+      if (hasSizes) {
+        setShowSizes(true);
+        return;
+      }
+
+      addToCartDirect();
     },
-    [added, addItem, product]
+    [added, hasSizes, addToCartDirect]
+  );
+
+  const handleCloseSizes = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowSizes(false);
+    },
+    []
   );
 
   const handleToggleWishlist = useCallback(
@@ -86,12 +115,11 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
     [toggleItem, product]
   );
 
-
   return (
     <div
       className="group relative"
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => { setHovered(false); setShowSizes(false); }}
     >
       {/* Image */}
       <Link
@@ -145,66 +173,111 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
           )}
         </button>
 
-        {/* Quick add — desktop hover */}
-        <div
-          className={`absolute bottom-0 inset-x-0 z-10 p-2.5 transition-all duration-300 ease-out hidden sm:block ${
-            hovered ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
-          }`}
-        >
-          <button
-            onClick={handleAddToCart}
-            className={`w-full flex items-center justify-center gap-2 py-2.5 text-[10px] font-bold tracking-[0.15em] uppercase transition-all duration-200 ${
-              added
-                ? "bg-charcoal text-white"
-                : "bg-white text-charcoal hover:bg-charcoal hover:text-white"
+        {/* ── Size picker overlay ── */}
+        {showSizes && hasSizes && (
+          <div
+            className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-3 sm:p-4"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <button
+              onClick={handleCloseSizes}
+              className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center text-charcoal/30 hover:text-charcoal transition-colors"
+              aria-label={t("close")}
+            >
+              <XMarkIcon className="w-4.5 h-4.5" />
+            </button>
+
+            <p className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-charcoal/40 mb-3 sm:mb-4">
+              {t("selectSize")}
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 max-w-full">
+              {product.sizes!.map((size) => (
+                <button
+                  key={size}
+                  onClick={(e) => addToCartWithSize(e, size)}
+                  className="min-w-[38px] sm:min-w-[42px] min-h-[36px] sm:min-h-[40px] px-2.5 sm:px-3 py-1.5 sm:py-2 border border-charcoal/[0.1] text-[11px] sm:text-xs font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick add — desktop hover slide-up */}
+        {!showSizes && (
+          <div
+            className={`absolute bottom-0 inset-x-0 z-10 p-2.5 transition-all duration-300 ease-out hidden sm:block ${
+              hovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
             }`}
           >
+            <button
+              onClick={handleAddToCart}
+              className={`w-full flex items-center justify-center gap-2 py-3 text-[11px] font-bold tracking-[0.15em] uppercase transition-all duration-200 cursor-pointer ${
+                added
+                  ? "bg-charcoal text-white"
+                  : "bg-white/95 backdrop-blur-sm text-charcoal hover:bg-charcoal hover:text-white"
+              }`}
+            >
+              {added ? (
+                <>
+                  <CheckIcon className="w-3.5 h-3.5" />
+                  {t("added")}
+                </>
+              ) : (
+                <>
+                  <ShoppingBagIcon className="w-3.5 h-3.5" />
+                  {t("addToCart")}
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Quick add — mobile bag icon (always visible) */}
+        {!showSizes && (
+          <button
+            onClick={handleAddToCart}
+            className={`absolute bottom-2.5 right-2.5 z-10 sm:hidden w-9 h-9 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+              added
+                ? "bg-charcoal text-white scale-110"
+                : "bg-white/90 backdrop-blur-sm text-charcoal active:scale-95"
+            }`}
+            aria-label={added ? t("added") : t("addToCart")}
+          >
             {added ? (
-              <>
-                <CheckIcon className="w-3.5 h-3.5" />
-                {t("added")}
-              </>
+              <CheckIcon className="w-4 h-4" />
             ) : (
-              <>
-                <ShoppingBagIcon className="w-3.5 h-3.5" />
-                {t("addToCart")}
-              </>
+              <ShoppingBagIcon className="w-4 h-4" />
             )}
           </button>
-        </div>
+        )}
       </Link>
 
       {/* Info */}
-      <div className="mt-3 pb-4">
-        {/* Row 1: Title + Price inline */}
-        <div className="flex items-baseline justify-between gap-3">
-          <Link href={`/${locale}/products/${product.handle}`} className="min-w-0 flex-1">
-            <h3 className="text-[14px] font-semibold text-charcoal truncate group-hover:text-charcoal/70 transition-colors">
-              {product.title}
-            </h3>
-          </Link>
-          <span className="text-[14px] font-bold text-charcoal flex-shrink-0">
+      <div className="mt-3 sm:mt-4 pb-1">
+        <Link href={`/${locale}/products/${product.handle}`}>
+          <h3 className="font-serif text-[17px] sm:text-[18px] lg:text-[20px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-2">
+            {product.title}
+          </h3>
+        </Link>
+
+        <div className="flex items-baseline gap-1.5 mt-1.5">
+          <span className="text-[16px] text-gold font-semibold">
             {formatPrice(product.price)}
           </span>
-        </div>
-
-        {/* Row 2: Collection + Sale price */}
-        <div className="flex items-baseline justify-between gap-3 mt-1">
-          <span className="text-[11px] tracking-wide text-charcoal/35 truncate">
-            {product.collection || "\u00A0"}
-          </span>
           {product.originalPrice && (
-            <div className="flex items-baseline gap-1.5 flex-shrink-0">
+            <>
               <span className="text-[12px] text-charcoal/30 line-through">
                 {formatPrice(product.originalPrice)}
               </span>
               <span className="text-[10px] font-bold text-red-500">
-                -{discount}%
+                Save {discount}%
               </span>
-            </div>
+            </>
           )}
         </div>
-
       </div>
     </div>
   );

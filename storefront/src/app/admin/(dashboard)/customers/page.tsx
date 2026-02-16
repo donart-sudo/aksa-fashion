@@ -42,7 +42,7 @@ export default function AdminCustomersPage() {
         try {
           const res = await adminMedusa.getCustomers({ limit: '50' })
           if (cancel) return
-          setList(res.customers.map((c: Record<string, string>) => ({
+          setList(res.customers.map((c) => ({
             id: c.id, name: `${c.first_name} ${c.last_name}`, email: c.email, phone: c.phone || '',
             totalOrders: 0, totalSpent: 0, tags: [], joinedAt: c.created_at, lastOrderAt: c.created_at,
             spendingHistory: [],

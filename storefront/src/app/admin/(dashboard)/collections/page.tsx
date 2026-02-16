@@ -220,11 +220,11 @@ export default function CollectionsPage() {
                         )}
                         <div>
                           <span className="text-[13px] font-medium text-[#1a1a1a]">{c.title}</span>
-                          {(c.metadata as Record<string, unknown>)?.description && (
+                          {(c.metadata as Record<string, unknown> | null)?.description ? (
                             <p className="text-[11px] text-[#8a8a8a] mt-0.5 line-clamp-1">
-                              {(c.metadata as Record<string, unknown>).description as string}
+                              {String((c.metadata as Record<string, unknown>).description)}
                             </p>
-                          )}
+                          ) : null}
                         </div>
                       </div>
                     </td>

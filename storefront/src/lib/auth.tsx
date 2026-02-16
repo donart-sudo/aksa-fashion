@@ -22,10 +22,14 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<boolean>;
   register: (data: { email: string; password: string; first_name: string; last_name: string }) => Promise<boolean>;
   logout: () => Promise<void>;
+  loginWithToken: (token: string) => Promise<boolean>;
+  requestPasswordReset: (email: string) => Promise<boolean>;
 }
 
 const BACKEND_URL =
   process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
+export { BACKEND_URL };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -90,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     last_name: string;
   }): Promise<boolean> => {
     try {
-      // Create auth identity
+      // Step 1: Create auth identity
       const authRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass/register`, {
         method: "POST",
         credentials: "include",
@@ -100,15 +104,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!authRes.ok) return false;
 
       const authData = await authRes.json();
+      const token = authData.token;
+      if (!token) return false;
 
-      // Create customer
+      // Step 2: Create session from token (sets session cookie)
+      const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!sessionRes.ok) return false;
+
+      // Step 3: Create customer profile using session
       const customerRes = await fetch(`${BACKEND_URL}/store/customers`, {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
           "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-          Authorization: `Bearer ${authData.token}`,
         },
         body: JSON.stringify({
           email: data.email,
@@ -138,8 +154,55 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setCustomer(null);
   }, []);
 
+  const loginWithToken = useCallback(async (token: string): Promise<boolean> => {
+    try {
+      // Create session with the OAuth token
+      const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!sessionRes.ok) return false;
+
+      // Fetch customer data
+      const meRes = await fetch(`${BACKEND_URL}/store/customers/me`, {
+        credentials: "include",
+        headers: {
+          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+        },
+      });
+      if (meRes.ok) {
+        const data = await meRes.json();
+        setCustomer(data.customer);
+        return true;
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email: string): Promise<boolean> => {
+    try {
+      await fetch(`${BACKEND_URL}/store/customers/password-token`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+        },
+        body: JSON.stringify({ email }),
+      });
+      // Always return true so we don't reveal whether the email exists
+      return true;
+    } catch {
+      return true;
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ customer, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ customer, isLoading, login, register, logout, loginWithToken, requestPasswordReset }}>
       {children}
     </AuthContext.Provider>
   );
@@ -151,6 +214,8 @@ const AUTH_DEFAULTS: AuthContextType = {
   login: async () => false,
   register: async () => false,
   logout: async () => {},
+  loginWithToken: async () => false,
+  requestPasswordReset: async () => false,
 };
 
 export function useAuth() {

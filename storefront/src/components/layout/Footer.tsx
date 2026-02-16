@@ -88,10 +88,10 @@ export default function Footer() {
               {
                 icon: (
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182" />
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6" />
                   </svg>
                 ),
-                label: t("footer.freeReturns"),
+                label: t("footer.madeToOrder"),
               },
               {
                 icon: (
@@ -112,7 +112,7 @@ export default function Footer() {
             ].map((item, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="text-gold/50">{item.icon}</span>
-                <span className="text-[12px] sm:text-[13px] text-white/40 leading-tight">
+                <span className="text-[13px] sm:text-[14px] text-white/55 leading-tight">
                   {item.label}
                 </span>
               </div>
@@ -134,7 +134,7 @@ export default function Footer() {
                 Fashion
               </span>
             </div>
-            <p className="text-[13px] leading-relaxed text-white/30 max-w-xs mb-6">
+            <p className="text-[14px] leading-relaxed text-white/50 max-w-xs mb-6">
               {t("footer.aboutDescription")}
             </p>
 
@@ -178,7 +178,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={`/${locale}${link.href}`}
-                    className="text-[13px] text-white/35 hover:text-gold transition-colors duration-300"
+                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -196,14 +196,14 @@ export default function Footer() {
               {[
                 { href: "/about", label: t("footer.aboutUs") },
                 { href: "/faq", label: t("common.faq") },
-                { href: "/shipping-returns", label: t("footer.shippingReturns") },
+                { href: "/shipping", label: t("footer.shippingInfo") },
                 { href: "/size-guide", label: t("common.sizeGuide") },
                 { href: "/contact", label: t("common.contact") },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
                     href={`/${locale}${link.href}`}
-                    className="text-[13px] text-white/35 hover:text-gold transition-colors duration-300"
+                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -227,7 +227,7 @@ export default function Footer() {
                 <li key={link.href}>
                   <Link
                     href={`/${locale}${link.href}`}
-                    className="text-[13px] text-white/35 hover:text-gold transition-colors duration-300"
+                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
                   >
                     {link.label}
                   </Link>
@@ -241,7 +241,7 @@ export default function Footer() {
             <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-5">
               {t("footer.visitAtelier")}
             </h4>
-            <ul className="space-y-2.5 text-[13px] text-white/35">
+            <ul className="space-y-2.5 text-[14px] text-white/55">
               <li className="flex items-start gap-2.5">
                 <svg className="w-4 h-4 text-gold/40 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -294,10 +294,10 @@ export default function Footer() {
         <div className="py-6 flex flex-col gap-5 sm:gap-0 sm:flex-row sm:items-center sm:justify-between">
           {/* Left: copyright + legal */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-5">
-            <p className="text-[11px] text-white/20">
+            <p className="text-[12px] text-white/35">
               {t("footer.copyright", { year })}
             </p>
-            <div className="flex items-center gap-3 text-[11px] text-white/15">
+            <div className="flex items-center gap-3 text-[12px] text-white/30">
               <Link href={`/${locale}/privacy`} className="hover:text-white/40 transition-colors duration-300">
                 {t("footer.privacyPolicy")}
               </Link>

@@ -56,16 +56,15 @@ export default function AdminDashboard() {
       try {
         const storeRes = await adminMedusa.getStoreProducts({ limit: '100' })
         if (cancel) return
-        setProducts(storeRes.products.map((p: Record<string, unknown>) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setProducts(storeRes.products.map((p: any) => ({
           id: p.id as string, name: p.title as string,
-          sku: ((p.variants as Record<string, unknown>[])?.[0] as Record<string, string>)?.id?.slice(0, 12) || '',
-          price: ((p.variants as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.calculated_price
-            ? (((p.variants as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.calculated_price as Record<string, number>)?.calculated_amount || 0
-            : 0,
+          sku: p.variants?.[0]?.id?.slice(0, 12) || '',
+          price: p.variants?.[0]?.calculated_price?.calculated_amount || 0,
           status: (p.status === 'published' ? 'active' : 'draft') as Product['status'],
-          category: ((p.categories as Record<string, string>[])?.[0])?.name || ((p.collection as Record<string, string>)?.title || 'Uncategorized'),
-          inventory: ((p.variants as Record<string, number>[]) || []).reduce((s: number, v: Record<string, number>) => s + (v.inventory_quantity || 0), 0),
-          image: (p.thumbnail || '') as string, description: (p.description || '') as string, createdAt: p.created_at as string,
+          category: p.categories?.[0]?.name || p.collection?.title || 'Uncategorized',
+          inventory: (p.variants || []).reduce((s: number, v: any) => s + (v.inventory_quantity || 0), 0),
+          image: p.thumbnail || '', description: p.description || '', createdAt: p.created_at as string,
         })))
       } catch { /* Store API failed */ }
 
@@ -74,15 +73,16 @@ export default function AdminDashboard() {
         try {
           const ordersRes = await adminMedusa.getOrders({ limit: '10', order: '-created_at' })
           if (cancel) return
-          setOrders(ordersRes.orders.map((o: Record<string, unknown>) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setOrders(ordersRes.orders.map((o: any) => ({
             id: o.id as string, orderNumber: `#AKS-${o.display_id}`,
-            customer: (o.customer as Record<string, string>) ? `${(o.customer as Record<string, string>).first_name} ${(o.customer as Record<string, string>).last_name}` : 'Guest',
-            customerEmail: (o.customer as Record<string, string>)?.email || '',
-            items: ((o.items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({ productId: '', name: i.title as string, quantity: i.quantity as number, price: i.unit_price as number })),
+            customer: o.customer ? `${o.customer.first_name} ${o.customer.last_name}` : 'Guest',
+            customerEmail: o.customer?.email || '',
+            items: (o.items || []).map((i: any) => ({ productId: '', name: i.title as string, quantity: i.quantity as number, price: i.unit_price as number })),
             total: o.total as number, status: (o.status || 'pending') as Order['status'],
             fulfillment: (o.fulfillment_status || 'unfulfilled') as Order['fulfillment'],
             paymentMethod: o.payment_status as string, createdAt: o.created_at as string,
-            shippingAddress: (o.shipping_address as Record<string, string>) ? `${(o.shipping_address as Record<string, string>).address_1}, ${(o.shipping_address as Record<string, string>).city}` : '',
+            shippingAddress: o.shipping_address ? `${o.shipping_address.address_1}, ${o.shipping_address.city}` : '',
           })))
         } catch { /* Admin API failed */ }
 

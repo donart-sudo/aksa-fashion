@@ -13,7 +13,7 @@ const faqs = [
   },
   {
     q: "What is your return policy?",
-    a: "We accept returns within 14 days of purchase for unworn items in original condition with tags attached. Custom-made dresses are final sale.",
+    a: "Due to the custom, made-to-order nature of our gowns, all sales are final. We do not offer refunds or returns. However, we offer exchanges and alterations to ensure your dress is perfect. If you receive a defective item, contact us within 7 days.",
   },
   {
     q: "Do you ship internationally?",

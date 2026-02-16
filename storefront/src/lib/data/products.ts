@@ -1170,6 +1170,8 @@ function toCardFormat(p: ScrapedProduct) {
       : p.id > 5200
         ? ("new" as const)
         : undefined,
+    colors: p.colors.length > 0 ? p.colors : undefined,
+    sizes: p.sizes.length > 0 ? p.sizes : undefined,
   };
 }
 

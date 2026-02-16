@@ -367,20 +367,10 @@ export async function fetchNewProducts(
     return data.products.map(toScrapedProduct);
   } catch (error) {
     console.error("Failed to fetch new products:", error);
-    const { getNewProducts } = await import("./products");
-    return getNewProducts().map((p) => ({
-      id: Number(p.id),
-      name: p.title,
-      slug: p.handle,
-      price: p.price / 100,
-      regularPrice: (p.originalPrice || p.price) / 100,
-      description: "",
-      images: [p.thumbnail],
-      categories: [],
-      colors: [],
-      sizes: [],
-      inStock: true,
-    }));
+    const { products } = await import("./products");
+    return products
+      .filter((p) => p.id > 5200)
+      .slice(0, limit || 20);
   }
 }
 

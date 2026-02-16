@@ -9,93 +9,156 @@ const collections = [
     href: "/collections/bridal",
   },
   {
-    key: "cape-and-train",
-    label: "Cape & Train",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg",
-    href: "/collections/cape-and-train-elegance",
-  },
-  {
-    key: "silhouette",
-    label: "Silhouette",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
-    href: "/collections/silhouette-whisper",
-  },
-  {
     key: "evening",
     image: "https://ariart.shop/wp-content/uploads/2024/12/10-4-scaled.jpg",
     href: "/collections/evening-dress",
   },
+  {
+    key: "cape-and-train",
+    image: "https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg",
+    href: "/collections/cape-and-train-elegance",
+  },
+  {
+    key: "ball-gown",
+    image: "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
+    href: "/collections/ball-gown",
+  },
+  {
+    key: "silhouette",
+    image: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
+    href: "/collections/silhouette-whisper",
+  },
+  {
+    key: "ruffled-dream",
+    image: "https://ariart.shop/wp-content/uploads/2026/01/Lilac-Queen-Gown1-scaled.jpg",
+    href: "/collections/ruffled-dream",
+  },
 ];
 
-export default async function FeaturedCollections({ locale }: { locale: string }) {
+export default async function FeaturedCollections({
+  locale,
+}: {
+  locale: string;
+}) {
   const t = await getTranslations();
 
   const collectionLabels: Record<string, string> = {
     bridal: t("nav.bridalGowns"),
-    "cape-and-train": t("nav.capeAndTrain"),
-    silhouette: t("nav.silhouetteWhisper"),
     evening: t("nav.eveningWear"),
+    "cape-and-train": t("nav.capeAndTrain"),
+    "ball-gown": t("nav.ballGown"),
+    silhouette: t("nav.silhouetteWhisper"),
+    "ruffled-dream": t("nav.ruffledDream"),
   };
 
   return (
-    <section className="py-16 lg:py-24 bg-warm-white">
+    <section className="py-20 lg:py-28 bg-warm-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="text-center mb-10 lg:mb-14">
-          <span className="text-[11px] tracking-[0.3em] text-charcoal/20 block mb-3">03</span>
-          <h2 className="text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-black uppercase tracking-tight text-charcoal leading-none">
-            {t("home.featuredTitle")}
-          </h2>
-          <p className="text-xs sm:text-sm text-charcoal/35 tracking-wide mt-3">
-            {t("home.featuredSubtitle")}
-          </p>
-        </div>
-
-        {/* Asymmetric mosaic grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-5">
-          {/* Left: tall bridal */}
-          <div className="row-span-1 lg:row-span-2">
-            <CollectionCard
-              collection={collections[0]}
-              label={collectionLabels[collections[0].key]}
-              locale={locale}
-              viewAllText={t("common.viewAll")}
-              index={0}
-              tall
-            />
+        <div className="mb-12 lg:mb-16">
+          <div className="flex items-center gap-4 mb-6">
+            <span className="block h-[1.5px] w-10 bg-gold" />
+            <span className="text-[11px] tracking-[0.35em] uppercase text-gold font-medium">
+              {t("home.collectionsLabel")}
+            </span>
           </div>
 
-          {/* Right: two stacked */}
-          <div>
-            <CollectionCard
-              collection={collections[1]}
-              label={collections[1].label || collectionLabels[collections[1].key]}
-              locale={locale}
-              viewAllText={t("common.viewAll")}
-              index={1}
-            />
-          </div>
-          <div>
-            <CollectionCard
-              collection={collections[2]}
-              label={collections[2].label || collectionLabels[collections[2].key]}
-              locale={locale}
-              viewAllText={t("common.viewAll")}
-              index={2}
-            />
+          <div className="flex items-end justify-between">
+            <h2 className="font-serif text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] font-bold text-charcoal leading-[0.95]">
+              {t("home.shopByCategory")}
+            </h2>
+            <Link
+              href={`/${locale}/collections`}
+              className="hidden sm:inline-flex items-center gap-2 group flex-shrink-0"
+            >
+              <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/50 group-hover:text-charcoal transition-colors duration-300 border-b border-charcoal/20 group-hover:border-charcoal pb-0.5">
+                {t("common.viewAll")}
+              </span>
+              <svg
+                className="w-3.5 h-3.5 text-charcoal/30 group-hover:text-charcoal group-hover:translate-x-0.5 transition-all duration-300"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                />
+              </svg>
+            </Link>
           </div>
         </div>
 
-        {/* Full-width evening */}
-        <div className="mt-4 lg:mt-5">
-          <CollectionCard
-            collection={collections[3]}
-            label={collectionLabels[collections[3].key]}
-            locale={locale}
-            viewAllText={t("common.viewAll")}
-            index={3}
-            wide
-          />
+        {/* Desktop: 3-column grid, 2 rows */}
+        <div className="hidden lg:grid grid-cols-3 gap-4">
+          {collections.map((col, i) => (
+            <CollectionCard
+              key={col.key}
+              collection={col}
+              label={collectionLabels[col.key]}
+              locale={locale}
+              index={i}
+            />
+          ))}
+        </div>
+
+        {/* Tablet: 2-column grid */}
+        <div className="hidden sm:grid lg:hidden grid-cols-2 gap-4">
+          {collections.map((col, i) => (
+            <CollectionCard
+              key={col.key}
+              collection={col}
+              label={collectionLabels[col.key]}
+              locale={locale}
+              index={i}
+            />
+          ))}
+        </div>
+
+        {/* Mobile: horizontal scroll */}
+        <div className="sm:hidden -mx-4">
+          <div className="flex gap-3.5 overflow-x-auto overflow-y-hidden snap-x snap-proximity scrollbar-hide px-4">
+            {collections.map((col, i) => (
+              <div
+                key={col.key}
+                className="flex-shrink-0 w-[72vw] snap-start"
+              >
+                <CollectionCard
+                  collection={col}
+                  label={collectionLabels[col.key]}
+                  locale={locale}
+                  index={i}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile View All */}
+        <div className="flex sm:hidden justify-center mt-8">
+          <Link
+            href={`/${locale}/collections`}
+            className="inline-flex items-center gap-2 group"
+          >
+            <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/50 group-hover:text-charcoal transition-colors duration-300 border-b border-charcoal/20 group-hover:border-charcoal pb-0.5">
+              {t("common.viewAll")}
+            </span>
+            <svg
+              className="w-3.5 h-3.5 text-charcoal/30 group-hover:text-charcoal group-hover:translate-x-0.5 transition-all duration-300"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.5}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+              />
+            </svg>
+          </Link>
         </div>
       </div>
     </section>
@@ -106,56 +169,60 @@ function CollectionCard({
   collection,
   label,
   locale,
-  viewAllText,
   index,
-  tall,
-  wide,
 }: {
   collection: (typeof collections)[number];
   label: string;
   locale: string;
-  viewAllText: string;
   index: number;
-  tall?: boolean;
-  wide?: boolean;
 }) {
+  const num = String(index + 1).padStart(2, "0");
+
   return (
     <Link
       href={`/${locale}${collection.href}`}
-      className={`group block relative overflow-hidden ${
-        tall
-          ? "aspect-[3/4] lg:aspect-auto lg:h-full lg:min-h-[520px]"
-          : wide
-            ? "aspect-[16/9] sm:aspect-[21/9]"
-            : "aspect-[4/3]"
-      }`}
+      className="group block relative aspect-[3/4] overflow-hidden"
     >
       <Image
         src={collection.image}
         alt={label}
         fill
-        className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
-        sizes={
-          tall
-            ? "(max-width: 1024px) 100vw, 50vw"
-            : wide
-              ? "100vw"
-              : "(max-width: 1024px) 100vw, 50vw"
-        }
+        className="object-cover object-top transition-transform duration-[1200ms] ease-out group-hover:scale-[1.06]"
+        sizes="(max-width: 640px) 72vw, (max-width: 1024px) 50vw, 33vw"
       />
 
-      {/* Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent group-hover:from-black/70 transition-all duration-500" />
+      {/* Gradient overlay — base + hover darkening layer */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-out" />
 
-      {/* Content */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 lg:p-6">
-        <h3 className={`font-black uppercase tracking-tight text-white leading-none mb-1.5 ${
-          tall ? "text-xl lg:text-2xl" : wide ? "text-xl lg:text-2xl" : "text-base lg:text-xl"
-        }`}>
+      {/* Number — top left */}
+      <span className="absolute top-5 left-5 text-[11px] font-medium tracking-[0.2em] text-white/30 z-10">
+        {num}
+      </span>
+
+      {/* Gold top-left corner accent on hover */}
+      <span className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-gold/0 group-hover:border-gold/50 transition-all duration-500 z-10" />
+
+      {/* Content — bottom */}
+      <div className="absolute bottom-0 inset-x-0 p-5 lg:p-6 z-10">
+        <h3 className="font-serif text-xl lg:text-2xl font-bold text-white leading-tight mb-1.5">
           {label}
         </h3>
-        <span className="text-[11px] text-white/35 group-hover:text-white transition-colors tracking-[0.15em] uppercase">
-          {viewAllText} →
+        <span className="inline-flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase text-white/50 group-hover:text-gold transition-colors duration-300">
+          Explore
+          <svg
+            className="w-3 h-3 group-hover:translate-x-1 transition-transform duration-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+            />
+          </svg>
         </span>
       </div>
     </Link>

@@ -77,7 +77,6 @@ body.admin-body ::-webkit-scrollbar-thumb:hover { background: #8a8a8a; }
 .input:hover { border-color: #8a8a8a; }
 .input:focus {
   border-color: #005bd3;
-  box-shadow: 0 0 0 2px rgba(0, 91, 211, 0.15);
 }
 .input::placeholder { color: #b5b5b5; }
 textarea.input { height: auto; padding: 8px 12px; resize: vertical; line-height: 1.5; }
@@ -318,7 +317,7 @@ select.input {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .login-input:hover { border-color: #8a8a8a; }
-.login-input:focus { border-color: #005bd3; box-shadow: 0 0 0 2px rgba(0,91,211,0.15); }
+.login-input:focus { border-color: #005bd3; }
 .login-input::placeholder { color: #b5b5b5; }
 .login-input-wrapper { position: relative; }
 .login-input-pw { padding-right: 44px; }

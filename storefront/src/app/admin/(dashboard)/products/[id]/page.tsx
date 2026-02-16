@@ -284,7 +284,7 @@ export default function EditProductPage() {
         }
 
         // Metadata
-        const meta = (p as Record<string, unknown>).metadata as Record<string, unknown> | undefined
+        const meta = (p as unknown as Record<string, unknown>).metadata as Record<string, unknown> | undefined
         if (meta) {
           setSeoTitle((meta.seo_title as string) || '')
           setSeoDescription((meta.seo_description as string) || '')

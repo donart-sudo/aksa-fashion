@@ -206,3 +206,9 @@ cd backend && npx medusa user --email admin@aksafashion.com --password AksaAdmin
 - **Focus:** Luxury bridal gowns, evening wear, haute couture
 - **Target:** Brides and fashion-forward women in Kosovo, Albania, and diaspora
 - **Tone:** Elegant, warm, aspirational but approachable
+
+## Store Policies
+- **No refunds / No returns:** All sales are final. Gowns are made-to-order and custom-fitted, so refunds and returns are not offered. Do NOT display "free returns", "return policy", or any refund-related messaging anywhere on the storefront. Trust/confidence badges should instead highlight: handcrafted quality, made-to-measure, worldwide shipping, and personal styling service via WhatsApp.
+- **Shipping:** Standard (€15, 3-5 days), Express (€30, 1-2 days), Free on orders over €150
+- **Made to order:** 2-5 business days production time
+- **Custom alterations:** Available upon request

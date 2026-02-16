@@ -44,18 +44,19 @@ export default function AdminOrdersPage() {
         try {
           const res = await adminMedusa.getOrders({ limit: '50', order: '-created_at' })
           if (cancel) return
-          setList(res.orders.map((o: Record<string, unknown>) => ({
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          setList(res.orders.map((o: any) => ({
             id: o.id as string,
             orderNumber: `#AKS-${o.display_id}`,
-            customer: (o.customer as Record<string, string>) ? `${(o.customer as Record<string, string>).first_name} ${(o.customer as Record<string, string>).last_name}` : 'Guest',
-            customerEmail: (o.customer as Record<string, string>)?.email || '',
-            items: ((o.items as Record<string, unknown>[]) || []).map((i: Record<string, unknown>) => ({ productId: '', name: i.title as string, quantity: i.quantity as number, price: i.unit_price as number })),
+            customer: o.customer ? `${o.customer.first_name} ${o.customer.last_name}` : 'Guest',
+            customerEmail: o.customer?.email || '',
+            items: (o.items || []).map((i: any) => ({ productId: '', name: i.title as string, quantity: i.quantity as number, price: i.unit_price as number })),
             total: o.total as number,
             status: (o.status || 'pending') as OrderStatus,
             fulfillment: (o.fulfillment_status || 'unfulfilled') as Order['fulfillment'],
             paymentMethod: o.payment_status as string,
             createdAt: o.created_at as string,
-            shippingAddress: (o.shipping_address as Record<string, string>) ? `${(o.shipping_address as Record<string, string>).address_1}, ${(o.shipping_address as Record<string, string>).city}` : '',
+            shippingAddress: o.shipping_address ? `${o.shipping_address.address_1}, ${o.shipping_address.city}` : '',
           })))
         } catch {
           // Admin API failed — orders stays empty

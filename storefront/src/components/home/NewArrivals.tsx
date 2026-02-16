@@ -53,11 +53,6 @@ export default function NewArrivals({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
         <div className="text-center mb-10 lg:mb-12">
-          {sectionNumber && (
-            <span className="text-[11px] tracking-[0.3em] text-charcoal/20 tabular-nums block mb-3">
-              {sectionNumber}
-            </span>
-          )}
           <h2 className="text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-black uppercase tracking-tight text-charcoal leading-none">
             {title || t("newArrivalsTitle")}
           </h2>

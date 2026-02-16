@@ -441,6 +441,7 @@ export interface MedusaCategory {
   parent_category_id: string | null
   parent_category: MedusaCategory | null
   category_children: MedusaCategory[]
+  metadata: Record<string, unknown> | null
   created_at: string
   updated_at: string
 }

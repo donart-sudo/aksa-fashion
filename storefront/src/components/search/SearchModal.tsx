@@ -18,8 +18,13 @@ import {
   MagnifyingGlassIcon,
   ArrowTrendingUpIcon,
   ArrowRightIcon,
+  HeartIcon,
+  ShoppingBagIcon,
 } from "@heroicons/react/24/outline";
+import { HeartIcon as HeartIconSolid, CheckIcon } from "@heroicons/react/24/solid";
 import { useSearch } from "@/lib/search";
+import { useCart } from "@/lib/cart";
+import { useWishlist } from "@/lib/wishlist";
 import { formatPrice } from "@/lib/utils";
 import {
   products as staticProducts,
@@ -37,6 +42,7 @@ interface SearchResult {
   thumbnail: string;
   category?: string;
   badge?: "new" | "sale";
+  sizes?: string[];
 }
 
 interface CollectionMatch {
@@ -105,6 +111,7 @@ function toSearchResult(p: ScrapedProduct): SearchResult {
     thumbnail: p.images[0] || "",
     category: p.categories[0],
     badge: p.salePrice ? "sale" : p.id > 5000 ? "new" : undefined,
+    sizes: p.sizes && p.sizes.length > 0 ? p.sizes : undefined,
   };
 }
 
@@ -228,6 +235,262 @@ const HighlightMatch = memo(function HighlightMatch({
   );
 });
 
+// --- Search Product Card ---
+
+function SearchProductCard({
+  product,
+  locale,
+  closeSearch,
+}: {
+  product: SearchResult;
+  locale: string;
+  closeSearch: () => void;
+}) {
+  const tc = useTranslations("common");
+  const { addItem } = useCart();
+  const { toggleItem, isWishlisted } = useWishlist();
+  const [hovered, setHovered] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [showSizes, setShowSizes] = useState(false);
+
+  const wishlisted = isWishlisted(product.id);
+  const hasSizes = product.sizes && product.sizes.length > 0;
+
+  const discount = product.originalPrice
+    ? Math.round((1 - product.price / product.originalPrice) * 100)
+    : 0;
+
+  const addToCartDirect = useCallback(() => {
+    addItem({
+      productId: product.id,
+      variantId: product.id,
+      title: product.title,
+      thumbnail: product.thumbnail,
+      price: product.price,
+      quantity: 1,
+    });
+    setAdded(true);
+    setShowSizes(false);
+    setTimeout(() => setAdded(false), 1800);
+  }, [addItem, product]);
+
+  const addToCartWithSize = useCallback(
+    (e: React.MouseEvent, size: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      addItem({
+        productId: product.id,
+        variantId: `${product.id}-${size}`,
+        title: product.title,
+        thumbnail: product.thumbnail,
+        price: product.price,
+        quantity: 1,
+        size,
+      });
+      setAdded(true);
+      setShowSizes(false);
+      setTimeout(() => setAdded(false), 1800);
+    },
+    [addItem, product]
+  );
+
+  const handleAddToCart = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (added) return;
+      if (hasSizes) {
+        setShowSizes(true);
+        return;
+      }
+      addToCartDirect();
+    },
+    [added, hasSizes, addToCartDirect]
+  );
+
+  const handleCloseSizes = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowSizes(false);
+    },
+    []
+  );
+
+  const handleToggleWishlist = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleItem({
+        id: product.id,
+        title: product.title,
+        handle: product.handle,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        thumbnail: product.thumbnail,
+      });
+    },
+    [toggleItem, product]
+  );
+
+  return (
+    <div
+      className="group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => { setHovered(false); setShowSizes(false); }}
+    >
+      <Link
+        href={`/${locale}/products/${product.handle}`}
+        onClick={closeSearch}
+        className="block relative aspect-[3/4] overflow-hidden bg-[#f0eeeb]"
+      >
+        {product.thumbnail && (
+          <Image
+            src={product.thumbnail}
+            alt={product.title}
+            fill
+            className={`object-cover object-top transition-transform duration-700 ease-out ${
+              hovered ? "scale-[1.05]" : "scale-100"
+            }`}
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 170px"
+          />
+        )}
+
+        {/* Badge */}
+        {product.badge && (
+          <span className="absolute top-2 left-2 z-10 inline-block px-2 py-0.5 text-[8px] font-bold tracking-[0.15em] uppercase bg-charcoal text-white">
+            {product.badge === "sale"
+              ? <>&minus;{discount}%</>
+              : tc("newArrival")}
+          </span>
+        )}
+
+        {/* Wishlist */}
+        <button
+          onClick={handleToggleWishlist}
+          className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center min-w-[28px] min-h-[28px]"
+          aria-label={wishlisted ? tc("removeFromWishlist") : tc("addToWishlist")}
+        >
+          {wishlisted ? (
+            <HeartIconSolid className="w-[18px] h-[18px] text-red-500 drop-shadow-md" />
+          ) : (
+            <HeartIcon className="w-[18px] h-[18px] text-white drop-shadow-md" />
+          )}
+        </button>
+
+        {/* Size picker overlay */}
+        {showSizes && hasSizes && (
+          <div
+            className="absolute inset-0 z-20 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-2.5"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <button
+              onClick={handleCloseSizes}
+              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center text-charcoal/30 hover:text-charcoal transition-colors"
+              aria-label={tc("close")}
+            >
+              <XMarkIcon className="w-4 h-4" />
+            </button>
+
+            <p className="text-[9px] tracking-[0.2em] uppercase text-charcoal/40 mb-2.5">
+              {tc("selectSize")}
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-1.5 max-w-full">
+              {product.sizes!.map((size) => (
+                <button
+                  key={size}
+                  onClick={(e) => addToCartWithSize(e, size)}
+                  className="min-w-[32px] min-h-[30px] px-2 py-1 border border-charcoal/[0.1] text-[10px] font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick add — desktop hover slide-up */}
+        {!showSizes && (
+          <div
+            className={`absolute bottom-0 inset-x-0 z-10 p-1.5 transition-all duration-300 ease-out hidden sm:block ${
+              hovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            }`}
+          >
+            <button
+              onClick={handleAddToCart}
+              className={`w-full flex items-center justify-center gap-1.5 py-2 text-[9px] font-bold tracking-[0.15em] uppercase transition-all duration-200 cursor-pointer ${
+                added
+                  ? "bg-charcoal text-white"
+                  : "bg-white/95 backdrop-blur-sm text-charcoal hover:bg-charcoal hover:text-white"
+              }`}
+            >
+              {added ? (
+                <>
+                  <CheckIcon className="w-3 h-3" />
+                  {tc("added")}
+                </>
+              ) : (
+                <>
+                  <ShoppingBagIcon className="w-3 h-3" />
+                  {tc("addToCart")}
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Quick add — mobile bag icon */}
+        {!showSizes && (
+          <button
+            onClick={handleAddToCart}
+            className={`absolute bottom-2 right-2 z-10 sm:hidden w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+              added
+                ? "bg-charcoal text-white scale-110"
+                : "bg-white/90 backdrop-blur-sm text-charcoal active:scale-95"
+            }`}
+            aria-label={added ? tc("added") : tc("addToCart")}
+          >
+            {added ? (
+              <CheckIcon className="w-3.5 h-3.5" />
+            ) : (
+              <ShoppingBagIcon className="w-3.5 h-3.5" />
+            )}
+          </button>
+        )}
+      </Link>
+
+      {/* Info */}
+      <div className="mt-2 pb-0.5">
+        <Link
+          href={`/${locale}/products/${product.handle}`}
+          onClick={closeSearch}
+        >
+          <h3 className="font-serif text-[14px] sm:text-[15px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-1">
+            {product.title}
+          </h3>
+        </Link>
+
+        <div className="flex items-baseline gap-1.5 mt-1">
+          <span className="text-[13px] text-gold font-semibold">
+            {formatPrice(product.price)}
+          </span>
+          {product.originalPrice && (
+            <>
+              <span className="text-[10px] text-charcoal/30 line-through">
+                {formatPrice(product.originalPrice)}
+              </span>
+              <span className="text-[9px] font-bold text-red-500">
+                Save {discount}%
+              </span>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // --- Main ---
 
 export default function SearchModal() {
@@ -270,23 +533,24 @@ export default function SearchModal() {
   // Measure header bottom so panel sits right below it
   useEffect(() => {
     if (isOpen) {
+      // Check if super sticky header is visible (translated to Y=0)
+      const superSticky = document.querySelector("[data-super-sticky]") as HTMLElement | null;
       const header = document.querySelector("header");
-      if (header) {
+
+      if (superSticky && superSticky.getBoundingClientRect().top >= 0) {
+        // Super sticky is visible — position below it
+        setHeaderHeight(superSticky.getBoundingClientRect().bottom);
+      } else if (header) {
         setHeaderHeight(header.getBoundingClientRect().bottom);
       }
       requestAnimationFrame(() => inputRef.current?.focus());
-      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "";
       setQuery("");
       setResults([]);
       setHasSearched(false);
       setShowSpinner(false);
       abortRef.current?.abort();
     }
-    return () => {
-      document.body.style.overflow = "";
-    };
   }, [isOpen]);
 
   // Escape to close
@@ -343,8 +607,10 @@ export default function SearchModal() {
           created_at: string;
           variants?: {
             prices?: { amount: number; currency_code: string }[];
+            title?: string;
           }[];
           categories?: { name: string }[];
+          options?: { title?: string; values?: { value: string }[] }[];
         }) => {
           const eurPrice =
             p.variants?.[0]?.prices?.find(
@@ -361,6 +627,14 @@ export default function SearchModal() {
             new Date(p.created_at) >
             new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
+          const sizeOption = p.options?.find(
+            (o) => o.title?.toLowerCase() === "size"
+          );
+          const sizes = sizeOption?.values?.map((v) => v.value) ??
+            (p.variants && p.variants.length > 1
+              ? p.variants.map((v) => v.title || "").filter(Boolean)
+              : undefined);
+
           return {
             id: p.id,
             title: p.title,
@@ -374,6 +648,7 @@ export default function SearchModal() {
               : isNew
               ? ("new" as const)
               : undefined,
+            sizes: sizes && sizes.length > 0 ? sizes : undefined,
           };
         }
       );
@@ -440,13 +715,14 @@ export default function SearchModal() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay */}
+          {/* Overlay — starts below header */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-0 z-[60] bg-black/20"
+            className="fixed inset-x-0 bottom-0 z-[80] bg-black/20"
+            style={{ top: headerHeight }}
             onClick={closeSearch}
           />
 
@@ -457,16 +733,16 @@ export default function SearchModal() {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -10, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-x-0 z-[65] bg-cream shadow-[0_12px_50px_rgba(0,0,0,0.1)] flex flex-col"
+            className="fixed inset-x-0 z-[80] bg-cream shadow-[0_12px_50px_rgba(0,0,0,0.1)] flex flex-col"
             style={{
               top: headerHeight,
-              height: `calc(85vh - ${headerHeight}px)`,
+              maxHeight: `calc(85vh - ${headerHeight}px)`,
             }}
           >
             {/* Input bar */}
-            <div className="flex-shrink-0 px-5 sm:px-8 pt-5 pb-4">
+            <div className="flex-shrink-0 px-5 sm:px-8 pt-5 pb-2">
               <div className="max-w-3xl mx-auto">
-                <div className="flex items-center gap-4 h-14 px-5 rounded-lg border border-charcoal/10 bg-charcoal/[0.02] transition-all">
+                <div className="flex items-center gap-3 h-12 px-4 rounded-lg border border-charcoal/10 bg-charcoal/[0.02] transition-all">
                   <MagnifyingGlassIcon className="w-5 h-5 text-charcoal/30 flex-shrink-0" />
 
                   <input
@@ -495,7 +771,7 @@ export default function SearchModal() {
                   )}
 
                 </div>
-                <div className="flex items-center justify-end mt-2.5">
+                <div className="flex items-center justify-end mt-1.5">
                   <button
                     onClick={closeSearch}
                     className="text-[11px] tracking-[0.12em] uppercase text-charcoal/30 hover:text-charcoal transition-colors"
@@ -509,7 +785,7 @@ export default function SearchModal() {
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto overscroll-contain">
-              <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
+              <div className="max-w-3xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
                 {/* === EMPTY STATE === */}
                 {!query && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
@@ -619,53 +895,15 @@ export default function SearchModal() {
                       </Link>
                     </div>
 
-                    {/* Product grid — compact */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5">
+                    {/* Product grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                       {results.slice(0, 8).map((product) => (
-                        <Link
+                        <SearchProductCard
                           key={product.id}
-                          href={`/${locale}/products/${product.handle}`}
-                          onClick={closeSearch}
-                          className="group"
-                        >
-                          <div className="relative aspect-[3/4] overflow-hidden bg-[#f3f1ee]">
-                            {product.thumbnail && (
-                              <Image
-                                src={product.thumbnail}
-                                alt={product.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 170px"
-                              />
-                            )}
-                            {product.badge && (
-                              <span
-                                className={`absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[9px] tracking-wider uppercase ${
-                                  product.badge === "sale"
-                                    ? "bg-charcoal text-white"
-                                    : "bg-white text-charcoal"
-                                }`}
-                              >
-                                {product.badge === "sale" ? "Sale" : "New"}
-                              </span>
-                            )}
-                          </div>
-                          <div className="mt-1.5">
-                            <h3 className="text-[12px] text-charcoal/55 group-hover:text-charcoal line-clamp-1 transition-colors">
-                              {product.title}
-                            </h3>
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <span className="text-[12px] font-medium text-charcoal">
-                                {formatPrice(product.price)}
-                              </span>
-                              {product.originalPrice && (
-                                <span className="text-[10px] text-charcoal/30 line-through">
-                                  {formatPrice(product.originalPrice)}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </Link>
+                          product={product}
+                          locale={locale}
+                          closeSearch={closeSearch}
+                        />
                       ))}
                     </div>
                   </div>

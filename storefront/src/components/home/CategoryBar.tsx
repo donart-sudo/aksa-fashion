@@ -25,7 +25,7 @@ export default async function CategoryBar({ locale }: { locale: string }) {
   return (
     <section className="relative border-b border-soft-gray/40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-1 py-4 overflow-x-auto scrollbar-hide lg:justify-center lg:gap-0">
+        <div className="flex items-center gap-1 py-4 overflow-x-auto overflow-y-hidden scrollbar-hide lg:justify-center lg:gap-0">
           {QUICK_LINKS.map((link, i) => (
             <span key={link.handle} className="flex items-center flex-shrink-0">
               {i > 0 && (

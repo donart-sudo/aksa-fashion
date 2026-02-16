@@ -41,18 +41,17 @@ export default function AdminProductsPage() {
       try {
         const storeRes = await adminMedusa.getStoreProducts({ limit: '100' })
         if (cancel) return
-        setList(storeRes.products.map((p: Record<string, unknown>) => ({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        setList(storeRes.products.map((p: any) => ({
           id: p.id as string,
           name: p.title as string,
-          sku: ((p.variants as Record<string, unknown>[])?.[0] as Record<string, string>)?.id?.slice(0, 12) || '',
-          price: ((p.variants as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.calculated_price
-            ? (((p.variants as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.calculated_price as Record<string, number>)?.calculated_amount || 0
-            : 0,
+          sku: p.variants?.[0]?.id?.slice(0, 12) || '',
+          price: p.variants?.[0]?.calculated_price?.calculated_amount || 0,
           status: 'active' as const,
-          category: ((p.categories as Record<string, string>[])?.[0])?.name || ((p.collection as Record<string, string>)?.title || 'Uncategorized'),
-          inventory: ((p.variants as Record<string, number>[]) || []).reduce((s: number, v: Record<string, number>) => s + (v.inventory_quantity || 0), 0),
-          image: (p.thumbnail || '') as string,
-          description: (p.description || '') as string,
+          category: p.categories?.[0]?.name || p.collection?.title || 'Uncategorized',
+          inventory: (p.variants || []).reduce((s: number, v: any) => s + (v.inventory_quantity || 0), 0),
+          image: p.thumbnail || '',
+          description: p.description || '',
           createdAt: p.created_at as string,
         })))
       } catch {
@@ -61,16 +60,17 @@ export default function AdminProductsPage() {
           try {
             const res = await adminMedusa.getProducts({ limit: '100' })
             if (cancel) return
-            setList(res.products.map((p: Record<string, unknown>) => ({
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            setList(res.products.map((p: any) => ({
               id: p.id as string,
               name: p.title as string,
-              sku: ((p.variants as Record<string, unknown>[])?.[0] as Record<string, string>)?.id?.slice(0, 12) || '',
-              price: ((((p.variants as Record<string, unknown>[])?.[0] as Record<string, unknown>)?.prices as Record<string, unknown>[])?.[0] as Record<string, number>)?.amount || 0,
+              sku: p.variants?.[0]?.id?.slice(0, 12) || '',
+              price: p.variants?.[0]?.prices?.[0]?.amount || 0,
               status: p.status === 'published' ? 'active' as const : p.status === 'draft' ? 'draft' as const : 'archived' as const,
-              category: ((p.categories as Record<string, string>[])?.[0])?.name || 'Uncategorized',
-              inventory: ((p.variants as Record<string, number>[]) || []).reduce((s: number, v: Record<string, number>) => s + (v.inventory_quantity || 0), 0),
-              image: (p.thumbnail || '') as string,
-              description: (p.description || '') as string,
+              category: p.categories?.[0]?.name || 'Uncategorized',
+              inventory: (p.variants || []).reduce((s: number, v: any) => s + (v.inventory_quantity || 0), 0),
+              image: p.thumbnail || '',
+              description: p.description || '',
               createdAt: p.created_at as string,
             })))
           } catch {
