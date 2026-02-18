@@ -144,6 +144,39 @@ export default function CollectionClient({
     return () => document.removeEventListener("mousedown", handler);
   }, [sortOpen]);
 
+  /* ── Infinite scroll: auto-load more when sentinel is near viewport ── */
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !loadingMore) {
+          setLoadingMore(true);
+          setTimeout(() => {
+            setVisibleCount((v) => v + PAGE_SIZE);
+            setLoadingMore(false);
+          }, 400);
+        }
+      },
+      { rootMargin: "200px" }
+    );
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [loadingMore, filtered.length, visibleCount]);
+
+  /* Lock body scroll when mobile sort sheet is open */
+  useEffect(() => {
+    if (mobileSortOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [mobileSortOpen]);
+
   const prevVisibleCount = useRef(visibleCount);
   useEffect(() => {
     prevVisibleCount.current = visibleCount;
@@ -294,48 +327,14 @@ export default function CollectionClient({
               </span>
             )}
 
-            {/* Mobile sort — floating */}
-            <div className="relative">
-              <button
-                onClick={() => setSortOpen((v) => !v)}
-                className="flex items-center gap-1.5 text-sm font-medium text-charcoal min-h-[44px]"
-              >
-                {t(currentSortLabel)}
-                <ChevronDownIcon
-                  className={`w-3.5 h-3.5 transition-transform duration-200 ${
-                    sortOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              <AnimatePresence>
-                {sortOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 top-full mt-1 z-30 bg-white border border-soft-gray/40 shadow-lg rounded-lg py-1.5 min-w-[200px]"
-                  >
-                    {SORT_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        onClick={() => {
-                          handleSortChange(opt.value);
-                          setSortOpen(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 text-[13px] transition-colors ${
-                          sortBy === opt.value
-                            ? "text-charcoal font-medium bg-charcoal/[0.04]"
-                            : "text-charcoal/45 hover:text-charcoal hover:bg-charcoal/[0.02]"
-                        }`}
-                      >
-                        {t(opt.key)}
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Mobile sort — opens bottom sheet */}
+            <button
+              onClick={() => setMobileSortOpen(true)}
+              className="flex items-center gap-1.5 text-sm font-medium text-charcoal min-h-[44px]"
+            >
+              {t(currentSortLabel)}
+              <ChevronDownIcon className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           {/* Active filter pills — mobile */}
@@ -707,86 +706,19 @@ export default function CollectionClient({
                   })}
                 </div>
 
+                {/* Infinite scroll sentinel */}
                 {hasMore && (
-                  <motion.div
-                    className="text-center mt-12 lg:mt-16"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
-                  >
-                    <button
-                      onClick={() => {
-                        setLoadingMore(true);
-                        setTimeout(() => {
-                          setVisibleCount((v) => v + PAGE_SIZE);
-                          setLoadingMore(false);
-                        }, 600);
-                      }}
-                      disabled={loadingMore}
-                      className="relative inline-flex items-center justify-center gap-3 px-10 py-4 border border-charcoal/15 text-[12px] font-medium tracking-[0.15em] uppercase text-charcoal hover:bg-charcoal hover:text-white disabled:pointer-events-none transition-all duration-400 group overflow-hidden min-w-[200px]"
-                    >
-                      <AnimatePresence mode="wait">
-                        {loadingMore ? (
-                          <motion.span
-                            key="loading"
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.8 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex items-center gap-2"
-                          >
-                            <svg
-                              className="w-4 h-4 animate-spin"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <circle
-                                className="opacity-20"
-                                cx="12"
-                                cy="12"
-                                r="10"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                              />
-                              <path
-                                className="opacity-75"
-                                fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                              />
-                            </svg>
-                          </motion.span>
-                        ) : (
-                          <motion.span
-                            key="label"
-                            initial={{ opacity: 0, y: 6 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -6 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex items-center gap-3"
-                          >
-                            {t("loadMore")}
-                            <svg
-                              className="w-4 h-4 transition-transform duration-300 group-hover:translate-y-0.5"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                              stroke="currentColor"
-                              strokeWidth={1.5}
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3"
-                              />
-                            </svg>
-                          </motion.span>
-                        )}
-                      </AnimatePresence>
-                    </button>
-                    <p className="text-[11px] text-charcoal/35 mt-3 tracking-wide">
-                      {t("showing")} {visible.length} {t("of")}{" "}
-                      {filtered.length}
-                    </p>
-                  </motion.div>
+                  <div ref={sentinelRef} className="flex justify-center py-10 lg:py-14">
+                    {loadingMore && (
+                      <div className="w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                    )}
+                  </div>
+                )}
+                {!hasMore && visible.length > PAGE_SIZE && (
+                  <p className="text-center text-[11px] text-charcoal/25 mt-10 tracking-wide">
+                    {t("showing")} {visible.length} {t("of")}{" "}
+                    {filtered.length}
+                  </p>
                 )}
               </>
             ) : (
@@ -824,6 +756,54 @@ export default function CollectionClient({
         onClear={handleClearAll}
         resultCount={filtered.length}
       />
+
+      {/* Mobile sort bottom sheet */}
+      {mobileSortOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/40 z-50 lg:hidden animate-fade-in"
+            onClick={() => setMobileSortOpen(false)}
+          />
+          <div className="fixed bottom-0 left-0 right-0 bg-white z-50 lg:hidden rounded-t-2xl animate-slide-up">
+            {/* Drag handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <span className="w-10 h-1 rounded-full bg-charcoal/15" />
+            </div>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-charcoal/[0.06]">
+              <h3 className="font-serif text-lg text-charcoal">
+                {t("sortBy")}
+              </h3>
+              <button
+                onClick={() => setMobileSortOpen(false)}
+                className="p-2 -mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center"
+              >
+                <XMarkIcon className="w-5 h-5 text-charcoal/40" />
+              </button>
+            </div>
+            <div className="py-2 safe-area-pb">
+              {SORT_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => {
+                    handleSortChange(opt.value);
+                    setMobileSortOpen(false);
+                  }}
+                  className={`w-full flex items-center justify-between px-5 py-4 text-[14px] transition-colors min-h-[48px] ${
+                    sortBy === opt.value
+                      ? "text-charcoal font-medium"
+                      : "text-charcoal/45 active:bg-charcoal/[0.03]"
+                  }`}
+                >
+                  {t(opt.key)}
+                  {sortBy === opt.value && (
+                    <CheckIcon className="w-5 h-5 text-gold" />
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

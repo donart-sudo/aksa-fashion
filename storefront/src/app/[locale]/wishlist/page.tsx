@@ -335,6 +335,7 @@ export default function WishlistPage() {
       addItem({
         productId: item.id,
         variantId: item.id,
+        handle: item.handle,
         title: item.title,
         thumbnail: item.thumbnail,
         price: item.price,
@@ -350,6 +351,7 @@ export default function WishlistPage() {
       addItem({
         productId: item.id,
         variantId: item.id,
+        handle: item.handle,
         title: item.title,
         thumbnail: item.thumbnail,
         price: item.price,

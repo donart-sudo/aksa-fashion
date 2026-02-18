@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
@@ -65,10 +66,71 @@ function StripeIcon() {
   );
 }
 
+/* ── Accordion section for mobile footer ── */
+function FooterAccordion({
+  title,
+  children,
+  isOpen,
+  onToggle,
+}: {
+  title: string;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="lg:contents">
+      {/* Mobile: accordion header */}
+      <button
+        onClick={onToggle}
+        className="flex items-center justify-between w-full py-3.5 lg:hidden cursor-pointer"
+        aria-expanded={isOpen}
+      >
+        <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-white">
+          {title}
+        </h4>
+        <svg
+          className={`w-4 h-4 text-white/30 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      {/* Desktop: static heading */}
+      <h4 className="hidden lg:block text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-5">
+        {title}
+      </h4>
+      {/* Content: always visible on desktop, collapsible on mobile */}
+      <div
+        className={`overflow-hidden transition-all duration-300 lg:!max-h-none lg:!opacity-100 ${
+          isOpen ? "max-h-60 opacity-100 pb-2" : "max-h-0 opacity-0"
+        }`}
+      >
+        {children}
+      </div>
+      {/* Mobile divider */}
+      <div className="h-px bg-white/[0.06] lg:hidden" />
+    </div>
+  );
+}
+
 export default function Footer() {
   const t = useTranslations();
   const locale = useLocale();
   const year = new Date().getFullYear();
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+
+  const toggleSection = (key: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
   return (
     <footer className="bg-[#1a1a1a] text-white/70 pb-24 md:pb-0">
@@ -163,77 +225,86 @@ export default function Footer() {
           </div>
 
           {/* Shop column */}
-          <div className="col-span-1 lg:col-span-2">
-            <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-5">
-              {t("common.shop")}
-            </h4>
-            <ul className="space-y-2.5">
-              {[
-                { href: "/collections/new", label: t("nav.newCollection") },
-                { href: "/collections/bridal", label: t("nav.bridalGowns") },
-                { href: "/collections/evening-dress", label: t("nav.eveningWear") },
-                { href: "/collections", label: t("common.collections") },
-                { href: "/collections/sale", label: t("nav.saleItems") },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={`/${locale}${link.href}`}
-                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="col-span-2 lg:col-span-2">
+            <FooterAccordion
+              title={t("common.shop")}
+              isOpen={openSections.has("shop")}
+              onToggle={() => toggleSection("shop")}
+            >
+              <ul className="space-y-2.5">
+                {[
+                  { href: "/collections/new", label: t("nav.newCollection") },
+                  { href: "/collections/bridal", label: t("nav.bridalGowns") },
+                  { href: "/collections/evening-dress", label: t("nav.eveningWear") },
+                  { href: "/collections", label: t("common.collections") },
+                  { href: "/collections/sale", label: t("nav.saleItems") },
+                ].map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={`/${locale}${link.href}`}
+                      className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </FooterAccordion>
           </div>
 
           {/* Help column */}
-          <div className="col-span-1 lg:col-span-2">
-            <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-5">
-              {t("footer.customerService")}
-            </h4>
-            <ul className="space-y-2.5">
-              {[
-                { href: "/about", label: t("footer.aboutUs") },
-                { href: "/faq", label: t("common.faq") },
-                { href: "/shipping", label: t("footer.shippingInfo") },
-                { href: "/size-guide", label: t("common.sizeGuide") },
-                { href: "/contact", label: t("common.contact") },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={`/${locale}${link.href}`}
-                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="col-span-2 lg:col-span-2">
+            <FooterAccordion
+              title={t("footer.customerService")}
+              isOpen={openSections.has("help")}
+              onToggle={() => toggleSection("help")}
+            >
+              <ul className="space-y-2.5">
+                {[
+                  { href: "/about", label: t("footer.aboutUs") },
+                  { href: "/faq", label: t("common.faq") },
+                  { href: "/shipping", label: t("footer.shippingInfo") },
+                  { href: "/size-guide", label: t("common.sizeGuide") },
+                  { href: "/contact", label: t("common.contact") },
+                ].map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={`/${locale}${link.href}`}
+                      className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </FooterAccordion>
           </div>
 
           {/* Account column */}
-          <div className="col-span-1 lg:col-span-2">
-            <h4 className="text-[11px] font-bold tracking-[0.2em] uppercase text-white mb-5">
-              {t("footer.account")}
-            </h4>
-            <ul className="space-y-2.5">
-              {[
-                { href: "/account", label: t("account.myProfile") },
-                { href: "/account/orders", label: t("account.myOrders") },
-                { href: "/wishlist", label: t("common.wishlist") },
-                { href: "/account/addresses", label: t("account.myAddresses") },
-              ].map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={`/${locale}${link.href}`}
-                    className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="col-span-2 lg:col-span-2">
+            <FooterAccordion
+              title={t("footer.account")}
+              isOpen={openSections.has("account")}
+              onToggle={() => toggleSection("account")}
+            >
+              <ul className="space-y-2.5">
+                {[
+                  { href: "/account", label: t("account.myProfile") },
+                  { href: "/account/orders", label: t("account.myOrders") },
+                  { href: "/wishlist", label: t("common.wishlist") },
+                  { href: "/account/addresses", label: t("account.myAddresses") },
+                ].map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={`/${locale}${link.href}`}
+                      className="text-[14px] text-white/55 hover:text-gold transition-colors duration-300"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </FooterAccordion>
           </div>
 
           {/* Contact column */}

@@ -10,26 +10,26 @@ const SLIDE_DURATION = 6000;
 
 const HERO_SLIDES = [
   {
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
-    alt: "Royal Lilac Aura luxury ball gown by Aksa Fashion",
+    image: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+    alt: "Snow luxury bridal gown with flowing silhouette",
     ctaLink: "collections",
     key: "slide0",
   },
   {
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
-    alt: "Crystal Bloom handcrafted bridal gown with beaded bodice",
+    image: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
+    alt: "Pure Essence bridal gown with sparkling beadwork",
     ctaLink: "collections/bridal",
     key: "slide1",
   },
   {
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
-    alt: "Midnight Gold evening dress with gold embroidery details",
+    image: "http://localhost:9000/static/1771434665133-Imperial-Flame-scaled.jpg",
+    alt: "Imperial Flame evening gown with elegant drama",
     ctaLink: "collections/evening-dress",
     key: "slide2",
   },
   {
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-scaled.jpg",
-    alt: "Solar Elegance silhouette gown in warm golden fabric",
+    image: "http://localhost:9000/static/1771434665088-Lumi-scaled.jpg",
+    alt: "Lumi gown with cascading drama and flowing cape",
     ctaLink: "collections/silhouette-whisper",
     key: "slide3",
   },
@@ -271,6 +271,20 @@ export default function EditorialBanner() {
 
         {/* Subtle edge vignette */}
         <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-black/10 lg:bg-gradient-to-r lg:from-[#1a1a1a]/30 lg:via-transparent lg:to-transparent" />
+
+        {/* Mobile dot indicators */}
+        <div className="lg:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+          {HERO_SLIDES.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goToSlide(i)}
+              className={`h-[6px] rounded-full transition-all duration-300 ${
+                i === current ? "w-7 bg-white" : "w-[6px] bg-white/40"
+              }`}
+              aria-label={`Slide ${i + 1}`}
+            />
+          ))}
+        </div>
 
         {/* ═══ Navigation arrows ═══ */}
         <div className="absolute inset-0 z-20 pointer-events-none">

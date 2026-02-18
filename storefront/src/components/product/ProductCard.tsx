@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import { useLocale, useTranslations } from "next-intl";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
@@ -11,6 +11,7 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
+import { useToast } from "@/components/ui/Toast";
 
 export interface ProductCardData {
   id: string;
@@ -36,6 +37,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
   const locale = useLocale();
   const { addItem } = useCart();
   const { toggleItem, isWishlisted } = useWishlist();
+  const { toast } = useToast();
   const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
   const [showSizes, setShowSizes] = useState(false);
@@ -51,6 +53,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
     addItem({
       productId: product.id,
       variantId: product.id,
+      handle: product.handle,
       title: product.title,
       thumbnail: product.thumbnail,
       price: product.price,
@@ -58,8 +61,9 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
     });
     setAdded(true);
     setShowSizes(false);
+    toast(t("added"), "cart");
     setTimeout(() => setAdded(false), 1800);
-  }, [addItem, product]);
+  }, [addItem, product, toast, t]);
 
   const addToCartWithSize = useCallback(
     (e: React.MouseEvent, size: string) => {
@@ -68,6 +72,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
       addItem({
         productId: product.id,
         variantId: `${product.id}-${size}`,
+        handle: product.handle,
         title: product.title,
         thumbnail: product.thumbnail,
         price: product.price,
@@ -76,9 +81,10 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
       });
       setAdded(true);
       setShowSizes(false);
+      toast(t("added"), "cart");
       setTimeout(() => setAdded(false), 1800);
     },
-    [addItem, product]
+    [addItem, product, toast, t]
   );
 
   const handleAddToCart = useCallback(
@@ -110,9 +116,14 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      const wasWishlisted = isWishlisted(product.id);
       toggleItem(product);
+      toast(
+        wasWishlisted ? t("removeFromWishlist") : t("addToWishlist"),
+        "wishlist"
+      );
     },
-    [toggleItem, product]
+    [toggleItem, product, isWishlisted, toast, t]
   );
 
   return (
@@ -124,11 +135,12 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
       {/* Image */}
       <Link
         href={`/${locale}/products/${product.handle}`}
-        className="block relative aspect-[3/4] overflow-hidden bg-[#f0eeeb]"
+        className="block relative aspect-[3/4] overflow-hidden bg-[#f0eeeb] active:scale-[0.97] transition-transform duration-200"
       >
-        <Image
+        <ProductImage
           src={product.thumbnail}
           alt={product.title}
+          fallbackLabel={product.title}
           fill
           className={`object-cover object-top transition-all duration-700 ease-out ${
             hovered && product.hoverImage
@@ -142,9 +154,10 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
         />
 
         {product.hoverImage && (
-          <Image
+          <ProductImage
             src={product.hoverImage}
             alt={product.title}
+            fallbackLabel={product.title}
             fill
             className={`object-cover object-top transition-all duration-700 ease-out ${
               hovered ? "opacity-100 scale-100" : "opacity-0 scale-[1.03]"

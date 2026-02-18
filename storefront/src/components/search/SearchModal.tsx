@@ -264,6 +264,7 @@ function SearchProductCard({
     addItem({
       productId: product.id,
       variantId: product.id,
+      handle: product.handle,
       title: product.title,
       thumbnail: product.thumbnail,
       price: product.price,
@@ -281,6 +282,7 @@ function SearchProductCard({
       addItem({
         productId: product.id,
         variantId: `${product.id}-${size}`,
+        handle: product.handle,
         title: product.title,
         thumbnail: product.thumbnail,
         price: product.price,

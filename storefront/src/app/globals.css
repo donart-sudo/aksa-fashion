@@ -28,9 +28,36 @@ body:not(.admin-body) {
   text-align: right;
 }
 
-/* Smooth scrolling */
-html:not(.admin-html) {
-  scroll-behavior: smooth;
+/* Smooth scrolling — respect prefers-reduced-motion */
+@media (prefers-reduced-motion: no-preference) {
+  html:not(.admin-html) {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile app-like foundation */
+html, body {
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Safe area utilities for notched devices */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.safe-area-mb {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* Custom scrollbar — storefront only */
@@ -170,4 +197,41 @@ select:focus-visible {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
+}
+
+/* Page fade-in animation */
+@keyframes page-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-page-fade-in {
+  animation: page-fade-in 300ms ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-fade-in,
+  .animate-fade-in,
+  .animate-slide-up,
+  .animate-hero-line-up,
+  .animate-hero-fade-up,
+  .animate-accent-grow {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Overscroll containment for scrollable panels */
+.overscroll-contain {
+  overscroll-behavior: contain;
+}
+
+/* Toast notification animation */
+@keyframes toast-in {
+  0% { transform: translateY(16px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-toast-in {
+  animation: toast-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }

@@ -75,24 +75,26 @@ export default function TrustBar() {
           ))}
         </div>
 
-        {/* Mobile: 2x2 grid */}
-        <div className="sm:hidden grid grid-cols-2 gap-3">
-          {trustItems.map((item, i) => (
-            <div
-              key={item.key}
-              className="flex items-center gap-2 justify-center"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(8px)",
-                transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
-              }}
-            >
-              <item.Icon className="w-3.5 h-3.5 text-gold/70 flex-shrink-0" />
-              <span className="text-[10px] tracking-[0.15em] uppercase text-charcoal/50">
-                {t(item.key)}
-              </span>
-            </div>
-          ))}
+        {/* Mobile: horizontal scroll strip */}
+        <div className="sm:hidden -mx-4">
+          <div className="flex items-center gap-5 overflow-x-auto scrollbar-hide px-4 py-1">
+            {trustItems.map((item, i) => (
+              <div
+                key={item.key}
+                className="flex items-center gap-2 flex-shrink-0"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "none" : "translateY(8px)",
+                  transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
+                }}
+              >
+                <item.Icon className="w-3.5 h-3.5 text-gold/70 flex-shrink-0" />
+                <span className="text-[10px] tracking-[0.15em] uppercase text-charcoal/50 whitespace-nowrap">
+                  {t(item.key)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

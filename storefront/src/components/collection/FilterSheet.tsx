@@ -63,8 +63,13 @@ export default function FilterSheet({
 
       {/* Sheet */}
       <div className="fixed bottom-0 left-0 right-0 bg-white z-50 md:hidden rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <span className="w-10 h-1 rounded-full bg-charcoal/15" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-charcoal/[0.06]">
+        <div className="flex items-center justify-between px-5 py-3 border-b border-charcoal/[0.06]">
           <h3 className="font-serif text-lg text-charcoal">
             {t("filters")}
           </h3>
@@ -77,7 +82,7 @@ export default function FilterSheet({
         </div>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto px-5 py-6">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-6">
 
           {/* Sizes */}
           {sizes.length > 0 && (

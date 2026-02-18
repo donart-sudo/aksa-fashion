@@ -177,17 +177,17 @@ function CartItemRow({
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                   disabled={item.quantity <= 1}
-                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-charcoal/40 hover:text-charcoal disabled:opacity-20 transition-colors text-sm cursor-pointer"
+                  className="w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center text-charcoal/40 hover:text-charcoal disabled:opacity-20 transition-colors text-sm cursor-pointer"
                   aria-label="Decrease quantity"
                 >
                   −
                 </button>
-                <span className="w-8 sm:w-9 text-center text-xs sm:text-sm font-medium text-charcoal tabular-nums">
+                <span className="w-9 text-center text-xs sm:text-sm font-medium text-charcoal tabular-nums">
                   {item.quantity}
                 </span>
                 <button
                   onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                  className="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center text-charcoal/40 hover:text-charcoal transition-colors text-sm cursor-pointer"
+                  className="w-11 h-11 sm:w-9 sm:h-9 flex items-center justify-center text-charcoal/40 hover:text-charcoal transition-colors text-sm cursor-pointer"
                   aria-label="Increase quantity"
                 >
                   +
@@ -197,17 +197,18 @@ function CartItemRow({
               {/* Save for later */}
               <button
                 onClick={handleMoveToWishlist}
-                className="hidden sm:flex items-center gap-1.5 text-[10px] tracking-[0.1em] uppercase text-charcoal/25 hover:text-gold transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-[10px] tracking-[0.1em] uppercase text-charcoal/25 hover:text-gold transition-colors cursor-pointer min-h-[44px] sm:min-h-0"
               >
                 {saved ? (
                   <>
-                    <CheckIcon className="w-3 h-3 text-gold" />
+                    <CheckIcon className="w-3.5 h-3.5 sm:w-3 sm:h-3 text-gold" />
                     <span className="text-gold">{t("cart.movedToWishlist")}</span>
                   </>
                 ) : (
                   <>
-                    <HeartIcon className="w-3.5 h-3.5" />
-                    {t("cart.moveToWishlist")}
+                    <HeartIcon className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
+                    <span className="hidden sm:inline">{t("cart.moveToWishlist")}</span>
+                    <span className="sm:hidden">{t("common.save")}</span>
                   </>
                 )}
               </button>

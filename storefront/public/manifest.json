@@ -3,6 +3,8 @@
   "short_name": "Aksa",
   "description": "Luxury bridal gowns and evening wear from Prishtina, Kosovo",
   "start_url": "/sq",
+  "scope": "/",
+  "id": "/",
   "display": "standalone",
   "background_color": "#FAF8F5",
   "theme_color": "#B8926A",

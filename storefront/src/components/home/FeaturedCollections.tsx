@@ -5,32 +5,32 @@ import { getTranslations } from "next-intl/server";
 const collections = [
   {
     key: "bridal",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
+    image: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
     href: "/collections/bridal",
   },
   {
     key: "evening",
-    image: "https://ariart.shop/wp-content/uploads/2024/12/10-4-scaled.jpg",
+    image: "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
     href: "/collections/evening-dress",
   },
   {
     key: "cape-and-train",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg",
+    image: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
     href: "/collections/cape-and-train-elegance",
   },
   {
     key: "ball-gown",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
+    image: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
     href: "/collections/ball-gown",
   },
   {
     key: "silhouette",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
+    image: "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
     href: "/collections/silhouette-whisper",
   },
   {
     key: "ruffled-dream",
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Lilac-Queen-Gown1-scaled.jpg",
+    image: "http://localhost:9000/static/1771434665053-Royal-Lilac-scaled.jpg",
     href: "/collections/ruffled-dream",
   },
 ];
@@ -119,7 +119,7 @@ export default async function FeaturedCollections({
 
         {/* Mobile: horizontal scroll */}
         <div className="sm:hidden -mx-4">
-          <div className="flex gap-3.5 overflow-x-auto overflow-y-hidden snap-x snap-proximity scrollbar-hide px-4">
+          <div className="flex gap-3.5 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide px-4">
             {collections.map((col, i) => (
               <div
                 key={col.key}

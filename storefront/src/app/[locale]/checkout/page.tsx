@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,22 +9,50 @@ import { motion, AnimatePresence } from "framer-motion";
 import Input from "@/components/ui/Input";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
+import { SOCIAL_LINKS } from "@/lib/constants";
 import {
-  ShieldCheckIcon,
+  createCart,
+  addLineItem,
+  updateCart,
+  getShippingOptions,
+  addShippingMethod,
+  initPaymentCollection,
+  createPaymentSession,
+  completeCart,
+  getRegions,
+  resolveVariantId,
+  resolveCountryCode,
+  type MedusaShippingOption,
+  type MedusaCart,
+} from "@/lib/data/medusa-checkout";
+import {
   LockClosedIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  TruckIcon,
   CheckCircleIcon,
-  CreditCardIcon,
-  InformationCircleIcon,
-  TagIcon,
   ChevronDownIcon,
   ShoppingBagIcon,
+  ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 
 type Step = 1 | 2 | 3;
+
+/* ─── Mobile progress bar (3 segments) ─── */
+function MobileProgressBar({ currentStep }: { currentStep: Step }) {
+  return (
+    <div className="flex gap-1.5 mb-6 sm:hidden">
+      {[1, 2, 3].map((s) => (
+        <div
+          key={s}
+          className={`h-[3px] flex-1 rounded-full transition-colors duration-500 ${
+            s <= currentStep ? "bg-gold" : "bg-charcoal/[0.08]"
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
 
 /* ─── Step indicator breadcrumb ─── */
 function StepBreadcrumb({
@@ -90,8 +118,6 @@ function OrderSummary({
   items,
   subtotal,
   shippingCost,
-  discountCode,
-  setDiscountCode,
   tCo,
   t,
   tCart,
@@ -101,8 +127,6 @@ function OrderSummary({
   items: ReturnType<typeof useCart>["items"];
   subtotal: number;
   shippingCost: number;
-  discountCode: string;
-  setDiscountCode: (v: string) => void;
   tCo: (key: string) => string;
   t: (key: string) => string;
   tCart: (key: string) => string;
@@ -166,23 +190,6 @@ function OrderSummary({
             ))}
           </div>
 
-          {/* Discount code */}
-          <div className="flex gap-2 mb-6">
-            <div className="flex-1 relative">
-              <TagIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/25" />
-              <input
-                type="text"
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value)}
-                placeholder={tCo("discountCode")}
-                className="w-full pl-9 pr-3 py-2.5 text-sm border border-soft-gray/50 rounded-lg bg-white placeholder:text-charcoal/30 focus:border-gold focus:outline-none transition-colors"
-              />
-            </div>
-            <button className="px-4 py-2.5 text-sm font-medium text-gold border border-gold/30 rounded-lg hover:bg-gold/5 transition-colors cursor-pointer">
-              {tCo("applyDiscount")}
-            </button>
-          </div>
-
           {/* Totals */}
           <div className="space-y-3 text-sm border-t border-soft-gray/40 pt-4">
             <div className="flex justify-between text-charcoal/60">
@@ -202,9 +209,8 @@ function OrderSummary({
 
         {/* Trust badges */}
         <div className="flex items-center justify-center gap-4 mt-4 text-charcoal/30">
-          <ShieldCheckIcon className="w-5 h-5" />
-          <span className="text-xs">{tCo("securePayment")}</span>
           <LockClosedIcon className="w-4 h-4" />
+          <span className="text-xs">{tCo("securePayment")}</span>
         </div>
       </div>
     </div>
@@ -212,20 +218,18 @@ function OrderSummary({
 }
 
 /* ─── Shipping option radio ─── */
-function ShippingOption({
+function ShippingOptionRadio({
   name,
-  days,
+  description,
   price,
   selected,
   onSelect,
-  icon: Icon,
 }: {
   name: string;
-  days: string;
+  description?: string;
   price: string;
   selected: boolean;
   onSelect: () => void;
-  icon?: React.ComponentType<{ className?: string }>;
 }) {
   return (
     <button
@@ -249,10 +253,22 @@ function ShippingOption({
       </div>
       <div className="flex-1 text-left">
         <p className="text-sm font-medium text-charcoal">{name}</p>
-        <p className="text-xs text-charcoal/50 mt-0.5">{days}</p>
+        {description && (
+          <p className="text-xs text-charcoal/50 mt-0.5">{description}</p>
+        )}
       </div>
       <span className="text-sm font-semibold text-charcoal">{price}</span>
     </button>
+  );
+}
+
+/* ─── WhatsApp icon SVG ─── */
+function WhatsAppIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.61.609l4.458-1.495A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.336 0-4.512-.68-6.354-1.845l-.244-.156-3.662 1.228 1.228-3.662-.156-.244A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    </svg>
   );
 }
 
@@ -277,47 +293,180 @@ export default function CheckoutPage() {
   const [postalCode, setPostalCode] = useState("");
   const [country, setCountry] = useState("Kosovo");
   const [phone, setPhone] = useState("");
-  const [shippingMethod, setShippingMethod] = useState<"standard" | "express">("standard");
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiryDate, setExpiryDate] = useState("");
-  const [cvv, setCvv] = useState("");
-  const [nameOnCard, setNameOnCard] = useState("");
-  const [billingType, setBillingType] = useState<"same" | "different">("same");
-  const [discountCode, setDiscountCode] = useState("");
   const [emailUpdates, setEmailUpdates] = useState(true);
   const [saveInfo, setSaveInfo] = useState(true);
   const [orderNote, setOrderNote] = useState("");
-  const [processing, setProcessing] = useState(false);
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
-  const shippingCost = shippingMethod === "express" ? 3000 : (subtotal >= 15000 ? 0 : 1500);
+  /* Checkout flow state */
+  const [processing, setProcessing] = useState(false);
+  const [error, setError] = useState("");
+  const [cartCreating, setCartCreating] = useState(false);
+
+  /* Medusa state */
+  const [medusaCartId, setMedusaCartId] = useState<string | null>(null);
+  const [shippingOptions, setShippingOptions] = useState<MedusaShippingOption[]>([]);
+  const [selectedShippingOption, setSelectedShippingOption] = useState<string | null>(null);
+  const [shippingCostFromMedusa, setShippingCostFromMedusa] = useState<number | null>(null);
+
+  // Fallback shipping cost if Medusa unavailable
+  const shippingCost = shippingCostFromMedusa ?? (subtotal >= 15000 ? 0 : 1500);
 
   const goToStep = useCallback((s: Step) => setStep(s), []);
 
-  /* Format card number with spaces */
-  const handleCardChange = (val: string) => {
-    const digits = val.replace(/\D/g, "").slice(0, 16);
-    const formatted = digits.replace(/(\d{4})(?=\d)/g, "$1 ");
-    setCardNumber(formatted);
-  };
+  // Track if we used Medusa for the cart
+  const medusaRef = useRef(false);
 
-  /* Format expiry MM/YY */
-  const handleExpiryChange = (val: string) => {
-    const digits = val.replace(/\D/g, "").slice(0, 4);
-    if (digits.length > 2) {
-      setExpiryDate(`${digits.slice(0, 2)}/${digits.slice(2)}`);
-    } else {
-      setExpiryDate(digits);
+  /* ── Step 1 → Step 2: Create Medusa cart + resolve variants ── */
+  const handleContinueToShipping = async () => {
+    // Basic validation
+    if (!email || !firstName || !lastName || !address || !city || !country) {
+      setError(tCo("fillRequired"));
+      return;
+    }
+
+    setError("");
+    setCartCreating(true);
+
+    try {
+      // 1. Get region
+      const regions = await getRegions();
+      const countryCode = resolveCountryCode(country);
+      const region = regions.find((r) =>
+        r.countries.some((c) => c.iso_2 === countryCode)
+      ) || regions[0];
+
+      if (!region) {
+        // No backend, go to shipping with fallback
+        setStep(2);
+        setCartCreating(false);
+        return;
+      }
+
+      // 2. Create cart
+      const cart = await createCart(region.id);
+      if (!cart) {
+        setStep(2);
+        setCartCreating(false);
+        return;
+      }
+
+      setMedusaCartId(cart.id);
+      medusaRef.current = true;
+
+      // 3. Resolve variant IDs and add line items
+      for (const item of items) {
+        const variantId = await resolveVariantId(item.handle, item.size);
+        if (variantId) {
+          await addLineItem(cart.id, variantId, item.quantity);
+        }
+      }
+
+      // 4. Update cart with email + shipping address
+      await updateCart(cart.id, {
+        email,
+        shipping_address: {
+          first_name: firstName,
+          last_name: lastName,
+          address_1: address,
+          address_2: apartment || undefined,
+          city,
+          postal_code: postalCode,
+          country_code: countryCode,
+          phone: phone || undefined,
+        },
+        billing_address: {
+          first_name: firstName,
+          last_name: lastName,
+          address_1: address,
+          address_2: apartment || undefined,
+          city,
+          postal_code: postalCode,
+          country_code: countryCode,
+          phone: phone || undefined,
+        },
+      });
+
+      // 5. Fetch shipping options
+      const options = await getShippingOptions(cart.id);
+      setShippingOptions(options);
+      if (options.length > 0) {
+        setSelectedShippingOption(options[0].id);
+        const price = options[0].calculated_price?.calculated_amount ?? options[0].amount;
+        setShippingCostFromMedusa(price);
+      }
+
+      setStep(2);
+    } catch (err) {
+      console.error("Checkout step 1 error:", err);
+      // Fall through to step 2 with fallback
+      setStep(2);
+    } finally {
+      setCartCreating(false);
     }
   };
 
-  /* Place order handler */
+  /* ── Step 2 → Step 3: Select shipping method ── */
+  const handleContinueToPayment = async () => {
+    setError("");
+
+    if (medusaCartId && selectedShippingOption) {
+      try {
+        await addShippingMethod(medusaCartId, selectedShippingOption);
+      } catch (err) {
+        console.error("Failed to add shipping method:", err);
+      }
+    }
+
+    setStep(3);
+  };
+
+  /* ── Handle shipping option selection ── */
+  const handleSelectShipping = (optionId: string) => {
+    setSelectedShippingOption(optionId);
+    const option = shippingOptions.find((o) => o.id === optionId);
+    if (option) {
+      const price = option.calculated_price?.calculated_amount ?? option.amount;
+      setShippingCostFromMedusa(price);
+    }
+  };
+
+  /* ── Place order handler ── */
   const handlePlaceOrder = async () => {
     setProcessing(true);
-    // Simulate order processing
-    await new Promise((r) => setTimeout(r, 2500));
-    clearCart();
-    router.push(`/${locale}/checkout/confirmation`);
+    setError("");
+
+    try {
+      if (medusaCartId) {
+        // Real Medusa checkout flow
+        const collectionId = await initPaymentCollection(medusaCartId);
+        if (!collectionId) throw new Error("Failed to init payment");
+
+        const sessionOk = await createPaymentSession(collectionId, "pp_system_default");
+        if (!sessionOk) throw new Error("Failed to create payment session");
+
+        const order = await completeCart(medusaCartId);
+        if (!order) throw new Error("Failed to complete order");
+
+        clearCart();
+        // Store order info for confirmation page
+        try {
+          localStorage.setItem("aksa_last_order_id", order.id);
+          localStorage.setItem("aksa_last_order_display_id", String(order.display_id || ""));
+        } catch { /* ignore */ }
+
+        router.push(`/${locale}/checkout/confirmation?order_id=${order.id}`);
+      } else {
+        // Fallback: no Medusa, simulate order
+        await new Promise((r) => setTimeout(r, 1500));
+        clearCart();
+        router.push(`/${locale}/checkout/confirmation`);
+      }
+    } catch (err) {
+      console.error("Place order error:", err);
+      setError(tCo("orderError"));
+      setProcessing(false);
+    }
   };
 
   /* Empty cart redirect */
@@ -362,7 +511,7 @@ export default function CheckoutPage() {
           <h2 className="font-serif text-xl text-charcoal mb-2">
             {tCo("processing")}
           </h2>
-          <p className="text-sm text-charcoal/50">{tCo("securePayment")}</p>
+          <p className="text-sm text-charcoal/50">{tCo("processingDesc")}</p>
         </motion.div>
       </div>
     );
@@ -385,7 +534,26 @@ export default function CheckoutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
           {/* Left: Form area */}
           <div className="lg:col-span-7">
+            <MobileProgressBar currentStep={step} />
             <StepBreadcrumb currentStep={step} goToStep={goToStep} tCo={tCo} />
+
+            {/* Error banner */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="flex items-center gap-2 p-4 mb-6 bg-red-50 border border-red-100 rounded-xl"
+                >
+                  <ExclamationTriangleIcon className="w-5 h-5 text-red-500 flex-shrink-0" />
+                  <p className="text-sm text-red-600">{error}</p>
+                  <button onClick={() => setError("")} className="ml-auto text-red-400 hover:text-red-600 text-xs font-medium cursor-pointer">
+                    {t("close")}
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <AnimatePresence mode="wait">
               {/* ─── STEP 1: Information ─── */}
@@ -407,6 +575,8 @@ export default function CheckoutPage() {
                         id="checkoutEmail"
                         label={tAccount("email")}
                         type="email"
+                        inputMode="email"
+                        autoComplete="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="your@email.com"
@@ -434,6 +604,7 @@ export default function CheckoutPage() {
                         <Input
                           id="firstName"
                           label={tAccount("firstName")}
+                          autoComplete="given-name"
                           value={firstName}
                           onChange={(e) => setFirstName(e.target.value)}
                           placeholder="Elena"
@@ -442,6 +613,7 @@ export default function CheckoutPage() {
                         <Input
                           id="lastName"
                           label={tAccount("lastName")}
+                          autoComplete="family-name"
                           value={lastName}
                           onChange={(e) => setLastName(e.target.value)}
                           placeholder="Krasniqi"
@@ -451,6 +623,7 @@ export default function CheckoutPage() {
                       <Input
                         id="address"
                         label={tCo("address")}
+                        autoComplete="address-line1"
                         value={address}
                         onChange={(e) => setAddress(e.target.value)}
                         placeholder="123 Bulevardi Nënë Tereza"
@@ -459,6 +632,7 @@ export default function CheckoutPage() {
                       <Input
                         id="apartment"
                         label={tCo("apartment")}
+                        autoComplete="address-line2"
                         value={apartment}
                         onChange={(e) => setApartment(e.target.value)}
                         placeholder={tCo("apartment")}
@@ -467,6 +641,7 @@ export default function CheckoutPage() {
                         <Input
                           id="city"
                           label={tCo("city")}
+                          autoComplete="address-level2"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
                           placeholder="Prishtina"
@@ -475,6 +650,8 @@ export default function CheckoutPage() {
                         <Input
                           id="postalCode"
                           label={tCo("postalCode")}
+                          inputMode="numeric"
+                          autoComplete="postal-code"
                           value={postalCode}
                           onChange={(e) => setPostalCode(e.target.value)}
                           placeholder="10000"
@@ -485,6 +662,7 @@ export default function CheckoutPage() {
                         <Input
                           id="country"
                           label={tCo("country")}
+                          autoComplete="country-name"
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
                           placeholder="Kosovo"
@@ -494,6 +672,8 @@ export default function CheckoutPage() {
                           id="phone"
                           label={tCo("phone")}
                           type="tel"
+                          inputMode="tel"
+                          autoComplete="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           placeholder="+383 49 123 456"
@@ -523,11 +703,27 @@ export default function CheckoutPage() {
                     </Link>
                     <motion.button
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setStep(2)}
-                      className="px-8 py-3.5 bg-charcoal text-white text-sm font-medium rounded-lg hover:bg-charcoal/90 transition-colors cursor-pointer flex items-center gap-2"
+                      onClick={handleContinueToShipping}
+                      disabled={cartCreating}
+                      className={`px-8 py-3.5 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer flex items-center gap-2 ${
+                        cartCreating ? "bg-charcoal/50" : "bg-charcoal hover:bg-charcoal/90"
+                      }`}
                     >
-                      {tCo("continueToShipping")}
-                      <ChevronRightIcon className="w-4 h-4" />
+                      {cartCreating ? (
+                        <>
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full"
+                          />
+                          {t("loading")}
+                        </>
+                      ) : (
+                        <>
+                          {tCo("continueToShipping")}
+                          <ChevronRightIcon className="w-4 h-4" />
+                        </>
+                      )}
                     </motion.button>
                   </div>
                 </motion.div>
@@ -575,31 +771,46 @@ export default function CheckoutPage() {
                       {tCo("shippingMethod")}
                     </h2>
                     <div className="space-y-3">
-                      <ShippingOption
-                        name={tCo("standardShipping")}
-                        days={tCo("standardDays")}
-                        price={subtotal >= 15000 ? tCo("standardPrice") : "€15.00"}
-                        selected={shippingMethod === "standard"}
-                        onSelect={() => setShippingMethod("standard")}
-                      />
-                      <ShippingOption
-                        name={tCo("expressShipping")}
-                        days={tCo("expressDays")}
-                        price={tCo("expressPrice")}
-                        selected={shippingMethod === "express"}
-                        onSelect={() => setShippingMethod("express")}
-                      />
+                      {shippingOptions.length > 0 ? (
+                        // Real shipping options from Medusa
+                        shippingOptions.map((option) => {
+                          const price = option.calculated_price?.calculated_amount ?? option.amount;
+                          return (
+                            <ShippingOptionRadio
+                              key={option.id}
+                              name={option.name}
+                              price={price === 0 ? t("free") : formatPrice(price)}
+                              selected={selectedShippingOption === option.id}
+                              onSelect={() => handleSelectShipping(option.id)}
+                            />
+                          );
+                        })
+                      ) : (
+                        // Fallback shipping options
+                        <>
+                          <ShippingOptionRadio
+                            name={tCo("standardShipping")}
+                            description={tCo("standardDays")}
+                            price={subtotal >= 15000 ? t("free") : "€15.00"}
+                            selected={!selectedShippingOption || selectedShippingOption === "standard"}
+                            onSelect={() => {
+                              setSelectedShippingOption("standard");
+                              setShippingCostFromMedusa(subtotal >= 15000 ? 0 : 1500);
+                            }}
+                          />
+                          <ShippingOptionRadio
+                            name={tCo("expressShipping")}
+                            description={tCo("expressDays")}
+                            price="€30.00"
+                            selected={selectedShippingOption === "express"}
+                            onSelect={() => {
+                              setSelectedShippingOption("express");
+                              setShippingCostFromMedusa(3000);
+                            }}
+                          />
+                        </>
+                      )}
                     </div>
-                    {subtotal >= 15000 && shippingMethod === "standard" && (
-                      <motion.p
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-1.5 text-xs text-green-600 mt-3"
-                      >
-                        <CheckCircleIcon className="w-3.5 h-3.5" />
-                        {tCart("freeShippingUnlocked")}
-                      </motion.p>
-                    )}
                   </div>
 
                   {/* Order note */}
@@ -627,7 +838,7 @@ export default function CheckoutPage() {
                     </button>
                     <motion.button
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => setStep(3)}
+                      onClick={handleContinueToPayment}
                       className="px-8 py-3.5 bg-charcoal text-white text-sm font-medium rounded-lg hover:bg-charcoal/90 transition-colors cursor-pointer flex items-center gap-2"
                     >
                       {tCo("continueToPayment")}
@@ -637,7 +848,7 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
-              {/* ─── STEP 3: Payment ─── */}
+              {/* ─── STEP 3: Payment (Manual) ─── */}
               {step === 3 && (
                 <motion.div
                   key="step3"
@@ -682,99 +893,65 @@ export default function CheckoutPage() {
                       </button>
                     </div>
                     <p className="text-sm text-charcoal">
-                      {shippingMethod === "standard" ? tCo("standardShipping") : tCo("expressShipping")}
-                      {" · "}
-                      {shippingMethod === "standard" ? tCo("standardDays") : tCo("expressDays")}
+                      {shippingOptions.length > 0
+                        ? shippingOptions.find((o) => o.id === selectedShippingOption)?.name || tCo("standardShipping")
+                        : selectedShippingOption === "express"
+                          ? tCo("expressShipping")
+                          : tCo("standardShipping")}
                     </p>
                   </div>
 
-                  {/* Payment method */}
+                  {/* Payment arrangement panel */}
                   <div className="mb-8">
                     <h2 className="font-serif text-xl text-charcoal mb-4">
                       {tCo("paymentMethod")}
                     </h2>
 
-                    {/* Card form */}
-                    <div className="bg-white border border-soft-gray/30 rounded-xl p-5">
-                      {/* Card type indicator */}
-                      <div className="flex items-center gap-2 mb-5">
-                        <CreditCardIcon className="w-5 h-5 text-charcoal/40" />
-                        <span className="text-sm font-medium text-charcoal">Credit / Debit Card</span>
-                        <div className="flex items-center gap-1.5 ml-auto">
-                          <div className="w-8 h-5 bg-[#1A1F71] rounded flex items-center justify-center">
-                            <span className="text-white text-[7px] font-bold italic">VISA</span>
-                          </div>
-                          <div className="w-8 h-5 bg-[#EB001B] rounded-r-full relative overflow-hidden flex items-center justify-center">
-                            <div className="absolute left-0 w-4 h-5 bg-[#F79E1B] rounded-r-full opacity-80" />
-                          </div>
+                    <div className="bg-white border border-soft-gray/30 rounded-xl p-6">
+                      {/* Header */}
+                      <div className="flex items-center gap-3 mb-5">
+                        <div className="w-10 h-10 rounded-full bg-gold/10 flex items-center justify-center">
+                          <svg className="w-5 h-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h3 className="font-medium text-charcoal text-sm">
+                            {tCo("manualPaymentTitle")}
+                          </h3>
+                          <p className="text-xs text-charcoal/50 mt-0.5">
+                            {tCo("manualPaymentDesc")}
+                          </p>
                         </div>
                       </div>
 
-                      <div className="space-y-4">
-                        <Input
-                          id="cardNumber"
-                          label={tCo("cardNumber")}
-                          value={cardNumber}
-                          onChange={(e) => handleCardChange(e.target.value)}
-                          placeholder="4242 4242 4242 4242"
-                          required
-                        />
-                        <Input
-                          id="nameOnCard"
-                          label={tCo("nameOnCard")}
-                          value={nameOnCard}
-                          onChange={(e) => setNameOnCard(e.target.value)}
-                          placeholder="ELENA KRASNIQI"
-                          required
-                        />
-                        <div className="grid grid-cols-2 gap-3">
-                          <Input
-                            id="expiryDate"
-                            label={tCo("expiryDate")}
-                            value={expiryDate}
-                            onChange={(e) => handleExpiryChange(e.target.value)}
-                            placeholder="MM/YY"
-                            required
-                          />
-                          <Input
-                            id="cvv"
-                            label={tCo("cvv")}
-                            value={cvv}
-                            onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                            placeholder="123"
-                            required
-                          />
-                        </div>
+                      {/* Payment methods */}
+                      <div className="space-y-2.5 mb-5">
+                        {[
+                          { icon: "🏦", label: tCo("bankTransfer") },
+                          { icon: "💸", label: tCo("westernUnion") },
+                          { icon: "🏪", label: tCo("cashOnPickup") },
+                        ].map((method) => (
+                          <div
+                            key={method.label}
+                            className="flex items-center gap-3 px-4 py-3 bg-cream/60 rounded-lg"
+                          >
+                            <span className="text-lg">{method.icon}</span>
+                            <span className="text-sm text-charcoal/70">{method.label}</span>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                  </div>
 
-                  {/* Billing address */}
-                  <div className="mb-8">
-                    <h2 className="text-sm font-medium text-charcoal mb-3">
-                      {tCo("billingAddress")}
-                    </h2>
-                    <div className="space-y-2">
-                      <label className="flex items-center gap-3 p-3 border border-soft-gray/30 rounded-lg cursor-pointer hover:border-gold/30 transition-colors">
-                        <input
-                          type="radio"
-                          name="billing"
-                          checked={billingType === "same"}
-                          onChange={() => setBillingType("same")}
-                          className="accent-gold cursor-pointer"
-                        />
-                        <span className="text-sm text-charcoal">{tCo("sameAsShipping")}</span>
-                      </label>
-                      <label className="flex items-center gap-3 p-3 border border-soft-gray/30 rounded-lg cursor-pointer hover:border-gold/30 transition-colors">
-                        <input
-                          type="radio"
-                          name="billing"
-                          checked={billingType === "different"}
-                          onChange={() => setBillingType("different")}
-                          className="accent-gold cursor-pointer"
-                        />
-                        <span className="text-sm text-charcoal">{tCo("differentBilling")}</span>
-                      </label>
+                      {/* WhatsApp CTA */}
+                      <a
+                        href={`${SOCIAL_LINKS.whatsapp}?text=${encodeURIComponent(tCo("whatsappMessage"))}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366]/10 text-[#25D366] text-sm font-medium rounded-lg hover:bg-[#25D366]/20 transition-colors"
+                      >
+                        <WhatsAppIcon className="w-4 h-4" />
+                        {tCo("whatsappPayment")}
+                      </a>
                     </div>
                   </div>
 
@@ -792,7 +969,7 @@ export default function CheckoutPage() {
                       onClick={handlePlaceOrder}
                       className="px-8 py-3.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold/90 transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-gold/20"
                     >
-                      <LockClosedIcon className="w-4 h-4" />
+                      <CheckCircleIcon className="w-4 h-4" />
                       {tCo("placeOrder")} · {formatPrice(subtotal + shippingCost)}
                     </motion.button>
                   </div>
@@ -807,8 +984,6 @@ export default function CheckoutPage() {
               items={items}
               subtotal={subtotal}
               shippingCost={shippingCost}
-              discountCode={discountCode}
-              setDiscountCode={setDiscountCode}
               tCo={tCo}
               t={t}
               tCart={tCart}

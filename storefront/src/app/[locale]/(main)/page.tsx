@@ -20,10 +20,10 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "home" });
+  const t = await getTranslations({ locale, namespace: "common" });
 
   return {
-    title: `${SITE_NAME} — ${t("heroTitle")}`,
+    title: `${SITE_NAME} — ${t("tagline")}`,
     description: SITE_DESCRIPTION,
     alternates: {
       canonical: `${SITE_URL}/${locale}`,
@@ -40,7 +40,7 @@ function StructuredData({ locale }: { locale: string }) {
     description: SITE_DESCRIPTION,
     url: `${SITE_URL}/${locale}`,
     logo: `${SITE_URL}/icons/icon-512.png`,
-    image: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
+    image: "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
     telephone: CONTACT_INFO.phone,
     email: CONTACT_INFO.email,
     address: {
@@ -120,20 +120,12 @@ export default async function HomePage({
         <MoreToDiscover products={moreProducts} />
       </ScrollReveal>
 
-      {/* 8. Testimonials — Real Brides */}
-      <ScrollReveal>
+      {/* 8–10. Unified dark section: Testimonials → Press → Newsletter */}
+      <div className="bg-charcoal">
         <Testimonials />
-      </ScrollReveal>
-
-      {/* 9. As Seen In — Press credibility */}
-      <ScrollReveal>
         <AsSeenIn />
-      </ScrollReveal>
-
-      {/* 10. Newsletter */}
-      <ScrollReveal direction="up" distance={40} duration={900}>
         <Newsletter />
-      </ScrollReveal>
+      </div>
     </>
   );
 }

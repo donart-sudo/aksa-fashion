@@ -13,6 +13,7 @@ export interface CartItem {
   id: string;
   productId: string;
   variantId: string;
+  handle: string;
   title: string;
   thumbnail: string;
   price: number;

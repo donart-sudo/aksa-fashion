@@ -64,7 +64,7 @@ function BenefitsPanel({ t }: { t: (key: string) => string }) {
       {/* Decorative image overlay */}
       <div className="absolute inset-0">
         <Image
-          src="https://ariart.shop/cdn/shop/files/IMG_5875.jpg?v=1715710481&width=1200"
+          src="http://localhost:9000/static/1771434665088-Lumi-scaled.jpg"
           alt="Luxury bridal gown"
           fill
           className="object-cover opacity-20"
@@ -594,6 +594,23 @@ export default function AccountPage() {
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.25 }}
               >
+                {/* Mobile benefits scroll strip */}
+                <div className="lg:hidden -mx-4 sm:-mx-8 px-4 sm:px-8 mb-6 overflow-x-auto scrollbar-hide">
+                  <div className="flex gap-4 w-max py-1">
+                    {[
+                      { icon: HeartSolidIcon, key: "benefit1Title", color: "text-rose-400" },
+                      { icon: TruckIcon, key: "benefit2Title", color: "text-gold" },
+                      { icon: SparklesIcon, key: "benefit3Title", color: "text-amber-500" },
+                      { icon: StarIcon, key: "benefit4Title", color: "text-gold" },
+                    ].map((b) => (
+                      <div key={b.key} className="flex items-center gap-2 px-3 py-2 bg-soft-gray/20 rounded-full flex-shrink-0">
+                        <b.icon className={`w-3.5 h-3.5 ${b.color}`} />
+                        <span className="text-[11px] text-charcoal/60 whitespace-nowrap">{t(b.key)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
                 {/* Mode toggle */}
                 <div className="mb-8">
                   <div className="flex gap-1 p-1 bg-soft-gray/30 rounded-xl">
@@ -646,7 +663,7 @@ export default function AccountPage() {
                 </AnimatePresence>
 
                 {/* Social logins - functional! */}
-                <div className="flex gap-3 mb-6">
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
                   <SocialButton
                     icon={
                       <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -822,22 +839,6 @@ export default function AccountPage() {
                   </button>
                 </p>
 
-                {/* Mobile benefits (shown below form on small screens) */}
-                <div className="lg:hidden mt-10 pt-8 border-t border-soft-gray/30">
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { icon: HeartSolidIcon, key: "benefit1Title", color: "text-rose-400" },
-                      { icon: TruckIcon, key: "benefit2Title", color: "text-gold" },
-                      { icon: SparklesIcon, key: "benefit3Title", color: "text-amber-500" },
-                      { icon: StarIcon, key: "benefit4Title", color: "text-gold" },
-                    ].map((b) => (
-                      <div key={b.key} className="flex items-center gap-2.5">
-                        <b.icon className={`w-4 h-4 ${b.color} flex-shrink-0`} />
-                        <span className="text-xs text-charcoal/60">{t(b.key)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
               </motion.div>
             )}
           </AnimatePresence>

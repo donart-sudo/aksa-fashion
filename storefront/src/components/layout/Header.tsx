@@ -206,6 +206,9 @@ export default function Header() {
   const [hoveredCollection, setHoveredCollection] = useState("bridalGowns");
   const [annIndex, setAnnIndex] = useState(0);
   const [topBarDismissed, setTopBarDismissed] = useState(false);
+  const [mobileHeaderHidden, setMobileHeaderHidden] = useState(false);
+  const scrollDelta = useRef(0);
+  const lastScrollY = useRef(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [searchLoading, setSearchLoading] = useState(false);
@@ -228,14 +231,14 @@ export default function Header() {
   const topBarOffset = showTopBar ? TOPBAR_H : 0;
 
   const collectionImages: Record<string, string> = {
-    newCollection: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
-    bridalGowns: "https://ariart.shop/wp-content/uploads/2026/01/Snow-1-scaled.jpg",
-    eveningDress: "https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg",
-    ballGown: "https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg",
-    capeAndTrain: "https://ariart.shop/wp-content/uploads/2026/01/Golden-Dawn-scaled.jpg",
-    royalOverTrain: "https://ariart.shop/wp-content/uploads/2026/01/Midnight-Gold-scaled.jpg",
-    silhouetteWhisper: "https://ariart.shop/wp-content/uploads/2026/01/Verdant-Grace-scaled.jpg",
-    ruffledDream: "https://ariart.shop/wp-content/uploads/2026/01/Solar-Elegance-scaled.jpg",
+    newCollection: "http://localhost:9000/static/1771434664990-Arbennelle-gold-scaled.jpg",
+    bridalGowns: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
+    eveningDress: "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
+    ballGown: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+    capeAndTrain: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
+    royalOverTrain: "http://localhost:9000/static/1771434665105-Ari-royal-pink-scaled.jpg",
+    silhouetteWhisper: "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
+    ruffledDream: "http://localhost:9000/static/1771434665053-Royal-Lilac-scaled.jpg",
   };
 
   const isActive = useCallback(
@@ -263,13 +266,50 @@ export default function Header() {
     setShowSuperSticky(y > 100);
     setPastHero(y > window.innerHeight - 80);
     if (searchOpen) closeSearch();
+
+    // Mobile: hide header on scroll down, show on scroll up
+    if (window.innerWidth < 1024) {
+      // Auto-dismiss announcement bar on mobile
+      if (y > 150) setTopBarDismissed(true);
+
+      if (y > 80) {
+        const diff = y - lastScrollY.current;
+        // Reset accumulator on direction change
+        if ((diff > 0 && scrollDelta.current < 0) || (diff < 0 && scrollDelta.current > 0)) {
+          scrollDelta.current = 0;
+        }
+        scrollDelta.current += diff;
+        if (scrollDelta.current > 10) setMobileHeaderHidden(true);
+        else if (scrollDelta.current < -5) setMobileHeaderHidden(false);
+      }
+
+      // Always show header near top of page
+      if (y <= 10) {
+        setMobileHeaderHidden(false);
+        scrollDelta.current = 0;
+      }
+    }
+    lastScrollY.current = y;
   }, [searchOpen, closeSearch]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll, { passive: true });
+    lastScrollY.current = window.scrollY;
     setPastHero(window.scrollY > window.innerHeight - 80);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
+
+  // Reset mobile header hidden on desktop resize
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth >= 1024) {
+        setMobileHeaderHidden(false);
+        scrollDelta.current = 0;
+      }
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   /* Keyboard shortcut for search */
   useEffect(() => {
@@ -607,7 +647,10 @@ export default function Header() {
               }`
             : `sticky top-0 lg:static border-b ${scrolled ? "bg-white/95 backdrop-blur-md border-charcoal/[0.08]" : "bg-cream border-soft-gray/60"}`
         }`}
-        style={isHomePage ? { top: topBarOffset } : undefined}
+        style={{
+          ...(isHomePage ? { top: topBarOffset } : {}),
+          ...(mobileHeaderHidden ? { transform: `translateY(calc(-100% - ${isHomePage ? topBarOffset : 0}px))` } : {}),
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="relative flex items-center justify-between h-14 lg:h-16">
@@ -1272,7 +1315,7 @@ export default function Header() {
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className="fixed top-0 left-0 bottom-0 z-[61] w-[85%] max-w-[380px] bg-cream flex flex-col"
             >
               {/* Menu header */}
@@ -1293,7 +1336,7 @@ export default function Header() {
               </div>
 
               {/* Navigation */}
-              <nav className="flex-1 overflow-y-auto">
+              <nav className="flex-1 overflow-y-auto overscroll-contain">
                 <div className="px-6 sm:px-7 pt-2 pb-4">
                   <p className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-charcoal/30 mb-2">
                     Pages

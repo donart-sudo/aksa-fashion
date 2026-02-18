@@ -77,7 +77,7 @@ export default function MobileNav() {
               <button
                 key={tab.label}
                 onClick={tab.action}
-                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] text-charcoal/50"
+                className="flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] text-charcoal/50 active:scale-95 transition-transform"
               >
                 <Icon className="w-5 h-5" />
                 <span className="text-[10px] font-medium">{tab.label}</span>
@@ -89,7 +89,7 @@ export default function MobileNav() {
             <Link
               key={tab.href}
               href={tab.href}
-              className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] ${
+              className={`relative flex flex-col items-center justify-center gap-0.5 min-w-[64px] min-h-[44px] active:scale-95 transition-transform ${
                 isActive ? "text-gold" : "text-charcoal/50"
               }`}
             >

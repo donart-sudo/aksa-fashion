@@ -32,6 +32,7 @@ function HeroCard({ product }: { product: ProductCardData }) {
     addItem({
       productId: product.id,
       variantId: product.id,
+      handle: product.handle,
       title: product.title,
       thumbnail: product.thumbnail,
       price: product.price,
@@ -49,6 +50,7 @@ function HeroCard({ product }: { product: ProductCardData }) {
       addItem({
         productId: product.id,
         variantId: `${product.id}-${size}`,
+        handle: product.handle,
         title: product.title,
         thumbnail: product.thumbnail,
         price: product.price,
@@ -331,21 +333,24 @@ export default function CuratedForYou({ products }: CuratedForYouProps) {
           </div>
         </div>
 
-        {/* ── Mobile/Tablet: standard grid ── */}
-        <div className="lg:hidden grid grid-cols-2 gap-4">
-          {mobileItems.map((product, i) => (
-            <div
-              key={product.id}
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(30px) scale(0.97)",
-                transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
-                willChange: "opacity, transform",
-              }}
-            >
-              <ProductCard product={product} priority={i < 4} />
-            </div>
-          ))}
+        {/* ── Mobile/Tablet: horizontal swipe carousel ── */}
+        <div className="lg:hidden -mx-4">
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 pb-2">
+            {mobileItems.map((product, i) => (
+              <div
+                key={product.id}
+                className="flex-shrink-0 w-[65vw] snap-start"
+                style={{
+                  opacity: visible ? 1 : 0,
+                  transform: visible ? "none" : "translateY(30px) scale(0.97)",
+                  transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
+                  willChange: "opacity, transform",
+                }}
+              >
+                <ProductCard product={product} priority={i < 4} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

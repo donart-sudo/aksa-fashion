@@ -390,7 +390,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:min-h-[550px] xl:min-h-[600px] overflow-hidden">
             <Image
-              src="https://ariart.shop/wp-content/uploads/2026/01/Maison-scaled.jpg"
+              src="http://localhost:9000/static/1771434665097-Diva1-scaled.jpg"
               alt="Inside our Prishtina atelier — Maison gown"
               fill
               className="object-cover"

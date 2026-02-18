@@ -123,7 +123,7 @@ export default function ContactPage() {
       {/* ── Hero ── */}
       <section className="relative h-[38vh] min-h-[260px] sm:h-[42vh] sm:min-h-[300px] md:h-[48vh] md:min-h-[340px] lg:h-[55vh] lg:min-h-[400px] xl:h-[60vh] xl:min-h-[440px] overflow-hidden">
         <Image
-          src="https://ariart.shop/wp-content/uploads/2026/01/Arbennelle-gold-scaled.jpg"
+          src="http://localhost:9000/static/1771434664982-Maison-scaled.jpg"
           alt="Aksa Fashion — Contact us"
           fill
           className="object-cover object-top"

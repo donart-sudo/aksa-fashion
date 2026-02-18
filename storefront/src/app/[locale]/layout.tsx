@@ -2,7 +2,7 @@ import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { Inter, Cormorant_Garamond } from "next/font/google";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { routing } from "@/i18n/routing";
 import { isRtl, locales, type Locale } from "@/i18n/config";
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "@/lib/constants";
@@ -15,6 +15,13 @@ import { WishlistProvider } from "@/lib/wishlist";
 import { SearchProvider } from "@/lib/search";
 import { AuthProvider } from "@/lib/auth";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import { ToastProvider } from "@/components/ui/Toast";
+
+export const viewport: Viewport = {
+  viewportFit: "cover",
+  maximumScale: 1,
+  themeColor: "#B8926A",
+};
 
 export async function generateMetadata({
   params,
@@ -51,7 +58,7 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: "https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg",
+          url: "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
           width: 1200,
           height: 630,
           alt: `${SITE_NAME} — Luxury Bridal & Evening Wear`,
@@ -62,7 +69,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${SITE_NAME} — ${t("tagline")}`,
       description,
-      images: ["https://ariart.shop/wp-content/uploads/2026/01/Crystal-Bloom-1-scaled.jpg"],
+      images: ["http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg"],
     },
     robots: {
       index: true,
@@ -104,9 +111,8 @@ export default async function LocaleLayout({
     <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#B8926A" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Aksa Fashion" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
@@ -118,17 +124,24 @@ export default async function LocaleLayout({
             <CartProvider>
               <WishlistProvider>
                 <SearchProvider>
-                  <Header />
-                  <main className="min-h-screen">{children}</main>
-                  <Footer />
-                  <MobileNav />
-                  <CartDrawer />
-                  <WhatsAppButton />
+                  <ToastProvider>
+                    <Header />
+                    <main className="min-h-screen animate-page-fade-in">{children}</main>
+                    <Footer />
+                    <MobileNav />
+                    <CartDrawer />
+                    <WhatsAppButton />
+                  </ToastProvider>
                 </SearchProvider>
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>
         </NextIntlClientProvider>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{})})}`,
+          }}
+        />
       </body>
     </html>
   );

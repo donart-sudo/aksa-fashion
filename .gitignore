@@ -41,3 +41,6 @@ uploads/
 # Misc
 *.tsbuildinfo
 next-env.d.ts
+
+# Image migration backups
+downloaded_images/

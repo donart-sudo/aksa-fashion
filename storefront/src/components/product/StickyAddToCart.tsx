@@ -9,6 +9,7 @@ import { formatPrice } from "@/lib/utils";
 
 interface StickyAddToCartProps {
   productId: string;
+  handle: string;
   title: string;
   thumbnail: string;
   price: number;
@@ -18,6 +19,7 @@ interface StickyAddToCartProps {
 
 export default function StickyAddToCart({
   productId,
+  handle,
   title,
   thumbnail,
   price,
@@ -47,6 +49,7 @@ export default function StickyAddToCart({
     addItem({
       productId,
       variantId: productId,
+      handle,
       title,
       thumbnail,
       price,
@@ -84,7 +87,7 @@ export default function StickyAddToCart({
             </div>
             <button
               onClick={handleAdd}
-              className="bg-charcoal text-white px-4 sm:px-5 py-2.5 sm:py-3 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium hover:bg-gold transition-colors min-h-[40px] sm:min-h-[44px] flex-shrink-0"
+              className="bg-charcoal text-white px-4 sm:px-5 py-2.5 sm:py-3 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium hover:bg-gold transition-colors min-h-[44px] flex-shrink-0"
             >
               {t("addToCart")}
             </button>

@@ -4,6 +4,91 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
+/* ── Product images for the scrolling marquee ── */
+const MARQUEE_IMAGES = [
+  { src: "http://localhost:9000/static/1771434664982-Maison-scaled.jpg", alt: "Maison" },
+  { src: "http://localhost:9000/static/1771434665356-Goldina-1-scaled.jpg", alt: "Goldina" },
+  { src: "http://localhost:9000/static/1771434664964-Vlera-scaled.jpg", alt: "Vlera" },
+  { src: "http://localhost:9000/static/1771434665223-Jade-Elegance-1-scaled.jpg", alt: "Jade Elegance" },
+  { src: "http://localhost:9000/static/1771434664990-Arbennelle-gold-scaled.jpg", alt: "Arbennelle Gold" },
+  { src: "http://localhost:9000/static/1771434665503-Rosalina-1-scaled.jpg", alt: "Rosalina" },
+  { src: "http://localhost:9000/static/1771434665021-Midnight-Gold-scaled.jpg", alt: "Midnight Gold" },
+  { src: "http://localhost:9000/static/1771434665176-Noir-Beauty-1-scaled.jpg", alt: "Noir Beauty" },
+];
+
+/* ── Infinite scrolling marquee ── */
+function ImageMarquee() {
+  const images = [...MARQUEE_IMAGES, ...MARQUEE_IMAGES];
+
+  return (
+    <div className="relative overflow-hidden py-1">
+      {/* Fade edges — matches parent charcoal bg */}
+      <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-24 z-10 bg-gradient-to-r from-charcoal to-transparent pointer-events-none" />
+      <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-24 z-10 bg-gradient-to-l from-charcoal to-transparent pointer-events-none" />
+
+      <div className="flex gap-3 sm:gap-4 animate-marquee">
+        {images.map((img, i) => (
+          <div
+            key={`${img.alt}-${i}`}
+            className="flex-shrink-0 w-[140px] sm:w-[170px] lg:w-[200px] aspect-[3/4] relative overflow-hidden group"
+          >
+            <Image
+              src={img.src}
+              alt={img.alt}
+              fill
+              className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
+              sizes="200px"
+            />
+            <div className="absolute inset-0 bg-charcoal/10 group-hover:bg-transparent transition-colors duration-500" />
+          </div>
+        ))}
+      </div>
+
+      <style jsx>{`
+        @keyframes marquee-scroll {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
+        }
+        .animate-marquee {
+          animation: marquee-scroll 40s linear infinite;
+        }
+        .animate-marquee:hover {
+          animation-play-state: paused;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+/* ── Benefits ── */
+const BENEFITS = [
+  {
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
+      </svg>
+    ),
+    key: "earlyAccess",
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+      </svg>
+    ),
+    key: "stylingTips",
+  },
+  {
+    icon: (
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 109.375 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 1114.625 7.5H12m0 0V21m-8.625-9.75h18c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125h-18c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+      </svg>
+    ),
+    key: "exclusiveOffers",
+  },
+];
+
+/* ── Main section ── */
 export default function Newsletter() {
   const t = useTranslations("home");
   const [email, setEmail] = useState("");
@@ -37,225 +122,109 @@ export default function Newsletter() {
   };
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative overflow-hidden"
-    >
-      {/* ── Split layout: image left, content right ── */}
-      <div className="grid lg:grid-cols-2 min-h-[500px] lg:min-h-[580px]">
+    <section ref={sectionRef} className="relative overflow-hidden">
+      {/* ── Scrolling product marquee ── */}
+      <div className="pb-10 sm:pb-12">
+        <ImageMarquee />
+      </div>
 
-        {/* Left — editorial image */}
-        <div className="relative h-[360px] sm:h-[420px] lg:h-auto overflow-hidden">
-          <Image
-            src="https://ariart.shop/wp-content/uploads/2026/01/Royal-Lilac-Aura-scaled.jpg"
-            alt="Aksa Fashion luxury lilac ball gown from the Royal Lilac Aura collection"
-            fill
-            className="object-cover object-[50%_15%]"
-            sizes="(max-width: 1024px) 100vw, 50vw"
-          />
-          {/* Soft vignette overlay */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: [
-                "linear-gradient(to right, transparent 60%, rgba(26,26,26,0.4) 100%)",
-                "linear-gradient(to top, rgba(26,26,26,0.3) 0%, transparent 40%)",
-              ].join(", "),
-            }}
-          />
-          {/* Mobile bottom gradient for text readability on small screens */}
-          <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-[#1a1a1a] via-[#1a1a1a]/40 to-transparent" />
-
-          {/* Floating brand stamp */}
-          <div
-            className="absolute top-8 left-8 sm:top-10 sm:left-10"
-            style={{
-              opacity: visible ? 1 : 0,
-              transition: "opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms",
-            }}
-          >
-            <span className="text-[10px] tracking-[0.4em] uppercase text-white/50 font-light">
-              {t("estLine")}
-            </span>
-          </div>
+      {/* ── Centered content ── */}
+      <div
+        className="max-w-2xl mx-auto px-6 sm:px-8 pb-16 sm:pb-20 lg:pb-24 text-center"
+        style={{
+          opacity: visible ? 1 : 0,
+          transform: visible ? "none" : "translateY(16px)",
+          transition: "opacity 700ms cubic-bezier(0.16, 1, 0.3, 1), transform 700ms cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* Label */}
+        <div className="flex items-center justify-center gap-4 mb-8">
+          <span className="block h-px w-8 bg-gold/40" />
+          <span className="text-[10px] tracking-[0.4em] uppercase text-gold/70 font-medium">
+            {t("newsletterLabel")}
+          </span>
+          <span className="block h-px w-8 bg-gold/40" />
         </div>
 
-        {/* Right — dark content panel */}
-        <div className="relative bg-[#1a1a1a]">
-          {/* Subtle radial warmth */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background:
-                "radial-gradient(ellipse at 20% 30%, rgba(184,146,106,0.04) 0%, transparent 60%)",
-            }}
-          />
+        {/* Heading */}
+        <h2 className="font-serif text-3xl sm:text-4xl lg:text-[3rem] font-bold text-white leading-[1.1] mb-4">
+          {t("newsletterTitle")}
+        </h2>
 
-          {/* Grain */}
-          <div
-            className="absolute inset-0 opacity-[0.025] pointer-events-none mix-blend-overlay"
-            style={{
-              backgroundImage:
-                "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-              backgroundSize: "128px 128px",
-            }}
-          />
+        {/* Subtitle */}
+        <p className="text-[15px] sm:text-base text-white/45 leading-relaxed max-w-md mx-auto mb-8">
+          {t("newsletterSubtitle")}
+        </p>
 
-          <div className="relative z-10 flex flex-col justify-center h-full px-8 sm:px-12 lg:px-16 xl:px-20 py-14 sm:py-16 lg:py-20">
-            {/* Gold accent */}
-            <div
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "scaleX(1)" : "scaleX(0)",
-                transformOrigin: "left",
-                transition:
-                  "opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) 200ms, transform 1000ms cubic-bezier(0.16, 1, 0.3, 1) 200ms",
-              }}
-            >
-              <span className="block h-[1.5px] w-12 bg-gold/70 mb-8" />
-            </div>
-
-            {/* Label */}
-            <div
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(12px)",
-                transition:
-                  "opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) 300ms, transform 700ms cubic-bezier(0.16, 1, 0.3, 1) 300ms",
-              }}
-            >
-              <span className="text-[11px] tracking-[0.3em] uppercase text-gold block mb-5">
-                {t("newsletterLabel")}
+        {/* Benefits */}
+        <div className="flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-8 gap-y-3 mb-10">
+          {BENEFITS.map((b) => (
+            <div key={b.key} className="flex items-center gap-2 text-white/30">
+              <span className="text-gold/60">{b.icon}</span>
+              <span className="text-[11px] sm:text-xs tracking-wide">
+                {t(b.key)}
               </span>
             </div>
+          ))}
+        </div>
 
-            {/* Heading — larger */}
-            <div
-              className="overflow-hidden mb-3"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(30px)",
-                transition:
-                  "opacity 900ms cubic-bezier(0.16, 1, 0.3, 1) 400ms, transform 900ms cubic-bezier(0.16, 1, 0.3, 1) 400ms",
-              }}
-            >
-              <h2 className="font-serif text-3xl sm:text-4xl lg:text-[3.25rem] font-bold text-white leading-[1.1]">
-                {t("newsletterTitle")}
-              </h2>
-            </div>
-
-            {/* Incentive */}
-            <div
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(15px)",
-                transition:
-                  "opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) 480ms, transform 800ms cubic-bezier(0.16, 1, 0.3, 1) 480ms",
-              }}
-            >
-              <p className="text-[13px] text-gold/80 font-medium tracking-wide mb-3">
-                {t("newsletterIncentive")}
+        {/* Form / Success */}
+        {submitted ? (
+          <div className="flex flex-col items-center gap-4">
+            <span className="w-12 h-12 rounded-full border border-gold/40 flex items-center justify-center">
+              <svg className="w-5 h-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
+            </span>
+            <div>
+              <p className="text-[15px] font-semibold text-white">
+                {t("newsletterSuccess")}
+              </p>
+              <p className="text-[13px] text-white/40 mt-1">
+                {t("newsletterSuccessDetail")}
               </p>
             </div>
-
-            {/* Subtitle */}
-            <p
-              className="text-[14px] sm:text-[16px] text-white/60 leading-relaxed max-w-sm mb-10"
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(20px)",
-                transition:
-                  "opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) 550ms, transform 800ms cubic-bezier(0.16, 1, 0.3, 1) 550ms",
-              }}
-            >
-              {t("newsletterSubtitle")}
-            </p>
-
-            {/* Form / Success */}
-            <div
-              style={{
-                opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(16px)",
-                transition:
-                  "opacity 800ms cubic-bezier(0.16, 1, 0.3, 1) 700ms, transform 800ms cubic-bezier(0.16, 1, 0.3, 1) 700ms",
-              }}
-            >
-              {submitted ? (
-                <div className="flex items-center gap-4">
-                  <span className="w-10 h-10 rounded-full border border-gold/50 flex items-center justify-center flex-shrink-0">
-                    <svg
-                      className="w-4.5 h-4.5 text-gold"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2.5}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M4.5 12.75l6 6 9-13.5"
-                      />
-                    </svg>
-                  </span>
-                  <div>
-                    <p className="text-[14px] font-semibold text-white">
-                      {t("newsletterSuccess")}
-                    </p>
-                    <p className="text-[13px] text-white/50 mt-0.5">
-                      {t("newsletterSuccessDetail")}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="max-w-sm">
-                  {/* Input + button stacked on mobile, inline on sm+ */}
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 min-w-0">
-                      <input
-                        type="email"
-                        placeholder={t("newsletterPlaceholder")}
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        onFocus={() => setFocused(true)}
-                        onBlur={() => setFocused(false)}
-                        required
-                        className={`w-full bg-white/[0.05] border px-4 py-3.5 text-[14px] text-white placeholder:text-white/35 focus:outline-none transition-all duration-500 ${
-                          focused
-                            ? "border-gold/50 bg-white/[0.08]"
-                            : "border-white/[0.12]"
-                        }`}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="flex-shrink-0 group px-8 py-4 bg-gold/90 hover:bg-gold text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-all duration-300 min-h-[48px] hover:scale-[1.02]"
-                    >
-                      {t("newsletterButton")}
-                    </button>
-                  </div>
-                  <p className="text-[11px] text-white/30 mt-4 tracking-wide leading-relaxed">
-                    {t("newsletterDisclaimer")}
-                  </p>
-                </form>
-              )}
-            </div>
-
-            {/* Decorative bottom line */}
-            <div
-              className="mt-12 lg:mt-16"
-              style={{
-                opacity: visible ? 1 : 0,
-                transition: "opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1) 900ms",
-              }}
-            >
-              <div className="flex items-center gap-4">
-                <span className="block h-[1px] flex-1 bg-white/[0.1]" />
-                <span className="text-[10px] tracking-[0.3em] uppercase text-white/30">
-                  Aksa Fashion
-                </span>
-                <span className="block h-[1px] flex-1 bg-white/[0.1]" />
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex-1 min-w-0">
+                <input
+                  type="email"
+                  placeholder={t("newsletterPlaceholder")}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onFocus={() => setFocused(true)}
+                  onBlur={() => setFocused(false)}
+                  required
+                  className={`w-full bg-white/[0.05] border px-5 py-3.5 text-[14px] text-white placeholder:text-white/30 focus:outline-none transition-all duration-500 ${
+                    focused
+                      ? "border-gold/50 bg-white/[0.08]"
+                      : "border-white/[0.1]"
+                  }`}
+                />
               </div>
+              <button
+                type="submit"
+                className="flex-shrink-0 px-8 py-3.5 bg-gold hover:bg-gold/90 text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-all duration-300 min-h-[48px]"
+              >
+                {t("newsletterButton")}
+              </button>
             </div>
+            <p className="text-[11px] text-white/20 mt-4 tracking-wide leading-relaxed">
+              {t("newsletterDisclaimer")}
+            </p>
+          </form>
+        )}
+
+        {/* Bottom brand line */}
+        <div className="mt-14 sm:mt-16">
+          <div className="flex items-center justify-center gap-4">
+            <span className="block h-px w-12 sm:w-16 bg-white/[0.06]" />
+            <span className="text-[10px] tracking-[0.35em] uppercase text-white/20">
+              {t("estLine")}
+            </span>
+            <span className="block h-px w-12 sm:w-16 bg-white/[0.06]" />
           </div>
         </div>
       </div>

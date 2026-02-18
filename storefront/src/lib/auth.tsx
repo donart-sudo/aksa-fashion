@@ -70,6 +70,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (!tokenRes.ok) return false;
 
+      const tokenData = await tokenRes.json();
+      const token = tokenData.token;
+      if (!token) return false;
+
+      // Create session (sets session cookie)
+      const sessionRes = await fetch(`${BACKEND_URL}/auth/session`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!sessionRes.ok) return false;
+
       const meRes = await fetch(`${BACKEND_URL}/store/customers/me`, {
         credentials: "include",
         headers: {

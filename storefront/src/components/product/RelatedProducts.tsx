@@ -15,8 +15,8 @@ export default function RelatedProducts({ products }: RelatedProductsProps) {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 lg:py-24">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-24 border-t border-soft-gray/60">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}

@@ -22,6 +22,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "ariart.shop",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+      },
     ],
   },
   async headers() {

@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { HeartIcon } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
-import { ShoppingBagIcon } from "@heroicons/react/24/outline";
+import { ShoppingBagIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CheckIcon } from "@heroicons/react/24/solid";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
@@ -14,12 +14,14 @@ import { useWishlist } from "@/lib/wishlist";
 import useEmblaCarousel from "embla-carousel-react";
 import type { ProductCardData } from "@/components/product/ProductCard";
 
-/* ── Editorial overlay card — image-dominant with text on image ── */
+/* ── Editorial card — clean image with info below, editorial index, size picker ── */
 function EditorialCard({
   product,
+  index,
   priority,
 }: {
   product: ProductCardData;
+  index: number;
   priority?: boolean;
 }) {
   const t = useTranslations("common");
@@ -28,25 +30,68 @@ function EditorialCard({
   const { toggleItem, isWishlisted } = useWishlist();
   const [hovered, setHovered] = useState(false);
   const [added, setAdded] = useState(false);
+  const [showSizes, setShowSizes] = useState(false);
   const wishlisted = isWishlisted(product.id);
+  const editorialNum = String(index + 1).padStart(2, "0");
+  const hasSizes = product.sizes && product.sizes.length > 0;
+
+  const addToCartDirect = useCallback(() => {
+    addItem({
+      productId: product.id,
+      variantId: product.id,
+      handle: product.handle,
+      title: product.title,
+      thumbnail: product.thumbnail,
+      price: product.price,
+      quantity: 1,
+    });
+    setAdded(true);
+    setShowSizes(false);
+    setTimeout(() => setAdded(false), 1800);
+  }, [addItem, product]);
+
+  const addToCartWithSize = useCallback(
+    (e: React.MouseEvent, size: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      addItem({
+        productId: product.id,
+        variantId: `${product.id}-${size}`,
+        handle: product.handle,
+        title: product.title,
+        thumbnail: product.thumbnail,
+        price: product.price,
+        quantity: 1,
+        size,
+      });
+      setAdded(true);
+      setShowSizes(false);
+      setTimeout(() => setAdded(false), 1800);
+    },
+    [addItem, product]
+  );
 
   const handleAddToCart = useCallback(
     (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
       if (added) return;
-      addItem({
-        productId: product.id,
-        variantId: product.id,
-        title: product.title,
-        thumbnail: product.thumbnail,
-        price: product.price,
-        quantity: 1,
-      });
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1800);
+      if (hasSizes) {
+        setShowSizes(true);
+        return;
+      }
+      addToCartDirect();
     },
-    [added, addItem, product]
+    [added, hasSizes, addToCartDirect]
+  );
+
+  const handleCloseSizes = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowSizes(false);
+    },
+    []
   );
 
   const handleWishlist = useCallback(
@@ -62,30 +107,39 @@ function EditorialCard({
     <div
       className="group relative"
       onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseLeave={() => { setHovered(false); setShowSizes(false); }}
     >
       <Link
         href={`/${locale}/products/${product.handle}`}
-        className="block relative aspect-[2/3] overflow-hidden bg-[#f0eeeb]"
+        className="block relative aspect-[3/4] overflow-hidden bg-[#f0eeeb]"
       >
         {/* Image */}
         <Image
           src={product.thumbnail}
           alt={product.title}
           fill
-          className={`object-cover object-top transition-transform duration-[900ms] ease-out ${
-            hovered ? "scale-[1.06]" : "scale-100"
+          className={`object-cover object-top transition-all duration-[800ms] ease-out ${
+            hovered ? "scale-[1.05]" : "scale-100"
           }`}
-          sizes="(max-width: 768px) 75vw, (max-width: 1024px) 45vw, 25vw"
+          sizes="(max-width: 640px) 72vw, (max-width: 1024px) 42vw, 25vw"
           priority={priority}
         />
 
-        {/* Cinematic bottom gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+        {/* Warm overlay that lifts on hover */}
+        <div
+          className={`absolute inset-0 bg-[#2D2D2D]/[0.06] transition-opacity duration-500 ${
+            hovered ? "opacity-0" : "opacity-100"
+          }`}
+        />
+
+        {/* Editorial index — bottom-left */}
+        <span className="absolute bottom-3.5 left-3.5 z-10 text-[11px] font-medium tracking-[0.15em] text-white/60 drop-shadow-sm">
+          {editorialNum}
+        </span>
 
         {/* Badge */}
         {product.badge && (
-          <span className="absolute top-3.5 left-3.5 z-10 px-2.5 py-1 text-[9px] font-bold tracking-[0.15em] uppercase bg-gold text-white">
+          <span className="absolute top-3.5 left-11 z-10 px-2.5 py-0.5 text-[9px] font-bold tracking-[0.15em] uppercase bg-gold text-white">
             {product.badge === "new" ? t("newArrival") : t("bestSeller")}
           </span>
         )}
@@ -93,80 +147,120 @@ function EditorialCard({
         {/* Wishlist */}
         <button
           onClick={handleWishlist}
-          className="absolute top-3.5 right-3.5 z-10 w-9 h-9 flex items-center justify-center min-w-[36px] min-h-[36px]"
+          className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center min-w-[40px] min-h-[40px]"
           aria-label={
             wishlisted ? t("removeFromWishlist") : t("addToWishlist")
           }
         >
           {wishlisted ? (
-            <HeartIconSolid className="w-[22px] h-[22px] text-red-500 drop-shadow-lg" />
+            <HeartIconSolid className="w-[22px] h-[22px] text-red-500 drop-shadow-md" />
           ) : (
-            <HeartIcon className="w-[22px] h-[22px] text-white/80 drop-shadow-lg" />
+            <HeartIcon
+              className={`w-[22px] h-[22px] drop-shadow-md transition-all duration-300 ${
+                hovered ? "text-white" : "text-white/70"
+              }`}
+            />
           )}
         </button>
 
-        {/* Content overlay — bottom */}
-        <div className="absolute bottom-0 inset-x-0 z-10 p-5 sm:p-6">
-          {product.collection && (
-            <span className="text-[9px] tracking-[0.3em] uppercase text-gold/80 block mb-2">
-              {product.collection}
-            </span>
-          )}
-          <h3 className="font-serif text-lg sm:text-xl font-semibold text-white leading-tight mb-1.5 line-clamp-2">
-            {product.title}
-          </h3>
-          <span className="text-[15px] text-gold font-medium">
-            {formatPrice(product.price)}
-          </span>
-        </div>
+        {/* ── Size picker overlay ── */}
+        {showSizes && hasSizes && (
+          <div
+            className="absolute inset-0 z-30 bg-white/95 backdrop-blur-sm flex flex-col items-center justify-center p-4"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <button
+              onClick={handleCloseSizes}
+              className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center text-charcoal/30 hover:text-charcoal transition-colors"
+              aria-label={t("close")}
+            >
+              <XMarkIcon className="w-5 h-5" />
+            </button>
+
+            <p className="text-[10px] sm:text-[11px] tracking-[0.25em] uppercase text-charcoal/40 mb-4">
+              {t("selectSize")}
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-2 max-w-full">
+              {product.sizes!.map((size) => (
+                <button
+                  key={size}
+                  onClick={(e) => addToCartWithSize(e, size)}
+                  className="min-w-[40px] min-h-[40px] px-3 py-2 border border-charcoal/[0.12] text-xs font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
+                >
+                  {size}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick-add — desktop hover slide-up */}
-        <div
-          className={`absolute bottom-0 inset-x-0 z-20 p-3 transition-all duration-300 ease-out hidden sm:block ${
-            hovered
-              ? "translate-y-0 opacity-100"
-              : "translate-y-full opacity-0"
-          }`}
-        >
-          <button
-            onClick={handleAddToCart}
-            className={`w-full flex items-center justify-center gap-2 py-3 text-[10px] font-bold tracking-[0.15em] uppercase transition-all duration-200 backdrop-blur-sm cursor-pointer ${
-              added
-                ? "bg-charcoal text-white"
-                : "bg-white/90 text-charcoal hover:bg-charcoal hover:text-white"
+        {!showSizes && (
+          <div
+            className={`absolute bottom-0 inset-x-0 z-20 p-2.5 transition-all duration-300 ease-out hidden sm:block ${
+              hovered
+                ? "translate-y-0 opacity-100"
+                : "translate-y-full opacity-0"
             }`}
           >
-            {added ? (
-              <>
-                <CheckIcon className="w-3.5 h-3.5" />
-                {t("added")}
-              </>
-            ) : (
-              <>
-                <ShoppingBagIcon className="w-3.5 h-3.5" />
-                {t("addToCart")}
-              </>
-            )}
-          </button>
-        </div>
+            <button
+              onClick={handleAddToCart}
+              className={`w-full flex items-center justify-center gap-2 py-3 text-[10px] font-bold tracking-[0.15em] uppercase transition-all duration-200 backdrop-blur-md cursor-pointer ${
+                added
+                  ? "bg-charcoal text-white"
+                  : "bg-white/90 text-charcoal hover:bg-charcoal hover:text-white"
+              }`}
+            >
+              {added ? (
+                <>
+                  <CheckIcon className="w-3.5 h-3.5" />
+                  {t("added")}
+                </>
+              ) : (
+                <>
+                  <ShoppingBagIcon className="w-3.5 h-3.5" />
+                  {hasSizes ? t("selectSize") : t("addToCart")}
+                </>
+              )}
+            </button>
+          </div>
+        )}
 
         {/* Quick-add — mobile bag icon */}
-        <button
-          onClick={handleAddToCart}
-          className={`absolute bottom-3 right-3 z-20 sm:hidden w-9 h-9 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
-            added
-              ? "bg-white text-charcoal scale-110"
-              : "bg-white/80 backdrop-blur-sm text-charcoal active:scale-95"
-          }`}
-          aria-label={added ? t("added") : t("addToCart")}
-        >
-          {added ? (
-            <CheckIcon className="w-4 h-4" />
-          ) : (
-            <ShoppingBagIcon className="w-4 h-4" />
-          )}
-        </button>
+        {!showSizes && (
+          <button
+            onClick={handleAddToCart}
+            className={`absolute bottom-2.5 right-2.5 z-20 sm:hidden w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+              added
+                ? "bg-charcoal text-white scale-110"
+                : "bg-white/80 backdrop-blur-sm text-charcoal active:scale-95"
+            }`}
+            aria-label={added ? t("added") : t("addToCart")}
+          >
+            {added ? (
+              <CheckIcon className="w-4 h-4" />
+            ) : (
+              <ShoppingBagIcon className="w-4 h-4" />
+            )}
+          </button>
+        )}
       </Link>
+
+      {/* Info below image — editorial style */}
+      <div className="mt-3.5 space-y-1.5">
+        {product.collection && (
+          <span className="text-[10px] tracking-[0.3em] uppercase text-gold/70 block">
+            {product.collection}
+          </span>
+        )}
+        <h3 className="font-serif text-base sm:text-[17px] lg:text-lg font-medium text-charcoal leading-snug line-clamp-1 group-hover:underline decoration-charcoal/20 underline-offset-2 transition-all duration-300">
+          {product.title}
+        </h3>
+        <span className="text-[15px] text-charcoal/80 font-semibold">
+          {formatPrice(product.price)}
+        </span>
+      </div>
     </div>
   );
 }
@@ -318,20 +412,20 @@ export default function MoreToDiscover({ products }: MoreToDiscoverProps) {
         </div>
       </div>
 
-      {/* Carousel */}
+      {/* Carousel — 4 columns on desktop */}
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex ml-4 sm:ml-6 lg:ml-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]">
           {products.map((product, i) => (
             <div
               key={product.id}
-              className="flex-[0_0_75vw] sm:flex-[0_0_45vw] lg:flex-[0_0_33.333%] min-w-0 pr-4 lg:pr-5"
+              className="flex-[0_0_72vw] sm:flex-[0_0_42vw] lg:flex-[0_0_25%] min-w-0 pr-3.5 sm:pr-4 lg:pr-5"
               style={{
                 opacity: visible ? 1 : 0,
-                transform: visible ? "none" : "translateY(30px)",
-                transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
+                transform: visible ? "none" : "translateY(24px)",
+                transition: `opacity 500ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 70}ms, transform 500ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 70}ms`,
               }}
             >
-              <EditorialCard product={product} priority={i < 4} />
+              <EditorialCard product={product} index={i} priority={i < 4} />
             </div>
           ))}
         </div>

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import Image from "next/image";
+import ProductImage from "@/components/ui/ProductImage";
 import Link from "next/link";
 import { useTranslations, useLocale } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
@@ -86,11 +87,19 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
   const [openAccordion, setOpenAccordion] = useState("description");
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
+  // Desktop gallery — active image tracking
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const imageRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   // Refs
   const addToCartRef = useRef<HTMLButtonElement>(null);
   const sizeRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const mobileGalleryRef = useRef<HTMLDivElement>(null);
+
+  // Swipe hint state
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
 
   // Derived
   const wishlisted = isWishlisted(String(product.id));
@@ -129,6 +138,14 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
     }
   };
 
+  // Mobile gallery scroll-snap tracking
+  const handleGalleryScroll = useCallback(() => {
+    const el = mobileGalleryRef.current;
+    if (!el) return;
+    const index = Math.round(el.scrollLeft / el.clientWidth);
+    if (index >= 0 && index < images.length) setCurrentImage(index);
+  }, [images.length]);
+
   // Desktop zoom
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -154,6 +171,27 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
     };
   }, [lightboxOpen, nextImage, prevImage]);
 
+  // Desktop gallery — IntersectionObserver to track active image
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    imageRefs.current.forEach((el, index) => {
+      if (!el) return;
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setActiveImageIndex(index);
+        },
+        { threshold: 0.6 }
+      );
+      obs.observe(el);
+      observers.push(obs);
+    });
+    return () => observers.forEach((obs) => obs.disconnect());
+  }, [images.length]);
+
+  const scrollToImage = useCallback((index: number) => {
+    imageRefs.current[index]?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, []);
+
   // Size guide modal — ESC + body scroll lock
   useEffect(() => {
     if (!sizeGuideOpen) return;
@@ -168,6 +206,20 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
     };
   }, [sizeGuideOpen]);
 
+  // Swipe hint on first visit
+  useEffect(() => {
+    if (images.length <= 1) return;
+    try {
+      if (localStorage.getItem("aksa_gallery_hint")) return;
+    } catch { return; }
+    setShowSwipeHint(true);
+    const timer = setTimeout(() => {
+      setShowSwipeHint(false);
+      try { localStorage.setItem("aksa_gallery_hint", "1"); } catch { /* ignore */ }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [images.length]);
+
   // Add to cart with validation
   const handleAddToCart = () => {
     if (product.sizes.length > 0 && !selectedSize) {
@@ -180,6 +232,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
     addItem({
       productId: String(product.id),
       variantId: `${product.id}-${selectedSize || "default"}`,
+      handle: product.slug,
       title: product.name,
       thumbnail: images[0],
       price: priceInCents,
@@ -263,9 +316,10 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
                   transition={{ duration: 0.2 }}
                   className="relative w-full h-full"
                 >
-                  <Image
+                  <ProductImage
                     src={images[currentImage]}
                     alt={`${product.name} - ${currentImage + 1}`}
+                    fallbackLabel={product.name}
                     fill
                     className="object-contain"
                     sizes="90vw"
@@ -498,7 +552,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
       </AnimatePresence>
 
       {/* ═══════ Page Content ═══════ */}
-      <div className="max-w-[1440px] mx-auto px-0 lg:px-6 xl:px-10">
+      <div className="max-w-7xl mx-auto px-0 lg:px-6 xl:px-8">
         {/* Desktop breadcrumbs */}
         <nav className="hidden lg:flex items-center text-[11px] text-charcoal/35 tracking-[0.15em] uppercase py-5">
           <Link href={`/${locale}`} className="hover:text-charcoal transition-colors">
@@ -523,36 +577,34 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] xl:grid-cols-[1fr_440px] gap-0 lg:gap-10 xl:gap-14">
           {/* ═══ Left: Images ═══ */}
           <div>
-            {/* Mobile swipeable gallery */}
-            <div
-              className="lg:hidden relative aspect-[3/4] overflow-hidden bg-[#f5f3f0]"
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              onClick={() => setLightboxOpen(true)}
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentImage}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="relative w-full h-full"
-                >
-                  <Image
-                    src={images[currentImage]}
-                    alt={product.name}
-                    fill
-                    className="object-cover"
-                    priority
-                    sizes="100vw"
-                  />
-                </motion.div>
-              </AnimatePresence>
+            {/* Mobile scroll-snap gallery */}
+            <div className="lg:hidden relative aspect-[3/4] overflow-hidden bg-[#f5f3f0]">
+              <div
+                ref={mobileGalleryRef}
+                className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full h-full"
+                onScroll={handleGalleryScroll}
+              >
+                {images.map((src, i) => (
+                  <div
+                    key={i}
+                    className="flex-shrink-0 w-full h-full snap-start relative"
+                    onClick={() => { setCurrentImage(i); setLightboxOpen(true); }}
+                  >
+                    <ProductImage
+                      src={src}
+                      alt={`${product.name} - ${i + 1}`}
+                      fallbackLabel={product.name}
+                      fill
+                      className="object-cover"
+                      priority={i === 0}
+                      sizes="100vw"
+                    />
+                  </div>
+                ))}
+              </div>
 
               {product.salePrice && (
-                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10 pointer-events-none">
                   <span className="bg-red-500 text-white text-[10px] sm:text-[11px] font-medium tracking-wider uppercase px-2.5 py-1">
                     −{discountPercent}%
                   </span>
@@ -560,7 +612,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
               )}
 
               {!product.inStock && (
-                <div className="absolute inset-0 bg-charcoal/20 flex items-center justify-center z-10">
+                <div className="absolute inset-0 bg-charcoal/20 flex items-center justify-center z-10 pointer-events-none">
                   <span className="bg-white/90 backdrop-blur-sm px-6 py-2.5 text-xs sm:text-sm font-medium tracking-[0.2em] uppercase text-charcoal">
                     {t("common.soldOut")}
                   </span>
@@ -568,10 +620,36 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
               )}
 
               {images.length > 1 && (
-                <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-10 bg-charcoal/50 backdrop-blur-sm px-2.5 py-1 text-[10px] sm:text-[11px] text-white/80 tracking-wider">
-                  {currentImage + 1} / {images.length}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 pointer-events-none">
+                  {images.map((_, i) => (
+                    <span
+                      key={i}
+                      className={`rounded-full transition-all duration-300 ${
+                        i === currentImage ? "w-5 h-[5px] bg-white" : "w-[5px] h-[5px] bg-white/40"
+                      }`}
+                    />
+                  ))}
                 </div>
               )}
+
+              {/* Swipe hint */}
+              <AnimatePresence>
+                {showSwipeHint && images.length > 1 && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none"
+                  >
+                    <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm px-4 py-2.5 rounded-full">
+                      <svg className="w-5 h-5 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                      </svg>
+                      <span className="text-[11px] text-white/80 tracking-[0.15em] uppercase font-medium">Swipe</span>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Mobile progress bar */}
@@ -605,43 +683,76 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
               <span className="text-charcoal/50 truncate">{product.name}</span>
             </nav>
 
-            {/* Desktop: vertical scroll — all images stacked */}
-            <div className="hidden lg:flex flex-col gap-1">
-              {images.map((src, i) => (
-                <div
-                  key={i}
-                  className="relative overflow-hidden bg-[#f5f3f0] cursor-pointer aspect-[3/4]"
-                  onClick={() => {
-                    setCurrentImage(i);
-                    setLightboxOpen(true);
-                  }}
-                >
-                  <Image
-                    src={src}
-                    alt={`${product.name} - ${i + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 1024px) 100vw, 55vw"
-                    priority={i < 2}
-                  />
-
-                  {i === 0 && product.salePrice && (
-                    <div className="absolute top-4 left-4 z-10 pointer-events-none">
-                      <span className="bg-red-500 text-white text-[11px] font-medium tracking-wider uppercase px-3 py-1">
-                        −{discountPercent}%
-                      </span>
-                    </div>
-                  )}
-
-                  {i === 0 && !product.inStock && (
-                    <div className="absolute inset-0 bg-charcoal/20 flex items-center justify-center z-10 pointer-events-none">
-                      <span className="bg-white/90 backdrop-blur-sm px-8 py-3 text-sm font-medium tracking-[0.2em] uppercase text-charcoal">
-                        {t("common.soldOut")}
-                      </span>
-                    </div>
-                  )}
+            {/* Desktop: vertical scroll with thumbnails inside gallery */}
+            <div className="hidden lg:block relative">
+              {/* Thumbnails floating inside the gallery */}
+              {images.length > 1 && (
+                <div className="absolute left-4 top-4 bottom-0 z-20 pointer-events-none">
+                  <div className="sticky top-24 flex flex-col gap-2 pointer-events-auto">
+                    {images.map((src, i) => (
+                      <button
+                        key={i}
+                        onClick={() => scrollToImage(i)}
+                        className={`relative w-[52px] h-[68px] overflow-hidden border-2 transition-all duration-300 shadow-md ${
+                          activeImageIndex === i
+                            ? "border-gold opacity-100 scale-105"
+                            : "border-white/60 opacity-60 hover:opacity-90 hover:border-white"
+                        }`}
+                      >
+                        <ProductImage
+                          src={src}
+                          alt={`Thumbnail ${i + 1}`}
+                          fallbackLabel={product.name}
+                          fill
+                          className="object-cover"
+                          sizes="52px"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {/* Main stacked images */}
+              <div className="flex flex-col gap-1">
+                {images.map((src, i) => (
+                  <div
+                    key={i}
+                    ref={(el) => { imageRefs.current[i] = el; }}
+                    className="relative overflow-hidden bg-[#f5f3f0] cursor-pointer aspect-[3/4]"
+                    onClick={() => {
+                      setCurrentImage(i);
+                      setLightboxOpen(true);
+                    }}
+                  >
+                    <ProductImage
+                      src={src}
+                      alt={`${product.name} - ${i + 1}`}
+                      fallbackLabel={product.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 1024px) 100vw, 55vw"
+                      priority={i < 2}
+                    />
+
+                    {i === 0 && product.salePrice && (
+                      <div className="absolute top-4 right-4 z-10 pointer-events-none">
+                        <span className="bg-red-500 text-white text-[11px] font-medium tracking-wider uppercase px-3 py-1">
+                          −{discountPercent}%
+                        </span>
+                      </div>
+                    )}
+
+                    {i === 0 && !product.inStock && (
+                      <div className="absolute inset-0 bg-charcoal/20 flex items-center justify-center z-10 pointer-events-none">
+                        <span className="bg-white/90 backdrop-blur-sm px-8 py-3 text-sm font-medium tracking-[0.2em] uppercase text-charcoal">
+                          {t("common.soldOut")}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -688,8 +799,8 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
                 )}
               </div>
 
-              {/* Description */}
-              <p className="text-[13px] sm:text-sm text-charcoal/45 leading-relaxed mb-6 sm:mb-7 max-w-md">
+              {/* Description — hidden on mobile (shown in accordion below) */}
+              <p className="hidden lg:block text-[13px] sm:text-sm text-charcoal/45 leading-relaxed mb-6 sm:mb-7 max-w-md">
                 {product.description}
               </p>
 
@@ -945,6 +1056,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
       {/* Mobile sticky CTA */}
       <StickyAddToCart
         productId={String(product.id)}
+        handle={product.slug}
         title={product.name}
         thumbnail={images[0]}
         price={priceInCents}

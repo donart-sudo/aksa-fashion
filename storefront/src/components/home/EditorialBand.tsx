@@ -65,7 +65,7 @@ export default function EditorialBand() {
         }}
       >
         <Image
-          src="https://ariart.shop/wp-content/uploads/2026/01/Ellea-scaled.jpg"
+          src="http://localhost:9000/static/1771434665070-Royal-Lilac-Aura-scaled.jpg"
           alt="Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier"
           fill
           className="object-cover object-[50%_30%]"
