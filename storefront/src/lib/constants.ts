@@ -19,6 +19,8 @@ export const CONTACT_INFO = {
   hours: "Mon-Sat: 10:00 - 20:00",
 };
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 export const PLACEHOLDER_IMAGES = {
   hero: "https://images.unsplash.com/photo-1594552072238-b8a33785b261?w=1920&q=80",
   bridal: "https://images.unsplash.com/photo-1519741497674-611481863552?w=800&q=80",
@@ -32,12 +34,12 @@ export const PLACEHOLDER_IMAGES = {
   product5: "https://images.unsplash.com/photo-1518622358385-8ea7d0794bf6?w=600&q=80",
   product6: "https://images.unsplash.com/photo-1549404444-8d3f8c49e0f3?w=600&q=80",
   // About page images — using Allure Bridals editorial photos
-  aboutHero: "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
-  aboutBride: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
-  aboutCraftsmanship: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
-  aboutFabric: "http://localhost:9000/static/1771434664982-Maison-scaled.jpg",
-  aboutAtelier: "http://localhost:9000/static/1771434664972-Solar-Elegance-scaled.jpg",
-  aboutEvening: "http://localhost:9000/static/1771434665133-Imperial-Flame-scaled.jpg",
+  aboutHero: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
+  aboutBride: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+  aboutCraftsmanship: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
+  aboutFabric: `${MEDUSA_URL}/static/1771434664982-Maison-scaled.jpg`,
+  aboutAtelier: `${MEDUSA_URL}/static/1771434664972-Solar-Elegance-scaled.jpg`,
+  aboutEvening: `${MEDUSA_URL}/static/1771434665133-Imperial-Flame-scaled.jpg`,
 };
 
 export const MOCK_TESTIMONIALS = [
@@ -47,7 +49,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Prishtina, Kosovo",
     text: "It's even more beautiful in person, it's perfect!",
     rating: 5,
-    image: "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
   },
   {
     id: "2",
@@ -55,7 +57,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Tirana, Albania",
     text: "The whole process was so smooth with you. Fast shipping and amazing quality.",
     rating: 5,
-    image: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
   },
   {
     id: "3",
@@ -63,7 +65,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Zurich, Switzerland",
     text: "From the first message to receiving my dress, everything was handled with such care. The attention to detail is incredible.",
     rating: 5,
-    image: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
   },
   {
     id: "4",
@@ -71,7 +73,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Munich, Germany",
     text: "I couldn't believe how perfectly it fit. The custom measurements made all the difference.",
     rating: 5,
-    image: "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
   },
   {
     id: "5",
@@ -79,6 +81,6 @@ export const MOCK_TESTIMONIALS = [
     location: "London, United Kingdom",
     text: "My wedding dress exceeded every expectation. The craftsmanship is outstanding.",
     rating: 5,
-    image: "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
   },
 ];

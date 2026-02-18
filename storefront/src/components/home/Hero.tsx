@@ -6,6 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 export default function Hero() {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -15,7 +17,7 @@ export default function Hero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg"
+          src={`${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`}
           alt="Aksa Fashion - Luxury Bridal & Evening Wear"
           fill
           className="object-cover"

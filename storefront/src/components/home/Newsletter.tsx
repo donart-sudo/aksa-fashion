@@ -4,16 +4,18 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 /* ── Product images for the scrolling marquee ── */
 const MARQUEE_IMAGES = [
-  { src: "http://localhost:9000/static/1771434664982-Maison-scaled.jpg", alt: "Maison" },
-  { src: "http://localhost:9000/static/1771434665356-Goldina-1-scaled.jpg", alt: "Goldina" },
-  { src: "http://localhost:9000/static/1771434664964-Vlera-scaled.jpg", alt: "Vlera" },
-  { src: "http://localhost:9000/static/1771434665223-Jade-Elegance-1-scaled.jpg", alt: "Jade Elegance" },
-  { src: "http://localhost:9000/static/1771434664990-Arbennelle-gold-scaled.jpg", alt: "Arbennelle Gold" },
-  { src: "http://localhost:9000/static/1771434665503-Rosalina-1-scaled.jpg", alt: "Rosalina" },
-  { src: "http://localhost:9000/static/1771434665021-Midnight-Gold-scaled.jpg", alt: "Midnight Gold" },
-  { src: "http://localhost:9000/static/1771434665176-Noir-Beauty-1-scaled.jpg", alt: "Noir Beauty" },
+  { src: `${MEDUSA_URL}/static/1771434664982-Maison-scaled.jpg`, alt: "Maison" },
+  { src: `${MEDUSA_URL}/static/1771434665356-Goldina-1-scaled.jpg`, alt: "Goldina" },
+  { src: `${MEDUSA_URL}/static/1771434664964-Vlera-scaled.jpg`, alt: "Vlera" },
+  { src: `${MEDUSA_URL}/static/1771434665223-Jade-Elegance-1-scaled.jpg`, alt: "Jade Elegance" },
+  { src: `${MEDUSA_URL}/static/1771434664990-Arbennelle-gold-scaled.jpg`, alt: "Arbennelle Gold" },
+  { src: `${MEDUSA_URL}/static/1771434665503-Rosalina-1-scaled.jpg`, alt: "Rosalina" },
+  { src: `${MEDUSA_URL}/static/1771434665021-Midnight-Gold-scaled.jpg`, alt: "Midnight Gold" },
+  { src: `${MEDUSA_URL}/static/1771434665176-Noir-Beauty-1-scaled.jpg`, alt: "Noir Beauty" },
 ];
 
 /* ── Infinite scrolling marquee ── */

@@ -8,6 +8,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth, BACKEND_URL } from "@/lib/auth";
+
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
 import { useWishlist } from "@/lib/wishlist";
 import {
   UserIcon,
@@ -64,7 +66,7 @@ function BenefitsPanel({ t }: { t: (key: string) => string }) {
       {/* Decorative image overlay */}
       <div className="absolute inset-0">
         <Image
-          src="http://localhost:9000/static/1771434665088-Lumi-scaled.jpg"
+          src={`${MEDUSA_URL}/static/1771434665088-Lumi-scaled.jpg`}
           alt="Luxury bridal gown"
           fill
           className="object-cover opacity-20"

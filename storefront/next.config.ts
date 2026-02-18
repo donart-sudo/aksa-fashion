@@ -3,9 +3,29 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+/* ── Dynamic remote patterns from NEXT_PUBLIC_MEDUSA_BACKEND_URL ── */
+const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+const medusaParsed = (() => {
+  try {
+    const u = new URL(medusaUrl);
+    return {
+      protocol: u.protocol.replace(":", "") as "http" | "https",
+      hostname: u.hostname,
+      port: u.port || undefined,
+    };
+  } catch {
+    return { protocol: "http" as const, hostname: "localhost", port: "9000" };
+  }
+})();
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
+      {
+        protocol: medusaParsed.protocol,
+        hostname: medusaParsed.hostname,
+        ...(medusaParsed.port ? { port: medusaParsed.port } : {}),
+      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
@@ -17,14 +37,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-      },
-      {
-        protocol: "https",
-        hostname: "ariart.shop",
-      },
-      {
-        protocol: "http",
-        hostname: "localhost",
       },
     ],
   },

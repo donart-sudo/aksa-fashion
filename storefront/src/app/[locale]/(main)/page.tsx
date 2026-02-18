@@ -1,6 +1,8 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, CONTACT_INFO } from "@/lib/constants";
+
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
 import EditorialBanner from "@/components/home/EditorialBanner";
 import TrustBar from "@/components/home/TrustBar";
 import CuratedForYou from "@/components/home/CuratedForYou";
@@ -40,7 +42,7 @@ function StructuredData({ locale }: { locale: string }) {
     description: SITE_DESCRIPTION,
     url: `${SITE_URL}/${locale}`,
     logo: `${SITE_URL}/icons/icon-512.png`,
-    image: "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
     telephone: CONTACT_INFO.phone,
     email: CONTACT_INFO.email,
     address: {

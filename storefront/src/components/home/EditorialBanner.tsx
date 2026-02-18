@@ -6,29 +6,31 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { isRtl } from "@/i18n/config";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 const SLIDE_DURATION = 6000;
 
 const HERO_SLIDES = [
   {
-    image: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
     alt: "Snow luxury bridal gown with flowing silhouette",
     ctaLink: "collections",
     key: "slide0",
   },
   {
-    image: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
     alt: "Pure Essence bridal gown with sparkling beadwork",
     ctaLink: "collections/bridal",
     key: "slide1",
   },
   {
-    image: "http://localhost:9000/static/1771434665133-Imperial-Flame-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665133-Imperial-Flame-scaled.jpg`,
     alt: "Imperial Flame evening gown with elegant drama",
     ctaLink: "collections/evening-dress",
     key: "slide2",
   },
   {
-    image: "http://localhost:9000/static/1771434665088-Lumi-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665088-Lumi-scaled.jpg`,
     alt: "Lumi gown with cascading drama and flowing cape",
     ctaLink: "collections/silhouette-whisper",
     key: "slide3",

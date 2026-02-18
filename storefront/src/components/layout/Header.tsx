@@ -231,14 +231,14 @@ export default function Header() {
   const topBarOffset = showTopBar ? TOPBAR_H : 0;
 
   const collectionImages: Record<string, string> = {
-    newCollection: "http://localhost:9000/static/1771434664990-Arbennelle-gold-scaled.jpg",
-    bridalGowns: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
-    eveningDress: "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
-    ballGown: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
-    capeAndTrain: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
-    royalOverTrain: "http://localhost:9000/static/1771434665105-Ari-royal-pink-scaled.jpg",
-    silhouetteWhisper: "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
-    ruffledDream: "http://localhost:9000/static/1771434665053-Royal-Lilac-scaled.jpg",
+    newCollection: `${BACKEND_URL}/static/1771434664990-Arbennelle-gold-scaled.jpg`,
+    bridalGowns: `${BACKEND_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
+    eveningDress: `${BACKEND_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
+    ballGown: `${BACKEND_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+    capeAndTrain: `${BACKEND_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
+    royalOverTrain: `${BACKEND_URL}/static/1771434665105-Ari-royal-pink-scaled.jpg`,
+    silhouetteWhisper: `${BACKEND_URL}/static/1771434665029-Ellea-scaled.jpg`,
+    ruffledDream: `${BACKEND_URL}/static/1771434665053-Royal-Lilac-scaled.jpg`,
   };
 
   const isActive = useCallback(

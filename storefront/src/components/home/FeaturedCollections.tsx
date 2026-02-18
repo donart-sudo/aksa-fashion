@@ -2,35 +2,37 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 const collections = [
   {
     key: "bridal",
-    image: "http://localhost:9000/static/1771434665196-Pure-Essence-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
     href: "/collections/bridal",
   },
   {
     key: "evening",
-    image: "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
     href: "/collections/evening-dress",
   },
   {
     key: "cape-and-train",
-    image: "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
     href: "/collections/cape-and-train-elegance",
   },
   {
     key: "ball-gown",
-    image: "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
     href: "/collections/ball-gown",
   },
   {
     key: "silhouette",
-    image: "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
     href: "/collections/silhouette-whisper",
   },
   {
     key: "ruffled-dream",
-    image: "http://localhost:9000/static/1771434665053-Royal-Lilac-scaled.jpg",
+    image: `${MEDUSA_URL}/static/1771434665053-Royal-Lilac-scaled.jpg`,
     href: "/collections/ruffled-dream",
   },
 ];

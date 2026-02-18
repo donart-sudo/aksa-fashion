@@ -8,6 +8,8 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 /* ── Enriched testimonial data — each review linked to a real product ── */
 const BRIDE_STORIES = [
   {
@@ -17,7 +19,7 @@ const BRIDE_STORIES = [
     text: "It's even more beautiful in person, it's perfect!",
     rating: 5,
     image:
-      "http://localhost:9000/static/1771434664999-Crystal-Bloom-1-scaled.jpg",
+      `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
     product: {
       name: "Crystal Bloom",
       handle: "crystal-bloom",
@@ -32,7 +34,7 @@ const BRIDE_STORIES = [
     text: "The whole process was so smooth with you. Fast shipping and amazing quality.",
     rating: 5,
     image:
-      "http://localhost:9000/static/1771434665009-Snow-1-scaled.jpg",
+      `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
     product: {
       name: "Snow",
       handle: "snow",
@@ -47,7 +49,7 @@ const BRIDE_STORIES = [
     text: "From the first message to receiving my dress, everything was handled with such care. The attention to detail is incredible.",
     rating: 5,
     image:
-      "http://localhost:9000/static/1771434664932-Verdant-Grace-scaled.jpg",
+      `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
     product: {
       name: "Verdant Grace",
       handle: "verdant-grace",
@@ -62,7 +64,7 @@ const BRIDE_STORIES = [
     text: "I couldn't believe how perfectly it fit. The custom measurements made all the difference.",
     rating: 5,
     image:
-      "http://localhost:9000/static/1771434665113-Golden-Dawn-scaled.jpg",
+      `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
     product: {
       name: "Golden Dawn",
       handle: "golden-dawn",
@@ -77,7 +79,7 @@ const BRIDE_STORIES = [
     text: "My wedding dress exceeded every expectation. The craftsmanship is outstanding.",
     rating: 5,
     image:
-      "http://localhost:9000/static/1771434665029-Ellea-scaled.jpg",
+      `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
     product: {
       name: "Ellea",
       handle: "ellea",

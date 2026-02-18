@@ -5,6 +5,8 @@ import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 
+const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+
 export default function EditorialBand() {
   const t = useTranslations("home");
   const locale = useLocale();
@@ -65,7 +67,7 @@ export default function EditorialBand() {
         }}
       >
         <Image
-          src="http://localhost:9000/static/1771434665070-Royal-Lilac-Aura-scaled.jpg"
+          src={`${MEDUSA_URL}/static/1771434665070-Royal-Lilac-Aura-scaled.jpg`}
           alt="Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier"
           fill
           className="object-cover object-[50%_30%]"
