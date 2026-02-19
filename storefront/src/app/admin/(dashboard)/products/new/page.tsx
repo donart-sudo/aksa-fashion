@@ -7,7 +7,7 @@ import {
   ChevronDown, Search, Loader2, Eye,
 } from 'lucide-react'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa } from '@/lib/admin-medusa'
+import { adminMedusa } from '@/lib/admin-supabase'
 
 /* ── Types ─────────────────────────────────────────────────── */
 
@@ -282,14 +282,8 @@ export default function NewProductPage() {
   useEffect(() => {
     async function loadCategories() {
       try {
-        const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
-        const res = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/store/product-categories?limit=50`, {
-          headers: { 'x-publishable-api-key': pk },
-        })
-        if (res.ok) {
-          const data = await res.json()
-          setCategories(data.product_categories || [])
-        }
+        const catData = await adminMedusa.getCategories({ limit: '50' })
+        setCategories(catData.product_categories || [])
       } catch {}
     }
     loadCategories()
@@ -429,17 +423,13 @@ export default function NewProductPage() {
               if (img.file) {
                 const formData = new FormData()
                 formData.append('files', img.file)
-                const uploadRes = await fetch(
-                  `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/admin/uploads`,
-                  {
-                    method: 'POST',
-                    headers: { Authorization: `Bearer ${adminMedusa.getToken()}` },
-                    body: formData,
-                  }
-                )
+                const uploadRes = await fetch('/api/admin/upload', {
+                  method: 'POST',
+                  body: formData,
+                })
                 if (uploadRes.ok) {
                   const uploadData = await uploadRes.json()
-                  const url = uploadData.files?.[0]?.url
+                  const url = uploadData.url
                   if (url) uploadedUrls.push(url)
                 }
               }

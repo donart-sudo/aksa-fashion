@@ -5,7 +5,7 @@ import { Plus, Search, Pencil, Trash2, FolderOpen, Loader2, Upload, X, ImageIcon
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaCollection } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaCollection } from '@/lib/admin-supabase'
 
 export default function CollectionsPage() {
   const { demo } = useAdminAuth()
@@ -85,17 +85,13 @@ export default function CollectionsPage() {
     try {
       const formData = new FormData()
       formData.append('files', imageFile)
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/admin/uploads`,
-        {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${adminMedusa.getToken()}` },
-          body: formData,
-        }
-      )
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
       if (res.ok) {
         const data = await res.json()
-        return data.files?.[0]?.url || null
+        return data.url || null
       }
     } catch { /* upload failed */ }
     finally { setUploading(false) }

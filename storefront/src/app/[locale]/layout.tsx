@@ -6,8 +6,7 @@ import type { Metadata, Viewport } from "next";
 import { routing } from "@/i18n/routing";
 import { isRtl, locales, type Locale } from "@/i18n/config";
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { cdnUrl } from "@/lib/cdn-image-urls";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import MobileNav from "@/components/layout/MobileNav";
@@ -60,7 +59,7 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
+          url: cdnUrl("allure-bridals-a1400-01.jpg"),
           width: 1200,
           height: 630,
           alt: `${SITE_NAME} — Luxury Bridal & Evening Wear`,
@@ -71,7 +70,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${SITE_NAME} — ${t("tagline")}`,
       description,
-      images: [`${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`],
+      images: [cdnUrl("allure-bridals-a1400-01.jpg")],
     },
     robots: {
       index: true,

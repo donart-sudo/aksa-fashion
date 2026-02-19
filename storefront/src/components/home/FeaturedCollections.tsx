@@ -1,40 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { COLLECTION_COVERS } from "@/lib/cdn-image-urls";
 
 const collections = [
-  {
-    key: "bridal",
-    image: `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
-    href: "/collections/bridal",
-  },
-  {
-    key: "evening",
-    image: `${MEDUSA_URL}/static/allure-women-w550-01.jpg`,
-    href: "/collections/evening-dress",
-  },
-  {
-    key: "cape-and-train",
-    image: `${MEDUSA_URL}/static/allure-couture-c805-01.jpg`,
-    href: "/collections/cape-and-train-elegance",
-  },
-  {
-    key: "ball-gown",
-    image: `${MEDUSA_URL}/static/allure-bridals-a1409-01.jpg`,
-    href: "/collections/ball-gown",
-  },
-  {
-    key: "silhouette",
-    image: `${MEDUSA_URL}/static/abella-e551-lambri-01.jpg`,
-    href: "/collections/silhouette-whisper",
-  },
-  {
-    key: "ruffled-dream",
-    image: `${MEDUSA_URL}/static/abella-e550-carrington-01.jpg`,
-    href: "/collections/ruffled-dream",
-  },
+  { key: "bridal", image: COLLECTION_COVERS.bridal, href: "/collections/bridal" },
+  { key: "evening", image: COLLECTION_COVERS.evening, href: "/collections/evening-dress" },
+  { key: "cape-and-train", image: COLLECTION_COVERS["cape-and-train"], href: "/collections/cape-and-train-elegance" },
+  { key: "ball-gown", image: COLLECTION_COVERS["ball-gown"], href: "/collections/ball-gown" },
+  { key: "silhouette", image: COLLECTION_COVERS.silhouette, href: "/collections/silhouette-whisper" },
+  { key: "ruffled-dream", image: COLLECTION_COVERS["ruffled-dream"], href: "/collections/ruffled-dream" },
 ];
 
 export default async function FeaturedCollections({

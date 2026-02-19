@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { motion } from "framer-motion";
 import { PLACEHOLDER_IMAGES, CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { cdnUrl } from "@/lib/cdn-image-urls";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -392,7 +391,7 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2">
           <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-auto lg:min-h-[550px] xl:min-h-[600px] overflow-hidden">
             <Image
-              src={`${MEDUSA_URL}/static/1771434665097-Diva1-scaled.jpg`}
+              src={cdnUrl("allure-women-w550-01.jpg")}
               alt="Inside our Prishtina atelier — Maison gown"
               fill
               className="object-cover"

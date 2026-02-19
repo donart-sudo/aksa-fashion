@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaProduct } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaProduct } from '@/lib/admin-supabase'
 
 /* ── Types ─────────────────────────────────────────────────────────────── */
 

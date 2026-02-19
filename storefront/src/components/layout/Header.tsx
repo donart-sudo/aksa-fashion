@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/24/outline";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ProductCard, { type ProductCardData } from "@/components/product/ProductCard";
+import { HEADER_IMAGES } from "@/lib/cdn-image-urls";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useSearch } from "@/lib/search";
@@ -51,8 +52,8 @@ const ANN_INTERVAL = 4000;
 const TOPBAR_H = 44; // px — announcement bar height
 
 /* ── Inline search engine ── */
-const BACKEND_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-const SEARCH_API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const RECENT_KEY = "aksa_recent_searches";
 
 const QUICK_CATEGORIES = [
@@ -231,14 +232,14 @@ export default function Header() {
   const topBarOffset = showTopBar ? TOPBAR_H : 0;
 
   const collectionImages: Record<string, string> = {
-    newCollection: `${BACKEND_URL}/static/allure-bridals-a1402-01.jpg`,
-    bridalGowns: `${BACKEND_URL}/static/allure-bridals-a1400-01.jpg`,
-    eveningDress: `${BACKEND_URL}/static/allure-women-w550-01.jpg`,
-    ballGown: `${BACKEND_URL}/static/allure-bridals-a1409-01.jpg`,
-    capeAndTrain: `${BACKEND_URL}/static/allure-couture-c805-01.jpg`,
-    royalOverTrain: `${BACKEND_URL}/static/allure-couture-c789-01.jpg`,
-    silhouetteWhisper: `${BACKEND_URL}/static/abella-e551-lambri-01.jpg`,
-    ruffledDream: `${BACKEND_URL}/static/abella-e550-carrington-01.jpg`,
+    newCollection: HEADER_IMAGES["all-collections"],
+    bridalGowns: HEADER_IMAGES.bridal,
+    eveningDress: HEADER_IMAGES["evening-dress"],
+    ballGown: HEADER_IMAGES["ball-gown"],
+    capeAndTrain: HEADER_IMAGES["cape-and-train-elegance"],
+    royalOverTrain: HEADER_IMAGES["royal-over-train"],
+    silhouetteWhisper: HEADER_IMAGES["silhouette-whisper"],
+    ruffledDream: HEADER_IMAGES["ruffled-dream"],
   };
 
   const isActive = useCallback(
@@ -361,21 +362,20 @@ export default function Header() {
     setSearchLoading(true);
     try {
       const res = await fetch(
-        `${BACKEND_URL}/store/products?q=${encodeURIComponent(trimmed)}&limit=8&fields=id,title,handle,thumbnail,metadata,created_at,*variants.prices`,
-        { headers: { "x-publishable-api-key": SEARCH_API_KEY, "Content-Type": "application/json" }, signal: controller.signal }
+        `${SUPABASE_URL}/rest/v1/products?or=(title.ilike.%25${encodeURIComponent(trimmed)}%25,description.ilike.%25${encodeURIComponent(trimmed)}%25)&status=eq.published&select=id,title,handle,thumbnail,metadata,created_at,product_variants(price_amount),product_categories(categories(name)),product_images(url,rank)&limit=8`,
+        { headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }, signal: controller.signal }
       );
       if (!res.ok) return;
       const data = await res.json();
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const mapped: SearchResult[] = data.products.map((p: any) => {
-        const eurPrice = p.variants?.[0]?.prices?.find((pr: { currency_code: string }) => pr.currency_code === "eur") ?? p.variants?.[0]?.prices?.[0];
-        const price = (eurPrice?.amount ?? 0) * 100;
+      const mapped: SearchResult[] = data.map((p: any) => {
+        const price = (p.product_variants?.[0]?.price_amount ?? 0) * 100;
         const salePrice = p.metadata?.sale_price ? Number(p.metadata.sale_price) * 100 : undefined;
         return {
           id: p.id, title: p.title, handle: p.handle,
           price: salePrice ?? price,
           originalPrice: salePrice ? (p.metadata?.regular_price ? Number(p.metadata.regular_price) * 100 : undefined) : undefined,
-          thumbnail: p.thumbnail || "", category: p.categories?.[0]?.name,
+          thumbnail: p.thumbnail || p.product_images?.[0]?.url || "", category: p.product_categories?.[0]?.categories?.name,
         };
       });
       apiCache.set(trimmed.toLowerCase(), mapped);

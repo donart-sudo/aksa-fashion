@@ -53,9 +53,8 @@ interface CollectionMatch {
 
 // --- Constants ---
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 const RECENT_KEY = "aksa_recent_searches";
 
 const POPULAR_SUGGESTIONS = [
@@ -584,14 +583,13 @@ export default function SearchModal() {
     setApiLoading(true);
 
     try {
+      // Use Supabase REST API for server-side search
       const res = await fetch(
-        `${BACKEND_URL}/store/products?q=${encodeURIComponent(
-          trimmed
-        )}&limit=12&fields=id,title,handle,thumbnail,metadata,created_at,*variants.prices,*categories`,
+        `${SUPABASE_URL}/rest/v1/products?or=(title.ilike.%25${encodeURIComponent(trimmed)}%25,description.ilike.%25${encodeURIComponent(trimmed)}%25)&status=eq.published&select=id,title,handle,thumbnail,metadata,created_at,product_images(url,rank),product_variants(title,price_amount),product_categories(categories(name))&limit=12`,
         {
           headers: {
-            "x-publishable-api-key": API_KEY,
-            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
           },
           signal: controller.signal,
         }
@@ -599,26 +597,19 @@ export default function SearchModal() {
 
       if (!res.ok) return;
       const data = await res.json();
-      const mapped: SearchResult[] = data.products.map(
+      const mapped: SearchResult[] = data.map(
         (p: {
           id: string;
           title: string;
           handle: string;
-          thumbnail: string;
+          thumbnail: string | null;
           metadata?: { sale_price?: string; regular_price?: string };
           created_at: string;
-          variants?: {
-            prices?: { amount: number; currency_code: string }[];
-            title?: string;
-          }[];
-          categories?: { name: string }[];
-          options?: { title?: string; values?: { value: string }[] }[];
+          product_variants?: { title?: string; price_amount: number }[];
+          product_categories?: { categories: { name: string } }[];
+          product_images?: { url: string; rank: number }[];
         }) => {
-          const eurPrice =
-            p.variants?.[0]?.prices?.find(
-              (pr) => pr.currency_code === "eur"
-            ) ?? p.variants?.[0]?.prices?.[0];
-          const price = (eurPrice?.amount ?? 0) * 100;
+          const price = (p.product_variants?.[0]?.price_amount ?? 0) * 100;
           const salePrice = p.metadata?.sale_price
             ? Number(p.metadata.sale_price) * 100
             : undefined;
@@ -629,13 +620,7 @@ export default function SearchModal() {
             new Date(p.created_at) >
             new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
 
-          const sizeOption = p.options?.find(
-            (o) => o.title?.toLowerCase() === "size"
-          );
-          const sizes = sizeOption?.values?.map((v) => v.value) ??
-            (p.variants && p.variants.length > 1
-              ? p.variants.map((v) => v.title || "").filter(Boolean)
-              : undefined);
+          const thumbUrl = p.thumbnail || p.product_images?.[0]?.url || "";
 
           return {
             id: p.id,
@@ -643,14 +628,13 @@ export default function SearchModal() {
             handle: p.handle,
             price: salePrice ?? price,
             originalPrice: salePrice ? regularPrice : undefined,
-            thumbnail: p.thumbnail || "",
-            category: p.categories?.[0]?.name,
+            thumbnail: thumbUrl,
+            category: p.product_categories?.[0]?.categories?.name,
             badge: salePrice
               ? ("sale" as const)
               : isNew
               ? ("new" as const)
               : undefined,
-            sizes: sizes && sizes.length > 0 ? sizes : undefined,
           };
         }
       );

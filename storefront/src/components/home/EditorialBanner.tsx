@@ -5,37 +5,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { isRtl } from "@/i18n/config";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { HERO_IMAGES } from "@/lib/cdn-image-urls";
 
 const SLIDE_DURATION = 6000;
 
-const HERO_SLIDES = [
-  {
-    image: `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
-    alt: "Snow luxury bridal gown with flowing silhouette",
-    ctaLink: "collections",
-    key: "slide0",
-  },
-  {
-    image: `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
-    alt: "Verdant Grace cape gown with couture drama",
-    ctaLink: "collections/bridal",
-    key: "slide1",
-  },
-  {
-    image: `${MEDUSA_URL}/static/allure-women-w553-01.jpg`,
-    alt: "Pure Eternity evening gown with elegant drama",
-    ctaLink: "collections/evening-dress",
-    key: "slide2",
-  },
-  {
-    image: `${MEDUSA_URL}/static/abella-e552-browne-01.jpg`,
-    alt: "Maison gown with cascading drama and flowing silhouette",
-    ctaLink: "collections/silhouette-whisper",
-    key: "slide3",
-  },
-];
+const HERO_SLIDES = HERO_IMAGES;
 
 export default function EditorialBanner() {
   const t = useTranslations("home");

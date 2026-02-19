@@ -5,7 +5,7 @@ import { Plus, Search, Pencil, Trash2, Tag, Percent, DollarSign, Loader2, Toggle
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaPromotion } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaPromotion } from '@/lib/admin-supabase'
 
 type DiscountType = 'percentage' | 'fixed'
 

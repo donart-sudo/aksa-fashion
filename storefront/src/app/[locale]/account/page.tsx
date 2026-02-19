@@ -7,9 +7,9 @@ import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { useAuth, BACKEND_URL } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { cdnUrl } from "@/lib/cdn-image-urls";
 import { useWishlist } from "@/lib/wishlist";
 import {
   UserIcon,
@@ -66,7 +66,7 @@ function BenefitsPanel({ t }: { t: (key: string) => string }) {
       {/* Decorative image overlay */}
       <div className="absolute inset-0">
         <Image
-          src={`${MEDUSA_URL}/static/1771434665088-Lumi-scaled.jpg`}
+          src={cdnUrl("allure-couture-c805-01.jpg")}
           alt="Luxury bridal gown"
           fill
           className="object-cover opacity-20"
@@ -206,7 +206,7 @@ export default function AccountPage() {
   const t = useTranslations("account");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const { customer, isLoading, login, register, logout, requestPasswordReset } = useAuth();
+  const { customer, isLoading, login, register, logout, requestPasswordReset, signInWithOAuth } = useAuth();
   const { items: wishlistItems } = useWishlist();
   const [mode, setMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
@@ -229,12 +229,12 @@ export default function AccountPage() {
   /* ─── Social login handlers ─── */
   const handleGoogleLogin = () => {
     const callbackUrl = `${window.location.origin}/${locale}/account/auth/callback`;
-    window.location.href = `${BACKEND_URL}/auth/customer/google?callback_url=${encodeURIComponent(callbackUrl)}`;
+    signInWithOAuth("google", callbackUrl);
   };
 
   const handleAppleLogin = () => {
     const callbackUrl = `${window.location.origin}/${locale}/account/auth/callback`;
-    window.location.href = `${BACKEND_URL}/auth/customer/apple?callback_url=${encodeURIComponent(callbackUrl)}`;
+    signInWithOAuth("apple", callbackUrl);
   };
 
   /* ─── Forgot password handler ─── */

@@ -3,18 +3,13 @@ import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-/* ── Dynamic remote patterns from NEXT_PUBLIC_MEDUSA_BACKEND_URL ── */
-const medusaUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-const medusaParsed = (() => {
+/* ── Supabase storage hostname ── */
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseHostname = (() => {
   try {
-    const u = new URL(medusaUrl);
-    return {
-      protocol: u.protocol.replace(":", "") as "http" | "https",
-      hostname: u.hostname,
-      port: u.port || undefined,
-    };
+    return new URL(supabaseUrl).hostname;
   } catch {
-    return { protocol: "http" as const, hostname: "localhost", port: "9000" };
+    return "";
   }
 })();
 
@@ -22,11 +17,10 @@ const nextConfig: NextConfig = {
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
-      {
-        protocol: medusaParsed.protocol,
-        hostname: medusaParsed.hostname,
-        ...(medusaParsed.port ? { port: medusaParsed.port } : {}),
-      },
+      // Supabase Storage
+      ...(supabaseHostname
+        ? [{ protocol: "https" as const, hostname: supabaseHostname }]
+        : []),
       {
         protocol: "https",
         hostname: "ariart.shop",
@@ -43,11 +37,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "res.cloudinary.com",
       },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+      },
     ],
     localPatterns: [
       { pathname: "/**" },
     ],
-    dangerouslyAllowLocalIP: true,
   },
   async headers() {
     return [

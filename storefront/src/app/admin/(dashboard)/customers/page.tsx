@@ -7,7 +7,7 @@ import Badge from '@/components/admin/Badge'
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa } from '@/lib/admin-medusa'
+import { adminMedusa } from '@/lib/admin-supabase'
 import { customers as demoCustomers, formatCurrency, formatDate, type Customer } from '@/data/adminSampleData'
 
 const tagList = ['VIP', 'Bridal', 'Evening Wear', 'Ball Gown', 'Cape & Train', 'Returning', 'International', 'Cancelled']

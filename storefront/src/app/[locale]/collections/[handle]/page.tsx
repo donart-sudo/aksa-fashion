@@ -5,15 +5,10 @@ import {
   fetchNewProductsForCards,
   fetchSaleProductsForCards,
   fetchProductsByCategoryForCards,
-} from "@/lib/data/medusa-products";
+} from "@/lib/data/supabase-products";
 import CollectionClient from "@/components/collection/CollectionClient";
 
-export async function generateStaticParams() {
-  const categories = await fetchCategories();
-  const staticHandles = categories.map((c) => ({ handle: c.handle }));
-  staticHandles.push({ handle: "new" }, { handle: "sale" }, { handle: "all" });
-  return staticHandles;
-}
+export const dynamic = "force-dynamic";
 
 export default async function CollectionPage({
   params,

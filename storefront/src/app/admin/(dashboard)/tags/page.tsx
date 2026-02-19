@@ -5,7 +5,7 @@ import { Plus, Search, Pencil, Trash2, Hash, Loader2 } from 'lucide-react'
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaProductTag } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaProductTag } from '@/lib/admin-supabase'
 
 export default function TagsPage() {
   const { demo } = useAdminAuth()

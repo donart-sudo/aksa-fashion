@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth";
-import { getOrder, type CustomerOrder } from "@/lib/data/medusa-customer";
+import { getOrder, type CustomerOrder } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {

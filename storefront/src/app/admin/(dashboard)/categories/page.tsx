@@ -5,7 +5,7 @@ import { Plus, Search, Pencil, Trash2, Layers, ChevronRight, Loader2, Upload, X,
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaCategory } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaCategory } from '@/lib/admin-supabase'
 
 export default function CategoriesPage() {
   const { demo } = useAdminAuth()
@@ -34,22 +34,10 @@ export default function CategoriesPage() {
 
   async function loadData() {
     try {
-      const pk = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ''
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/store/product-categories?limit=100&include_descendants_tree=true&fields=*metadata`,
-        { headers: { 'x-publishable-api-key': pk } }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        setList(data.product_categories || [])
-      }
+      const res = await adminMedusa.getCategories({ limit: '100' })
+      setList(res.product_categories || [])
     } catch {
-      if (!demo) {
-        try {
-          const res = await adminMedusa.getCategories({ limit: '100' })
-          setList(res.product_categories)
-        } catch { /* empty */ }
-      }
+      /* empty */
     }
     setLoading(false)
   }
@@ -99,17 +87,13 @@ export default function CategoriesPage() {
     try {
       const formData = new FormData()
       formData.append('files', imageFile)
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || 'http://localhost:9000'}/admin/uploads`,
-        {
-          method: 'POST',
-          headers: { Authorization: `Bearer ${adminMedusa.getToken()}` },
-          body: formData,
-        }
-      )
+      const res = await fetch('/api/admin/upload', {
+        method: 'POST',
+        body: formData,
+      })
       if (res.ok) {
         const data = await res.json()
-        return data.files?.[0]?.url || null
+        return data.url || null
       }
     } catch { /* upload failed */ }
     finally { setUploading(false) }

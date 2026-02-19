@@ -6,7 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 import Input from "@/components/ui/Input";
-import { updateProfile } from "@/lib/data/medusa-customer";
+import { updateProfile } from "@/lib/data/supabase-customer";
 import {
   ChevronLeftIcon,
   CheckCircleIcon,

@@ -6,8 +6,7 @@ import Link from "next/link";
 import { useLocale } from "next-intl";
 import { motion } from "framer-motion";
 import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { cdnUrl } from "@/lib/cdn-image-urls";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 25 },
@@ -125,7 +124,7 @@ export default function ContactPage() {
       {/* ── Hero ── */}
       <section className="relative h-[38vh] min-h-[260px] sm:h-[42vh] sm:min-h-[300px] md:h-[48vh] md:min-h-[340px] lg:h-[55vh] lg:min-h-[400px] xl:h-[60vh] xl:min-h-[440px] overflow-hidden">
         <Image
-          src={`${MEDUSA_URL}/static/1771434664982-Maison-scaled.jpg`}
+          src={cdnUrl("abella-e552-browne-01.jpg")}
           alt="Aksa Fashion — Contact us"
           fill
           className="object-cover object-top"

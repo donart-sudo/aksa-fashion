@@ -4,8 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { EDITORIAL_BAND_IMAGE } from "@/lib/cdn-image-urls";
 
 export default function EditorialBand() {
   const t = useTranslations("home");
@@ -67,7 +66,7 @@ export default function EditorialBand() {
         }}
       >
         <Image
-          src={`${MEDUSA_URL}/static/allure-couture-c804nc-01.jpg`}
+          src={EDITORIAL_BAND_IMAGE}
           alt="Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier"
           fill
           className="object-cover object-[50%_30%]"

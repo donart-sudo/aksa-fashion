@@ -15,9 +15,8 @@ interface SearchResult {
   thumbnail: string;
 }
 
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
-const API_KEY = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
 
 const TRENDING_SEARCHES = [
   "Bridal Gown",
@@ -92,28 +91,25 @@ export default function SearchPage() {
     setSearched(true);
     try {
       const res = await fetch(
-        `${BACKEND_URL}/store/products?q=${encodeURIComponent(q)}&limit=24&fields=id,title,handle,thumbnail,*variants.prices`,
+        `${SUPABASE_URL}/rest/v1/products?or=(title.ilike.%25${encodeURIComponent(q)}%25,description.ilike.%25${encodeURIComponent(q)}%25)&status=eq.published&select=id,title,handle,thumbnail,product_variants(price_amount),product_images(url,rank)&limit=24`,
         {
           headers: {
-            "x-publishable-api-key": API_KEY,
-            "Content-Type": "application/json",
+            "apikey": SUPABASE_KEY,
+            "Authorization": `Bearer ${SUPABASE_KEY}`,
           },
         }
       );
       if (res.ok) {
         const data = await res.json();
         setResults(
-          data.products.map(
-            (p: { id: string; title: string; handle: string; thumbnail: string; variants?: { prices?: { amount: number; currency_code: string }[] }[] }) => {
-              const eurPrice =
-                p.variants?.[0]?.prices?.find((pr) => pr.currency_code === "eur") ??
-                p.variants?.[0]?.prices?.[0];
+          data.map(
+            (p: { id: string; title: string; handle: string; thumbnail: string | null; product_variants?: { price_amount: number }[]; product_images?: { url: string }[] }) => {
               return {
                 id: p.id,
                 title: p.title,
                 handle: p.handle,
-                price: (eurPrice?.amount ?? 0) * 100,
-                thumbnail: p.thumbnail || "",
+                price: (p.product_variants?.[0]?.price_amount ?? 0) * 100,
+                thumbnail: p.thumbnail || p.product_images?.[0]?.url || "",
               };
             }
           )

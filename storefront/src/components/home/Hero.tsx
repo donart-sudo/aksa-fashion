@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import Button from "@/components/ui/Button";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { HERO_SINGLE_IMAGE } from "@/lib/cdn-image-urls";
 
 export default function Hero() {
   const t = useTranslations("home");
@@ -17,7 +16,7 @@ export default function Hero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src={`${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`}
+          src={HERO_SINGLE_IMAGE}
           alt="Aksa Fashion - Luxury Bridal & Evening Wear"
           fill
           className="object-cover"

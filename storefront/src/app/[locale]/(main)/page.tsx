@@ -1,8 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, CONTACT_INFO } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { cdnUrl } from "@/lib/cdn-image-urls";
 import EditorialBanner from "@/components/home/EditorialBanner";
 import TrustBar from "@/components/home/TrustBar";
 import CuratedForYou from "@/components/home/CuratedForYou";
@@ -14,7 +13,7 @@ import Testimonials from "@/components/home/Testimonials";
 import AsSeenIn from "@/components/home/AsSeenIn";
 import Newsletter from "@/components/home/Newsletter";
 import ScrollReveal from "@/components/ui/ScrollReveal";
-import { fetchNewProductsForCards, fetchProductsForCards } from "@/lib/data/medusa-products";
+import { fetchNewProductsForCards, fetchProductsForCards } from "@/lib/data/supabase-products";
 
 export async function generateMetadata({
   params,
@@ -42,7 +41,7 @@ function StructuredData({ locale }: { locale: string }) {
     description: SITE_DESCRIPTION,
     url: `${SITE_URL}/${locale}`,
     logo: `${SITE_URL}/icons/icon-512.png`,
-    image: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
+    image: cdnUrl("allure-bridals-a1400-01.jpg"),
     telephone: CONTACT_INFO.phone,
     email: CONTACT_INFO.email,
     address: {

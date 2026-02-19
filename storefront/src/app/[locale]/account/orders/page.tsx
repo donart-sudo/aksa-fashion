@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth";
-import { getOrders, type CustomerOrder } from "@/lib/data/medusa-customer";
+import { getOrders, type CustomerOrder } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
 import {
   ShoppingBagIcon,

@@ -1,17 +1,13 @@
 import { notFound } from "next/navigation";
 import {
   fetchProduct,
-  fetchProductHandles,
   fetchProductsByCategoryForCards,
   fetchNewProductsForCards,
-} from "@/lib/data/medusa-products";
+} from "@/lib/data/supabase-products";
 import ProductDetail from "./ProductDetail";
 import RelatedProducts from "@/components/product/RelatedProducts";
 
-export async function generateStaticParams() {
-  const handles = await fetchProductHandles();
-  return handles.map((handle) => ({ handle }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

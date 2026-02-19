@@ -80,7 +80,7 @@ export default function AdminLoginPage() {
           {!backendOnline && (
             <div className="login-warning">
               <span className="login-warning-dot" />
-              <span>Backend offline — start with <code>cd backend && npx medusa develop</code></span>
+              <span>Backend offline — check Supabase connection</span>
             </div>
           )}
 
@@ -152,7 +152,7 @@ export default function AdminLoginPage() {
 
         {/* Footer */}
         <p className="login-footer">
-          Aksa Fashion Admin &middot; Powered by Medusa
+          Aksa Fashion Admin &middot; Powered by Supabase
         </p>
       </div>
     </div>

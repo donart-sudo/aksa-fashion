@@ -8,7 +8,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
-import { getOrder, type MedusaOrder } from "@/lib/data/medusa-checkout";
+import { getOrder, type MedusaOrder } from "@/lib/data/supabase-checkout";
 import {
   CheckCircleIcon,
   TruckIcon,

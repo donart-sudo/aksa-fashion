@@ -6,7 +6,7 @@ import { Search, ChevronDown, Truck, CheckCircle, XCircle, Eye, Package, Clock, 
 import Badge from '@/components/admin/Badge'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa } from '@/lib/admin-medusa'
+import { adminMedusa } from '@/lib/admin-supabase'
 import { formatCurrency, formatDate, type Order, type OrderStatus } from '@/data/adminSampleData'
 
 const tabs: { label: string; value: OrderStatus | 'all' }[] = [

@@ -14,7 +14,7 @@ import {
 import Badge from '@/components/admin/Badge'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa } from '@/lib/admin-medusa'
+import { adminMedusa } from '@/lib/admin-supabase'
 import { formatCurrency, formatDate, type Order, type Product } from '@/data/adminSampleData'
 
 const channelData = [

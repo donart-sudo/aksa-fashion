@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react'
-import { adminMedusa } from './admin-medusa'
+import { adminMedusa } from './admin-supabase'
 
 interface AdminAuthState {
   ready: boolean
@@ -23,28 +23,31 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   const [email, setEmail] = useState<string | null>(null)
   const [backendOnline, setBackendOnline] = useState(false)
 
-  const doLogout = useCallback(() => {
-    adminMedusa.logout()
+  const doLogout = useCallback(async () => {
+    await adminMedusa.logout()
     setAuthed(false)
     setEmail(null)
     setDemo(false)
   }, [])
 
   useEffect(() => {
-    // Wire up 401 handler so API failures auto-logout
-    adminMedusa.setOnUnauthorized(doLogout)
+    adminMedusa.setOnUnauthorized(() => {
+      doLogout()
+    })
 
     async function init() {
       const online = await adminMedusa.healthCheck()
       setBackendOnline(online)
 
-      if (adminMedusa.isAuthenticated()) {
+      const authenticated = await adminMedusa.isAuthenticated()
+      if (authenticated) {
         const valid = await adminMedusa.verifyToken()
         if (valid) {
           setAuthed(true)
-          setEmail(localStorage.getItem('medusa_admin_email'))
+          const { data } = await adminMedusa.getSupabase().auth.getSession()
+          setEmail(data.session?.user?.email || null)
         } else {
-          adminMedusa.logout()
+          await adminMedusa.logout()
         }
       }
       setReady(true)
@@ -57,7 +60,6 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     setAuthed(true)
     setEmail(em)
     setDemo(false)
-    localStorage.setItem('medusa_admin_email', em)
   }
 
   function enterDemo() {

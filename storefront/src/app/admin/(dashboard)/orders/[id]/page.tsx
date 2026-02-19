@@ -10,7 +10,7 @@ import {
 import TopBar from '@/components/admin/TopBar'
 import Modal from '@/components/admin/Modal'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa, type MedusaOrder } from '@/lib/admin-medusa'
+import { adminMedusa, type MedusaOrder } from '@/lib/admin-supabase'
 
 /* ── Helpers ──────────────────────────────────────────────────────────── */
 

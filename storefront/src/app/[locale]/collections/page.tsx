@@ -1,7 +1,7 @@
 import {
   fetchCategories,
   fetchProductsByCategory,
-} from "@/lib/data/medusa-products";
+} from "@/lib/data/supabase-products";
 import CollectionsShowcase from "@/components/collection/CollectionsShowcase";
 
 export default async function CollectionsPage({

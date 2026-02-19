@@ -7,8 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { TESTIMONIAL_IMAGES } from "@/lib/cdn-image-urls";
 
 /* ── Enriched testimonial data — each review linked to a real product ── */
 const BRIDE_STORIES = [
@@ -18,14 +17,8 @@ const BRIDE_STORIES = [
     location: "Prishtina, Kosovo",
     text: "It's even more beautiful in person, it's perfect!",
     rating: 5,
-    image:
-      `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
-    product: {
-      name: "Crystal Bloom",
-      handle: "crystal-bloom",
-      price: 1250,
-      category: "Bridal",
-    },
+    image: TESTIMONIAL_IMAGES[0],
+    product: { name: "Crystal Bloom", handle: "crystal-bloom", price: 1250, category: "Bridal" },
   },
   {
     id: "2",
@@ -33,14 +26,8 @@ const BRIDE_STORIES = [
     location: "Tirana, Albania",
     text: "The whole process was so smooth with you. Fast shipping and amazing quality.",
     rating: 5,
-    image:
-      `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
-    product: {
-      name: "Snow",
-      handle: "snow",
-      price: 1470,
-      category: "Bridal",
-    },
+    image: TESTIMONIAL_IMAGES[1],
+    product: { name: "Snow", handle: "snow", price: 1470, category: "Bridal" },
   },
   {
     id: "3",
@@ -48,14 +35,8 @@ const BRIDE_STORIES = [
     location: "Zurich, Switzerland",
     text: "From the first message to receiving my dress, everything was handled with such care. The attention to detail is incredible.",
     rating: 5,
-    image:
-      `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
-    product: {
-      name: "Verdant Grace",
-      handle: "verdant-grace",
-      price: 980,
-      category: "Cape & Train",
-    },
+    image: TESTIMONIAL_IMAGES[2],
+    product: { name: "Verdant Grace", handle: "verdant-grace", price: 980, category: "Cape & Train" },
   },
   {
     id: "4",
@@ -63,14 +44,8 @@ const BRIDE_STORIES = [
     location: "Munich, Germany",
     text: "I couldn't believe how perfectly it fit. The custom measurements made all the difference.",
     rating: 5,
-    image:
-      `${MEDUSA_URL}/static/allure-couture-c807-01.jpg`,
-    product: {
-      name: "Golden Dawn",
-      handle: "golden-dawn",
-      price: 960,
-      category: "Cape & Train",
-    },
+    image: TESTIMONIAL_IMAGES[3],
+    product: { name: "Golden Dawn", handle: "golden-dawn", price: 960, category: "Cape & Train" },
   },
   {
     id: "5",
@@ -78,14 +53,8 @@ const BRIDE_STORIES = [
     location: "London, United Kingdom",
     text: "My wedding dress exceeded every expectation. The craftsmanship is outstanding.",
     rating: 5,
-    image:
-      `${MEDUSA_URL}/static/allure-women-w550-01.jpg`,
-    product: {
-      name: "Ellea",
-      handle: "ellea",
-      price: 950,
-      category: "Evening",
-    },
+    image: TESTIMONIAL_IMAGES[4],
+    product: { name: "Ellea", handle: "ellea", price: 950, category: "Evening" },
   },
 ];
 

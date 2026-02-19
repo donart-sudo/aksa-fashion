@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -11,20 +11,11 @@ import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {
-  createCart,
-  addLineItem,
-  updateCart,
   getShippingOptions,
-  addShippingMethod,
-  initPaymentCollection,
-  createPaymentSession,
-  completeCart,
-  getRegions,
-  resolveVariantId,
+  placeOrder,
   resolveCountryCode,
   type MedusaShippingOption,
-  type MedusaCart,
-} from "@/lib/data/medusa-checkout";
+} from "@/lib/data/supabase-checkout";
 import {
   LockClosedIcon,
   ChevronLeftIcon,
@@ -303,23 +294,17 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [cartCreating, setCartCreating] = useState(false);
 
-  /* Medusa state */
-  const [medusaCartId, setMedusaCartId] = useState<string | null>(null);
+  /* Shipping state */
   const [shippingOptions, setShippingOptions] = useState<MedusaShippingOption[]>([]);
   const [selectedShippingOption, setSelectedShippingOption] = useState<string | null>(null);
-  const [shippingCostFromMedusa, setShippingCostFromMedusa] = useState<number | null>(null);
+  const [shippingCostValue, setShippingCostValue] = useState<number | null>(null);
 
-  // Fallback shipping cost if Medusa unavailable
-  const shippingCost = shippingCostFromMedusa ?? (subtotal >= 15000 ? 0 : 1500);
+  const shippingCost = shippingCostValue ?? (subtotal >= 15000 ? 0 : 1500);
 
   const goToStep = useCallback((s: Step) => setStep(s), []);
 
-  // Track if we used Medusa for the cart
-  const medusaRef = useRef(false);
-
-  /* ── Step 1 → Step 2: Create Medusa cart + resolve variants ── */
+  /* ── Step 1 → Step 2: Fetch shipping options ── */
   const handleContinueToShipping = async () => {
-    // Basic validation
     if (!email || !firstName || !lastName || !address || !city || !country) {
       setError(tCo("fillRequired"));
       return;
@@ -329,77 +314,18 @@ export default function CheckoutPage() {
     setCartCreating(true);
 
     try {
-      // 1. Get region
-      const regions = await getRegions();
-      const countryCode = resolveCountryCode(country);
-      const region = regions.find((r) =>
-        r.countries.some((c) => c.iso_2 === countryCode)
-      ) || regions[0];
-
-      if (!region) {
-        // No backend, go to shipping with fallback
-        setStep(2);
-        setCartCreating(false);
-        return;
-      }
-
-      // 2. Create cart
-      const cart = await createCart(region.id);
-      if (!cart) {
-        setStep(2);
-        setCartCreating(false);
-        return;
-      }
-
-      setMedusaCartId(cart.id);
-      medusaRef.current = true;
-
-      // 3. Resolve variant IDs and add line items
-      for (const item of items) {
-        const variantId = await resolveVariantId(item.handle, item.size);
-        if (variantId) {
-          await addLineItem(cart.id, variantId, item.quantity);
-        }
-      }
-
-      // 4. Update cart with email + shipping address
-      await updateCart(cart.id, {
-        email,
-        shipping_address: {
-          first_name: firstName,
-          last_name: lastName,
-          address_1: address,
-          address_2: apartment || undefined,
-          city,
-          postal_code: postalCode,
-          country_code: countryCode,
-          phone: phone || undefined,
-        },
-        billing_address: {
-          first_name: firstName,
-          last_name: lastName,
-          address_1: address,
-          address_2: apartment || undefined,
-          city,
-          postal_code: postalCode,
-          country_code: countryCode,
-          phone: phone || undefined,
-        },
-      });
-
-      // 5. Fetch shipping options
-      const options = await getShippingOptions(cart.id);
+      // Fetch shipping options based on subtotal
+      const options = await getShippingOptions(subtotal);
       setShippingOptions(options);
       if (options.length > 0) {
         setSelectedShippingOption(options[0].id);
         const price = options[0].calculated_price?.calculated_amount ?? options[0].amount;
-        setShippingCostFromMedusa(price);
+        setShippingCostValue(price);
       }
 
       setStep(2);
     } catch (err) {
       console.error("Checkout step 1 error:", err);
-      // Fall through to step 2 with fallback
       setStep(2);
     } finally {
       setCartCreating(false);
@@ -409,15 +335,6 @@ export default function CheckoutPage() {
   /* ── Step 2 → Step 3: Select shipping method ── */
   const handleContinueToPayment = async () => {
     setError("");
-
-    if (medusaCartId && selectedShippingOption) {
-      try {
-        await addShippingMethod(medusaCartId, selectedShippingOption);
-      } catch (err) {
-        console.error("Failed to add shipping method:", err);
-      }
-    }
-
     setStep(3);
   };
 
@@ -427,7 +344,7 @@ export default function CheckoutPage() {
     const option = shippingOptions.find((o) => o.id === optionId);
     if (option) {
       const price = option.calculated_price?.calculated_amount ?? option.amount;
-      setShippingCostFromMedusa(price);
+      setShippingCostValue(price);
     }
   };
 
@@ -437,31 +354,44 @@ export default function CheckoutPage() {
     setError("");
 
     try {
-      if (medusaCartId) {
-        // Real Medusa checkout flow
-        const collectionId = await initPaymentCollection(medusaCartId);
-        if (!collectionId) throw new Error("Failed to init payment");
+      const countryCode = resolveCountryCode(country);
 
-        const sessionOk = await createPaymentSession(collectionId, "pp_system_default");
-        if (!sessionOk) throw new Error("Failed to create payment session");
+      const order = await placeOrder({
+        email,
+        items: items.map((item) => ({
+          productId: item.productId || item.id,
+          handle: item.handle,
+          title: item.title,
+          thumbnail: item.thumbnail,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          color: item.color,
+        })),
+        shippingAddress: {
+          first_name: firstName,
+          last_name: lastName,
+          address_1: address,
+          address_2: apartment || undefined,
+          city,
+          postal_code: postalCode,
+          country_code: countryCode,
+          phone: phone || undefined,
+        },
+        shippingOptionId: selectedShippingOption || "standard",
+        shippingCost,
+        orderNote: orderNote || undefined,
+      });
 
-        const order = await completeCart(medusaCartId);
-        if (!order) throw new Error("Failed to complete order");
+      if (!order) throw new Error("Failed to place order");
 
-        clearCart();
-        // Store order info for confirmation page
-        try {
-          localStorage.setItem("aksa_last_order_id", order.id);
-          localStorage.setItem("aksa_last_order_display_id", String(order.display_id || ""));
-        } catch { /* ignore */ }
+      clearCart();
+      try {
+        localStorage.setItem("aksa_last_order_id", order.id);
+        localStorage.setItem("aksa_last_order_display_id", String(order.display_id || ""));
+      } catch { /* ignore */ }
 
-        router.push(`/${locale}/checkout/confirmation?order_id=${order.id}`);
-      } else {
-        // Fallback: no Medusa, simulate order
-        await new Promise((r) => setTimeout(r, 1500));
-        clearCart();
-        router.push(`/${locale}/checkout/confirmation`);
-      }
+      router.push(`/${locale}/checkout/confirmation?order_id=${order.id}`);
     } catch (err) {
       console.error("Place order error:", err);
       setError(tCo("orderError"));
@@ -795,7 +725,7 @@ export default function CheckoutPage() {
                             selected={!selectedShippingOption || selectedShippingOption === "standard"}
                             onSelect={() => {
                               setSelectedShippingOption("standard");
-                              setShippingCostFromMedusa(subtotal >= 15000 ? 0 : 1500);
+                              setShippingCostValue(subtotal >= 15000 ? 0 : 1500);
                             }}
                           />
                           <ShippingOptionRadio
@@ -805,7 +735,7 @@ export default function CheckoutPage() {
                             selected={selectedShippingOption === "express"}
                             onSelect={() => {
                               setSelectedShippingOption("express");
-                              setShippingCostFromMedusa(3000);
+                              setShippingCostValue(3000);
                             }}
                           />
                         </>

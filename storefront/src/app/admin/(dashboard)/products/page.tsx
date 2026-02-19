@@ -7,7 +7,7 @@ import Badge from '@/components/admin/Badge'
 import Modal from '@/components/admin/Modal'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
-import { adminMedusa } from '@/lib/admin-medusa'
+import { adminMedusa } from '@/lib/admin-supabase'
 import {
   products as demoProducts, formatCurrency, type Product, type ProductStatus,
 } from '@/data/adminSampleData'

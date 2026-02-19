@@ -5,8 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { APPOINTMENT_IMAGE } from "@/lib/cdn-image-urls";
 
 export default function Appointment() {
   const t = useTranslations("home");
@@ -36,7 +35,7 @@ export default function Appointment() {
         {/* Left — atelier image */}
         <div className="relative h-[420px] lg:h-auto overflow-hidden">
           <Image
-            src={`${MEDUSA_URL}/static/allure-bridals-a1407-01.jpg`}
+            src={APPOINTMENT_IMAGE}
             alt="Bride in Aksa Fashion gown at our Prishtina atelier"
             fill
             className="object-cover object-[50%_20%]"

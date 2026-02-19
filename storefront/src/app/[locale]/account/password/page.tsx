@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useAuth, BACKEND_URL } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 import Input from "@/components/ui/Input";
 import {
   ChevronLeftIcon,
@@ -18,7 +18,7 @@ export default function PasswordPage() {
   const t = useTranslations("account");
   const tc = useTranslations("common");
   const locale = useLocale();
-  const { customer, isLoading: authLoading } = useAuth();
+  const { customer, isLoading: authLoading, changePassword } = useAuth();
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -47,36 +47,9 @@ export default function PasswordPage() {
     setSaving(true);
 
     try {
-      // Re-authenticate with current password, then update
-      const authRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: customer?.email, password: currentPassword }),
-      });
-
-      if (!authRes.ok) {
+      const success = await changePassword(currentPassword, newPassword);
+      if (!success) {
         setError(t("currentPasswordWrong"));
-        setSaving(false);
-        return;
-      }
-
-      const authData = await authRes.json();
-      const token = authData.token;
-
-      // Update password
-      const updateRes = await fetch(`${BACKEND_URL}/auth/customer/emailpass/update`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ password: newPassword }),
-      });
-
-      if (!updateRes.ok) {
-        setError(t("passwordUpdateFailed"));
         setSaving(false);
         return;
       }

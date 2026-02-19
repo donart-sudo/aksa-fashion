@@ -3,20 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
-
-const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000";
+import { NEWSLETTER_IMAGES } from "@/lib/cdn-image-urls";
 
 /* ── Product images for the scrolling marquee ── */
-const MARQUEE_IMAGES = [
-  { src: `${MEDUSA_URL}/static/abella-e552-browne-01.jpg`, alt: "Maison" },
-  { src: `${MEDUSA_URL}/static/allure-couture-c809-01.jpg`, alt: "Emerald Empress" },
-  { src: `${MEDUSA_URL}/static/allure-bridals-a1406-01.jpg`, alt: "Renata" },
-  { src: `${MEDUSA_URL}/static/allure-women-w554-01.jpg`, alt: "Goldina" },
-  { src: `${MEDUSA_URL}/static/abella-e553-hudson-01.jpg`, alt: "Arbennelle Gold" },
-  { src: `${MEDUSA_URL}/static/allure-couture-c760j-01.jpg`, alt: "Rosalina" },
-  { src: `${MEDUSA_URL}/static/allure-bridals-a1403-01.jpg`, alt: "Nathalie" },
-  { src: `${MEDUSA_URL}/static/allure-women-w555-01.jpg`, alt: "Daphne" },
-];
+const MARQUEE_IMAGES = NEWSLETTER_IMAGES;
 
 /* ── Infinite scrolling marquee ── */
 function ImageMarquee() {

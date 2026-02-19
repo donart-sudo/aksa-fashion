@@ -12,7 +12,7 @@ import {
   updateAddress,
   deleteAddress,
   type CustomerAddress,
-} from "@/lib/data/medusa-customer";
+} from "@/lib/data/supabase-customer";
 import {
   MapPinIcon,
   PlusIcon,
