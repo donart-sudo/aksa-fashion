@@ -12,26 +12,26 @@ const SLIDE_DURATION = 6000;
 
 const HERO_SLIDES = [
   {
-    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
     alt: "Snow luxury bridal gown with flowing silhouette",
     ctaLink: "collections",
     key: "slide0",
   },
   {
-    image: `${MEDUSA_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
-    alt: "Pure Essence bridal gown with sparkling beadwork",
+    image: `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
+    alt: "Verdant Grace cape gown with couture drama",
     ctaLink: "collections/bridal",
     key: "slide1",
   },
   {
-    image: `${MEDUSA_URL}/static/1771434665133-Imperial-Flame-scaled.jpg`,
-    alt: "Imperial Flame evening gown with elegant drama",
+    image: `${MEDUSA_URL}/static/allure-women-w553-01.jpg`,
+    alt: "Pure Eternity evening gown with elegant drama",
     ctaLink: "collections/evening-dress",
     key: "slide2",
   },
   {
-    image: `${MEDUSA_URL}/static/1771434665088-Lumi-scaled.jpg`,
-    alt: "Lumi gown with cascading drama and flowing cape",
+    image: `${MEDUSA_URL}/static/abella-e552-browne-01.jpg`,
+    alt: "Maison gown with cascading drama and flowing silhouette",
     ctaLink: "collections/silhouette-whisper",
     key: "slide3",
   },
@@ -352,8 +352,8 @@ export default function EditorialBanner() {
             </span>
           </button>
 
-          {/* Slide counter — bottom right */}
-          <div className="pointer-events-none absolute bottom-6 right-6 hidden lg:flex items-baseline gap-1 text-white/40">
+          {/* Slide counter — bottom left */}
+          <div className="pointer-events-none absolute bottom-6 left-6 hidden lg:flex items-baseline gap-1 text-white/40">
             <span className="text-[22px] font-light text-white/80 tabular-nums">{String(current + 1).padStart(2, "0")}</span>
             <span className="text-[13px] font-light">/</span>
             <span className="text-[13px] font-light tabular-nums">{String(HERO_SLIDES.length).padStart(2, "0")}</span>

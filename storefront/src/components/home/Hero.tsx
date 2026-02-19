@@ -17,7 +17,7 @@ export default function Hero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src={`${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`}
+          src={`${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`}
           alt="Aksa Fashion - Luxury Bridal & Evening Wear"
           fill
           className="object-cover"

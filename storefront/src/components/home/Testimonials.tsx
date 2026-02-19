@@ -19,7 +19,7 @@ const BRIDE_STORIES = [
     text: "It's even more beautiful in person, it's perfect!",
     rating: 5,
     image:
-      `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
+      `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
     product: {
       name: "Crystal Bloom",
       handle: "crystal-bloom",
@@ -34,7 +34,7 @@ const BRIDE_STORIES = [
     text: "The whole process was so smooth with you. Fast shipping and amazing quality.",
     rating: 5,
     image:
-      `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+      `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
     product: {
       name: "Snow",
       handle: "snow",
@@ -49,7 +49,7 @@ const BRIDE_STORIES = [
     text: "From the first message to receiving my dress, everything was handled with such care. The attention to detail is incredible.",
     rating: 5,
     image:
-      `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
+      `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
     product: {
       name: "Verdant Grace",
       handle: "verdant-grace",
@@ -64,7 +64,7 @@ const BRIDE_STORIES = [
     text: "I couldn't believe how perfectly it fit. The custom measurements made all the difference.",
     rating: 5,
     image:
-      `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
+      `${MEDUSA_URL}/static/allure-couture-c807-01.jpg`,
     product: {
       name: "Golden Dawn",
       handle: "golden-dawn",
@@ -79,7 +79,7 @@ const BRIDE_STORIES = [
     text: "My wedding dress exceeded every expectation. The craftsmanship is outstanding.",
     rating: 5,
     image:
-      `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
+      `${MEDUSA_URL}/static/allure-women-w550-01.jpg`,
     product: {
       name: "Ellea",
       handle: "ellea",

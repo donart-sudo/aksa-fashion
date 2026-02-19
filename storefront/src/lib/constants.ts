@@ -33,13 +33,13 @@ export const PLACEHOLDER_IMAGES = {
   product4: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=600&q=80",
   product5: "https://images.unsplash.com/photo-1518622358385-8ea7d0794bf6?w=600&q=80",
   product6: "https://images.unsplash.com/photo-1549404444-8d3f8c49e0f3?w=600&q=80",
-  // About page images — using Allure Bridals editorial photos
-  aboutHero: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
-  aboutBride: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
-  aboutCraftsmanship: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
-  aboutFabric: `${MEDUSA_URL}/static/1771434664982-Maison-scaled.jpg`,
-  aboutAtelier: `${MEDUSA_URL}/static/1771434664972-Solar-Elegance-scaled.jpg`,
-  aboutEvening: `${MEDUSA_URL}/static/1771434665133-Imperial-Flame-scaled.jpg`,
+  // About page images
+  aboutHero: `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
+  aboutBride: `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
+  aboutCraftsmanship: `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
+  aboutFabric: `${MEDUSA_URL}/static/abella-e552-browne-01.jpg`,
+  aboutAtelier: `${MEDUSA_URL}/static/allure-bridals-a1407-01.jpg`,
+  aboutEvening: `${MEDUSA_URL}/static/allure-women-w552-01.jpg`,
 };
 
 export const MOCK_TESTIMONIALS = [
@@ -49,7 +49,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Prishtina, Kosovo",
     text: "It's even more beautiful in person, it's perfect!",
     rating: 5,
-    image: `${MEDUSA_URL}/static/1771434664999-Crystal-Bloom-1-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
   },
   {
     id: "2",
@@ -57,7 +57,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Tirana, Albania",
     text: "The whole process was so smooth with you. Fast shipping and amazing quality.",
     rating: 5,
-    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-bridals-a1401-01.jpg`,
   },
   {
     id: "3",
@@ -65,7 +65,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Zurich, Switzerland",
     text: "From the first message to receiving my dress, everything was handled with such care. The attention to detail is incredible.",
     rating: 5,
-    image: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-couture-c800-01.jpg`,
   },
   {
     id: "4",
@@ -73,7 +73,7 @@ export const MOCK_TESTIMONIALS = [
     location: "Munich, Germany",
     text: "I couldn't believe how perfectly it fit. The custom measurements made all the difference.",
     rating: 5,
-    image: `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-couture-c807-01.jpg`,
   },
   {
     id: "5",
@@ -81,6 +81,6 @@ export const MOCK_TESTIMONIALS = [
     location: "London, United Kingdom",
     text: "My wedding dress exceeded every expectation. The craftsmanship is outstanding.",
     rating: 5,
-    image: `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-women-w550-01.jpg`,
   },
 ];

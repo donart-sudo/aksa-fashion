@@ -67,7 +67,7 @@ export default function EditorialBand() {
         }}
       >
         <Image
-          src={`${MEDUSA_URL}/static/1771434665070-Royal-Lilac-Aura-scaled.jpg`}
+          src={`${MEDUSA_URL}/static/allure-couture-c804nc-01.jpg`}
           alt="Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier"
           fill
           className="object-cover object-[50%_30%]"

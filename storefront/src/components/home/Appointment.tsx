@@ -36,7 +36,7 @@ export default function Appointment() {
         {/* Left — atelier image */}
         <div className="relative h-[420px] lg:h-auto overflow-hidden">
           <Image
-            src={`${MEDUSA_URL}/static/1771434664972-Solar-Elegance-scaled.jpg`}
+            src={`${MEDUSA_URL}/static/allure-bridals-a1407-01.jpg`}
             alt="Bride in Aksa Fashion gown at our Prishtina atelier"
             fill
             className="object-cover object-[50%_20%]"

@@ -20,11 +20,16 @@ const medusaParsed = (() => {
 
 const nextConfig: NextConfig = {
   images: {
+    dangerouslyAllowSVG: true,
     remotePatterns: [
       {
         protocol: medusaParsed.protocol,
         hostname: medusaParsed.hostname,
         ...(medusaParsed.port ? { port: medusaParsed.port } : {}),
+      },
+      {
+        protocol: "https",
+        hostname: "ariart.shop",
       },
       {
         protocol: "https",
@@ -39,6 +44,10 @@ const nextConfig: NextConfig = {
         hostname: "res.cloudinary.com",
       },
     ],
+    localPatterns: [
+      { pathname: "/**" },
+    ],
+    dangerouslyAllowLocalIP: true,
   },
   async headers() {
     return [

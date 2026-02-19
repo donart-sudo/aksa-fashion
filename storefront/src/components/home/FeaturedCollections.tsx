@@ -7,32 +7,32 @@ const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localho
 const collections = [
   {
     key: "bridal",
-    image: `${MEDUSA_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-bridals-a1400-01.jpg`,
     href: "/collections/bridal",
   },
   {
     key: "evening",
-    image: `${MEDUSA_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-women-w550-01.jpg`,
     href: "/collections/evening-dress",
   },
   {
     key: "cape-and-train",
-    image: `${MEDUSA_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-couture-c805-01.jpg`,
     href: "/collections/cape-and-train-elegance",
   },
   {
     key: "ball-gown",
-    image: `${MEDUSA_URL}/static/1771434665009-Snow-1-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/allure-bridals-a1409-01.jpg`,
     href: "/collections/ball-gown",
   },
   {
     key: "silhouette",
-    image: `${MEDUSA_URL}/static/1771434665029-Ellea-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/abella-e551-lambri-01.jpg`,
     href: "/collections/silhouette-whisper",
   },
   {
     key: "ruffled-dream",
-    image: `${MEDUSA_URL}/static/1771434665053-Royal-Lilac-scaled.jpg`,
+    image: `${MEDUSA_URL}/static/abella-e550-carrington-01.jpg`,
     href: "/collections/ruffled-dream",
   },
 ];

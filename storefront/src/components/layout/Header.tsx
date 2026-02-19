@@ -231,14 +231,14 @@ export default function Header() {
   const topBarOffset = showTopBar ? TOPBAR_H : 0;
 
   const collectionImages: Record<string, string> = {
-    newCollection: `${BACKEND_URL}/static/1771434664990-Arbennelle-gold-scaled.jpg`,
-    bridalGowns: `${BACKEND_URL}/static/1771434665196-Pure-Essence-1-scaled.jpg`,
-    eveningDress: `${BACKEND_URL}/static/1771434665113-Golden-Dawn-scaled.jpg`,
-    ballGown: `${BACKEND_URL}/static/1771434665009-Snow-1-scaled.jpg`,
-    capeAndTrain: `${BACKEND_URL}/static/1771434664932-Verdant-Grace-scaled.jpg`,
-    royalOverTrain: `${BACKEND_URL}/static/1771434665105-Ari-royal-pink-scaled.jpg`,
-    silhouetteWhisper: `${BACKEND_URL}/static/1771434665029-Ellea-scaled.jpg`,
-    ruffledDream: `${BACKEND_URL}/static/1771434665053-Royal-Lilac-scaled.jpg`,
+    newCollection: `${BACKEND_URL}/static/allure-bridals-a1402-01.jpg`,
+    bridalGowns: `${BACKEND_URL}/static/allure-bridals-a1400-01.jpg`,
+    eveningDress: `${BACKEND_URL}/static/allure-women-w550-01.jpg`,
+    ballGown: `${BACKEND_URL}/static/allure-bridals-a1409-01.jpg`,
+    capeAndTrain: `${BACKEND_URL}/static/allure-couture-c805-01.jpg`,
+    royalOverTrain: `${BACKEND_URL}/static/allure-couture-c789-01.jpg`,
+    silhouetteWhisper: `${BACKEND_URL}/static/abella-e551-lambri-01.jpg`,
+    ruffledDream: `${BACKEND_URL}/static/abella-e550-carrington-01.jpg`,
   };
 
   const isActive = useCallback(

@@ -8,14 +8,14 @@ const MEDUSA_URL = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localho
 
 /* ── Product images for the scrolling marquee ── */
 const MARQUEE_IMAGES = [
-  { src: `${MEDUSA_URL}/static/1771434664982-Maison-scaled.jpg`, alt: "Maison" },
-  { src: `${MEDUSA_URL}/static/1771434665356-Goldina-1-scaled.jpg`, alt: "Goldina" },
-  { src: `${MEDUSA_URL}/static/1771434664964-Vlera-scaled.jpg`, alt: "Vlera" },
-  { src: `${MEDUSA_URL}/static/1771434665223-Jade-Elegance-1-scaled.jpg`, alt: "Jade Elegance" },
-  { src: `${MEDUSA_URL}/static/1771434664990-Arbennelle-gold-scaled.jpg`, alt: "Arbennelle Gold" },
-  { src: `${MEDUSA_URL}/static/1771434665503-Rosalina-1-scaled.jpg`, alt: "Rosalina" },
-  { src: `${MEDUSA_URL}/static/1771434665021-Midnight-Gold-scaled.jpg`, alt: "Midnight Gold" },
-  { src: `${MEDUSA_URL}/static/1771434665176-Noir-Beauty-1-scaled.jpg`, alt: "Noir Beauty" },
+  { src: `${MEDUSA_URL}/static/abella-e552-browne-01.jpg`, alt: "Maison" },
+  { src: `${MEDUSA_URL}/static/allure-couture-c809-01.jpg`, alt: "Emerald Empress" },
+  { src: `${MEDUSA_URL}/static/allure-bridals-a1406-01.jpg`, alt: "Renata" },
+  { src: `${MEDUSA_URL}/static/allure-women-w554-01.jpg`, alt: "Goldina" },
+  { src: `${MEDUSA_URL}/static/abella-e553-hudson-01.jpg`, alt: "Arbennelle Gold" },
+  { src: `${MEDUSA_URL}/static/allure-couture-c760j-01.jpg`, alt: "Rosalina" },
+  { src: `${MEDUSA_URL}/static/allure-bridals-a1403-01.jpg`, alt: "Nathalie" },
+  { src: `${MEDUSA_URL}/static/allure-women-w555-01.jpg`, alt: "Daphne" },
 ];
 
 /* ── Infinite scrolling marquee ── */
