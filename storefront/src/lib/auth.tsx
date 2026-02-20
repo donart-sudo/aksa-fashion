@@ -21,12 +21,11 @@ interface AuthContextType {
   customer: Customer | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<boolean>;
-  register: (data: { email: string; password: string; first_name: string; last_name: string }) => Promise<boolean>;
+  register: (data: { email: string; password: string; first_name: string; last_name: string }) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
-  loginWithToken: (token: string) => Promise<boolean>;
   requestPasswordReset: (email: string) => Promise<boolean>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<boolean>;
-  signInWithOAuth: (provider: "google" | "apple", redirectTo: string) => Promise<void>;
+  signInWithOAuth: (provider: "google") => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -35,21 +34,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch customer record for the current auth user
+  const fetchCustomer = useCallback(async (authUserId: string) => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from("customers")
+      .select("id, email, first_name, last_name")
+      .eq("auth_user_id", authUserId)
+      .single();
+
+    if (data) {
+      setCustomer(data);
+      return true;
+    }
+    return false;
+  }, []);
+
   useEffect(() => {
     async function checkSession() {
       try {
         const supabase = createClient();
         const { data: { session } } = await supabase.auth.getSession();
         if (session) {
-          const { data } = await supabase
-            .from("customers")
-            .select("id, email, first_name, last_name")
-            .eq("auth_user_id", session.user.id)
-            .single();
-
-          if (data) {
-            setCustomer(data);
-          }
+          await fetchCustomer(session.user.id);
         }
       } catch {
         // No active session
@@ -58,7 +65,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     checkSession();
-  }, []);
+
+    // Listen for auth state changes (handles OAuth redirect session pickup)
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === "SIGNED_IN" && session) {
+          await fetchCustomer(session.user.id);
+        } else if (event === "SIGNED_OUT") {
+          setCustomer(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [fetchCustomer]);
 
   const login = useCallback(async (email: string, password: string): Promise<boolean> => {
     try {
@@ -66,56 +87,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error || !data.user) return false;
 
-      const { data: customerData } = await supabase
-        .from("customers")
-        .select("id, email, first_name, last_name")
-        .eq("auth_user_id", data.user.id)
-        .single();
-
-      if (customerData) {
-        setCustomer(customerData);
-        return true;
-      }
-      return false;
+      return await fetchCustomer(data.user.id);
     } catch {
       return false;
     }
-  }, []);
+  }, [fetchCustomer]);
 
   const register = useCallback(async (regData: {
     email: string;
     password: string;
     first_name: string;
     last_name: string;
-  }): Promise<boolean> => {
+  }): Promise<{ success: boolean; error?: string }> => {
     try {
-      const supabase = createClient();
+      // Use the server-side API route to create user + customer (bypasses RLS)
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(regData),
+      });
 
-      const { data, error } = await supabase.auth.signUp({
+      const result = await res.json();
+
+      if (!res.ok) {
+        return { success: false, error: result.error };
+      }
+
+      // Sign in immediately after registration
+      const supabase = createClient();
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: regData.email,
         password: regData.password,
       });
-      if (error || !data.user) return false;
 
-      const { data: customerData, error: customerError } = await supabase
-        .from("customers")
-        .insert({
-          auth_user_id: data.user.id,
-          email: regData.email,
-          first_name: regData.first_name,
-          last_name: regData.last_name,
-        })
-        .select("id, email, first_name, last_name")
-        .single();
+      if (error || !data.user) {
+        return { success: false, error: "Account created but sign-in failed. Please sign in manually." };
+      }
 
-      if (customerError || !customerData) return false;
-
-      setCustomer(customerData);
-      return true;
+      await fetchCustomer(data.user.id);
+      return { success: true };
     } catch {
-      return false;
+      return { success: false, error: "Registration failed" };
     }
-  }, []);
+  }, [fetchCustomer]);
 
   const logout = useCallback(async () => {
     try {
@@ -125,28 +139,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // ignore
     }
     setCustomer(null);
-  }, []);
-
-  const loginWithToken = useCallback(async (_token: string): Promise<boolean> => {
-    try {
-      const supabase = createClient();
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return false;
-
-      const { data } = await supabase
-        .from("customers")
-        .select("id, email, first_name, last_name")
-        .eq("auth_user_id", session.user.id)
-        .single();
-
-      if (data) {
-        setCustomer(data);
-        return true;
-      }
-      return false;
-    } catch {
-      return false;
-    }
   }, []);
 
   const requestPasswordReset = useCallback(async (email: string): Promise<boolean> => {
@@ -164,12 +156,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const changePassword = useCallback(async (currentPassword: string, newPassword: string): Promise<boolean> => {
     try {
       const supabase = createClient();
-      // Verify current password by re-authenticating
       const email = customer?.email;
       if (!email) return false;
       const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
       if (signInErr) return false;
-      // Update to new password
       const { error: updateErr } = await supabase.auth.updateUser({ password: newPassword });
       return !updateErr;
     } catch {
@@ -177,12 +167,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [customer?.email]);
 
-  const signInWithOAuth = useCallback(async (provider: "google" | "apple", redirectTo: string) => {
+  const signInWithOAuth = useCallback(async (provider: "google") => {
     try {
+      // Detect current locale from URL
+      const pathParts = window.location.pathname.split("/");
+      const locale = pathParts[1] || "en";
+
       const supabase = createClient();
       await supabase.auth.signInWithOAuth({
         provider,
-        options: { redirectTo },
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback?next=/${locale}/account`,
+        },
       });
     } catch {
       // ignore
@@ -190,7 +186,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ customer, isLoading, login, register, logout, loginWithToken, requestPasswordReset, changePassword, signInWithOAuth }}>
+    <AuthContext.Provider value={{ customer, isLoading, login, register, logout, requestPasswordReset, changePassword, signInWithOAuth }}>
       {children}
     </AuthContext.Provider>
   );
@@ -200,9 +196,8 @@ const AUTH_DEFAULTS: AuthContextType = {
   customer: null,
   isLoading: false,
   login: async () => false,
-  register: async () => false,
+  register: async () => ({ success: false }),
   logout: async () => {},
-  loginWithToken: async () => false,
   requestPasswordReset: async () => false,
   changePassword: async () => false,
   signInWithOAuth: async () => {},

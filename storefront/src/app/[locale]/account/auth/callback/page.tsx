@@ -13,25 +13,33 @@ function CallbackHandler() {
   const router = useRouter();
   const locale = useLocale();
   const t = useTranslations("account");
-  const { loginWithToken } = useAuth();
+  const { customer, isLoading } = useAuth();
   const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const token = searchParams.get("token");
-    if (token) {
-      loginWithToken(token).then((ok) => {
-        if (ok) {
-          router.replace(`/${locale}/account`);
-        } else {
-          setError(true);
-        }
-      });
-    } else {
-      setError(true);
-    }
-  }, [searchParams, loginWithToken, router, locale]);
+  const authError = searchParams.get("error");
 
-  if (error) {
+  useEffect(() => {
+    if (authError) {
+      setError(true);
+      return;
+    }
+
+    // If the auth provider already detected a session, redirect to account
+    if (!isLoading && customer) {
+      router.replace(`/${locale}/account`);
+    }
+
+    // If loading is done and no customer, something went wrong
+    if (!isLoading && !customer) {
+      // Wait a moment for auth state to propagate
+      const timeout = setTimeout(() => {
+        if (!customer) setError(true);
+      }, 3000);
+      return () => clearTimeout(timeout);
+    }
+  }, [authError, isLoading, customer, router, locale]);
+
+  if (error || authError) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center px-4">
         <motion.div

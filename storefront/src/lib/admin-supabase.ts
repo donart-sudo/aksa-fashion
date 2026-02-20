@@ -22,6 +22,29 @@ class SupabaseAdminClient {
     this.onUnauthorized = cb
   }
 
+  /**
+   * Route a database write through the server-side API proxy,
+   * which uses the service role key to bypass RLS.
+   */
+  private async adminWrite(body: Record<string, unknown>): Promise<{ data: unknown; count?: number | null }> {
+    const { data: { session } } = await this.client.auth.getSession()
+    const token = session?.access_token
+    if (!token) throw new Error('Not authenticated')
+
+    const res = await fetch('/api/admin/db', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    })
+
+    const json = await res.json()
+    if (!res.ok) throw new Error(json.error || `Request failed (${res.status})`)
+    return json
+  }
+
   // ── Auth ──────────────────────────────────────────────────────────────
 
   async login(email: string, password: string) {
@@ -121,38 +144,42 @@ class SupabaseAdminClient {
   }
 
   async createProduct(productData: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('products')
-      .insert({
+    const { data } = await this.adminWrite({
+      table: 'products',
+      operation: 'insert',
+      data: {
         title: productData.title as string,
         handle: productData.handle as string || slugify(productData.title as string),
         description: productData.description as string || '',
         status: (productData.status as string) || 'draft',
         thumbnail: productData.thumbnail as string || null,
         metadata: (productData.metadata as Record<string, unknown>) || {},
-      })
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+      },
+    })
 
     // Create default variant if price provided
+    const product = data as Record<string, unknown>
     if (productData.price !== undefined) {
-      await this.client.from('product_variants').insert({
-        product_id: data.id,
-        title: 'Default',
-        price_amount: productData.price as number,
-        currency_code: 'eur',
+      await this.adminWrite({
+        table: 'product_variants',
+        operation: 'insert',
+        data: {
+          product_id: product.id,
+          title: 'Default',
+          price_amount: Math.round((productData.price as number) / 100),
+          currency_code: 'eur',
+        },
       })
     }
 
-    return { product: toAdminProduct(data) }
+    return { product: toAdminProduct(product) }
   }
 
   async updateProduct(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('products')
-      .update({
+    const { data } = await this.adminWrite({
+      table: 'products',
+      operation: 'update',
+      data: {
         ...(updates.title !== undefined && { title: updates.title }),
         ...(updates.handle !== undefined && { handle: updates.handle }),
         ...(updates.description !== undefined && { description: updates.description }),
@@ -160,18 +187,24 @@ class SupabaseAdminClient {
         ...(updates.thumbnail !== undefined && { thumbnail: updates.thumbnail }),
         ...(updates.metadata !== undefined && { metadata: updates.metadata }),
         updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
+      },
+      match: { id },
+    })
 
-    if (error) throw new Error(error.message)
     return { product: toAdminProduct(data) }
   }
 
+  async updateVariant(variantId: string, updates: Record<string, unknown>) {
+    await this.adminWrite({
+      table: 'product_variants',
+      operation: 'update',
+      data: updates,
+      match: { id: variantId },
+    })
+  }
+
   async deleteProduct(id: string) {
-    const { error } = await this.client.from('products').delete().eq('id', id)
-    if (error) throw new Error(error.message)
+    await this.adminWrite({ table: 'products', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -216,17 +249,13 @@ class SupabaseAdminClient {
   }
 
   async updateOrder(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('orders')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', id)
-      .select()
-      .single()
+    const { data } = await this.adminWrite({
+      table: 'orders',
+      operation: 'update',
+      data: { ...updates, updated_at: new Date().toISOString() },
+      match: { id },
+    })
 
-    if (error) throw new Error(error.message)
     return { order: toAdminOrder(data) }
   }
 
@@ -328,35 +357,30 @@ class SupabaseAdminClient {
   }
 
   async createCollection(collectionData: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('collections')
-      .insert({
+    const { data } = await this.adminWrite({
+      table: 'collections',
+      operation: 'insert',
+      data: {
         title: collectionData.title as string,
         handle: collectionData.handle as string || slugify(collectionData.title as string),
         metadata: (collectionData.metadata as Record<string, unknown>) || {},
-      })
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+      },
+    })
     return { collection: data as MedusaCollection }
   }
 
   async updateCollection(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('collections')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+    const { data } = await this.adminWrite({
+      table: 'collections',
+      operation: 'update',
+      data: { ...updates, updated_at: new Date().toISOString() },
+      match: { id },
+    })
     return { collection: data as MedusaCollection }
   }
 
   async deleteCollection(id: string) {
-    const { error } = await this.client.from('collections').delete().eq('id', id)
-    if (error) throw new Error(error.message)
+    await this.adminWrite({ table: 'collections', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -394,36 +418,31 @@ class SupabaseAdminClient {
   }
 
   async createCategory(categoryData: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('categories')
-      .insert({
+    const { data } = await this.adminWrite({
+      table: 'categories',
+      operation: 'insert',
+      data: {
         name: categoryData.name as string,
         handle: categoryData.handle as string || slugify(categoryData.name as string),
         description: (categoryData.description as string) || '',
         rank: (categoryData.rank as number) || 0,
-      })
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+      },
+    })
     return { product_category: data as MedusaCategory }
   }
 
   async updateCategory(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('categories')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+    const { data } = await this.adminWrite({
+      table: 'categories',
+      operation: 'update',
+      data: { ...updates, updated_at: new Date().toISOString() },
+      match: { id },
+    })
     return { product_category: data as MedusaCategory }
   }
 
   async deleteCategory(id: string) {
-    const { error } = await this.client.from('categories').delete().eq('id', id)
-    if (error) throw new Error(error.message)
+    await this.adminWrite({ table: 'categories', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -466,9 +485,10 @@ class SupabaseAdminClient {
   }
 
   async createPromotion(promoData: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('promotions')
-      .insert({
+    const { data } = await this.adminWrite({
+      table: 'promotions',
+      operation: 'insert',
+      data: {
         code: promoData.code as string,
         type: (promoData.type as string) || 'standard',
         is_automatic: (promoData.is_automatic as boolean) || false,
@@ -477,29 +497,23 @@ class SupabaseAdminClient {
         currency_code: (promoData.currency_code as string) || 'eur',
         starts_at: promoData.starts_at as string || null,
         ends_at: promoData.ends_at as string || null,
-      })
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+      },
+    })
     return { promotion: data as unknown as MedusaPromotion }
   }
 
   async updatePromotion(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('promotions')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+    const { data } = await this.adminWrite({
+      table: 'promotions',
+      operation: 'update',
+      data: { ...updates, updated_at: new Date().toISOString() },
+      match: { id },
+    })
     return { promotion: data as unknown as MedusaPromotion }
   }
 
   async deletePromotion(id: string) {
-    const { error } = await this.client.from('promotions').delete().eq('id', id)
-    if (error) throw new Error(error.message)
+    await this.adminWrite({ table: 'promotions', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -531,31 +545,26 @@ class SupabaseAdminClient {
   }
 
   async createProductTag(tagData: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('product_tags')
-      .insert({ value: tagData.value as string })
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+    const { data } = await this.adminWrite({
+      table: 'product_tags',
+      operation: 'insert',
+      data: { value: tagData.value as string },
+    })
     return { product_tag: data as MedusaProductTag }
   }
 
   async updateProductTag(id: string, updates: Record<string, unknown>) {
-    const { data, error } = await this.client
-      .from('product_tags')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (error) throw new Error(error.message)
+    const { data } = await this.adminWrite({
+      table: 'product_tags',
+      operation: 'update',
+      data: { ...updates, updated_at: new Date().toISOString() },
+      match: { id },
+    })
     return { product_tag: data as MedusaProductTag }
   }
 
   async deleteProductTag(id: string) {
-    const { error } = await this.client.from('product_tags').delete().eq('id', id)
-    if (error) throw new Error(error.message)
+    await this.adminWrite({ table: 'product_tags', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -604,12 +613,12 @@ class SupabaseAdminClient {
   }
 
   async updateInventoryLevel(inventoryItemId: string, _locationId: string, data: { stocked_quantity: number }) {
-    const { error } = await this.client
-      .from('product_variants')
-      .update({ inventory_quantity: data.stocked_quantity })
-      .eq('id', inventoryItemId)
-
-    if (error) throw new Error(error.message)
+    await this.adminWrite({
+      table: 'product_variants',
+      operation: 'update',
+      data: { inventory_quantity: data.stocked_quantity },
+      match: { id: inventoryItemId },
+    })
     return {}
   }
 
@@ -682,10 +691,11 @@ function toAdminProduct(row: any): MedusaProduct {
     status: row.status,
     thumbnail: row.thumbnail || row.product_images?.[0]?.url || null,
     images: (row.product_images || []).map((img: { id: string; url: string }) => ({ id: img.id, url: img.url })),
-    variants: (row.product_variants || []).map((v: { id: string; title: string; price_amount: number; currency_code: string; inventory_quantity: number }) => ({
+    variants: (row.product_variants || []).map((v: { id: string; title: string; sku?: string | null; price_amount: number; currency_code: string; inventory_quantity: number }) => ({
       id: v.id,
       title: v.title,
-      prices: [{ amount: v.price_amount, currency_code: v.currency_code || 'eur' }],
+      sku: v.sku || null,
+      prices: [{ amount: v.price_amount * 100, currency_code: v.currency_code || 'eur' }],
       inventory_quantity: v.inventory_quantity,
     })),
     collection: row.product_collections?.[0]?.collections
@@ -708,15 +718,15 @@ function toAdminOrder(row: any): MedusaOrder {
     status: row.status,
     fulfillment_status: row.fulfillment_status || 'not_fulfilled',
     payment_status: row.payment_status || 'awaiting',
-    total: row.total,
-    subtotal: row.subtotal,
+    total: (row.total || 0) * 100,
+    subtotal: (row.subtotal || 0) * 100,
     tax_total: 0,
     currency_code: row.currency_code || 'eur',
     items: (row.order_items || []).map((item: { id: string; title: string; quantity: number; unit_price: number; thumbnail: string | null }) => ({
       id: item.id,
       title: item.title,
       quantity: item.quantity,
-      unit_price: item.unit_price,
+      unit_price: (item.unit_price || 0) * 100,
       thumbnail: item.thumbnail,
     })),
     customer: row.customers
@@ -746,7 +756,7 @@ export interface MedusaProduct {
   status: 'draft' | 'published' | 'proposed' | 'rejected'
   thumbnail: string | null
   images: { id: string; url: string }[]
-  variants: { id: string; title: string; prices: { amount: number; currency_code: string }[]; inventory_quantity: number }[]
+  variants: { id: string; title: string; sku?: string | null; prices: { amount: number; currency_code: string }[]; inventory_quantity: number }[]
   collection: { id: string; title: string } | null
   categories: { id: string; name: string }[]
   created_at: string

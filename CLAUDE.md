@@ -5,35 +5,38 @@ Aksa Fashion is a luxury bridal and evening wear ecommerce platform based in Pri
 
 ## Tech Stack
 - **Frontend:** Next.js 16 (App Router, RSC, SSR/SSG) + TypeScript
-- **Backend:** Medusa.js v2.13.1 (open-source headless ecommerce)
-- **Database:** PostgreSQL 17 (via Medusa)
+- **Database & Auth:** Supabase (PostgreSQL, Auth, Storage)
 - **Styling:** Tailwind CSS v4 + custom design tokens
 - **Animations:** Framer Motion
 - **Charts:** Recharts (admin dashboard)
 - **Icons:** Lucide React (admin), Heroicons (storefront)
-- **Payments:** Stripe (via Medusa plugin)
-- **Images:** Next.js Image (ariart.shop hosted)
-- **Hosting:** Vercel (frontend) + Railway (Medusa backend + DB)
+- **Images:** Next.js Image (ariart.shop hosted + Supabase Storage)
+- **Hosting:** Vercel (single deployment — no separate backend)
 - **i18n:** next-intl — Albanian (sq), English (en), Turkish (tr), Arabic (ar, RTL)
 
 ## Architecture
 
 ### Data Flow
-- **Storefront pages** fetch from Medusa Store API (`/store/*`) using publishable API key
-- **Admin dashboard** fetches from Medusa Admin API (`/admin/*`) using session cookies
-- **Fallback:** All API calls fall back to static data if backend is unreachable
+- **Storefront pages** query Supabase directly via `supabase-products.ts` (anon key, RLS-protected)
+- **Admin dashboard** queries Supabase via `admin-supabase.ts` (authenticated session)
+- **Fallback:** All storefront queries fall back to static data if Supabase is unreachable
 - **ISR:** Product pages revalidate every 60 seconds
 
-### API Layers
-- `src/lib/data/medusa-products.ts` — Server-side Store API (products, categories, search)
-- `src/lib/admin-medusa.ts` — Client-side Admin API (products, orders, customers, store)
+### Data Layers
+- `src/lib/data/supabase-products.ts` — Server-side storefront queries (products, categories, search)
+- `src/lib/admin-supabase.ts` — Client-side admin CRUD (products, orders, customers, collections, categories, promotions, tags, inventory)
 - `src/lib/data/products.ts` — Static fallback data (66 scraped products from ariart.shop)
 
 ### Authentication
-- **Admin auth:** POST `/auth/user/emailpass` → JWT token → POST `/auth/session` → session cookie
-- **Session cookies** are required for all `/admin/*` endpoints (Bearer tokens alone don't work)
+- **Admin auth:** Supabase Auth `signInWithPassword` → verify user exists in `admin_users` table
+- **Session:** Supabase manages JWT sessions automatically (no manual cookie handling)
 - **Admin credentials:** admin@aksafashion.com / AksaAdmin123!
-- **Demo mode:** Available on login page — uses sample data without backend connection
+- **Demo mode:** Available on login page — uses `adminSampleData.ts` without Supabase connection
+
+### Supabase Clients
+- `src/lib/supabase.ts` — Browser client (anon key)
+- `src/lib/supabase-server.ts` — Server-side client (for RSC/API routes)
+- `src/lib/supabase-admin.ts` — Service role client (for admin operations)
 
 ## Design System — Warm Luxury Minimal
 
@@ -74,7 +77,11 @@ Aksa Fashion is a luxury bridal and evening wear ecommerce platform based in Pri
 ## Project Structure
 ```
 aksa-fashion/
-├── storefront/                    # Next.js 16 frontend
+├── storefront/                    # Next.js 16 frontend (single deployment)
+│   ├── scripts/
+│   │   ├── setup.ts               # Unified setup: schema + bucket + seed + admin
+│   │   ├── schema.sql             # Database DDL (tables, indexes, RLS, search)
+│   │   └── seed-supabase.ts       # Standalone seed script
 │   ├── src/
 │   │   ├── app/
 │   │   │   ├── [locale]/          # i18n storefront pages
@@ -86,15 +93,16 @@ aksa-fashion/
 │   │   │   │   ├── checkout/      # Checkout flow
 │   │   │   │   ├── account/       # Customer account
 │   │   │   │   └── wishlist/      # Wishlist page
-│   │   │   └── admin/             # Admin dashboard (Shopify-style)
-│   │   │       ├── login/         # Admin login
-│   │   │       └── (dashboard)/   # Dashboard pages
-│   │   │           ├── page.tsx       # Home (metrics, charts, tables)
-│   │   │           ├── products/      # Product management (CRUD)
-│   │   │           ├── orders/        # Order management
-│   │   │           ├── customers/     # Customer management
-│   │   │           ├── analytics/     # Analytics dashboard
-│   │   │           └── settings/      # Store settings
+│   │   │   ├── admin/             # Admin dashboard (Shopify-style)
+│   │   │   │   ├── login/         # Admin login
+│   │   │   │   └── (dashboard)/   # Dashboard pages
+│   │   │   │       ├── page.tsx       # Home (metrics, charts, tables)
+│   │   │   │       ├── products/      # Product management (CRUD)
+│   │   │   │       ├── orders/        # Order management
+│   │   │   │       ├── customers/     # Customer management
+│   │   │   │       ├── analytics/     # Analytics dashboard
+│   │   │   │       └── settings/      # Store settings
+│   │   │   └── api/               # Next.js API routes
 │   │   ├── components/
 │   │   │   ├── admin/             # Admin UI (Sidebar, TopBar, MetricCard, Badge, Modal)
 │   │   │   ├── home/              # Hero, FeaturedCollections, NewArrivals, etc.
@@ -106,15 +114,17 @@ aksa-fashion/
 │   │   │   └── ui/                # Button, Badge, Input, Skeleton
 │   │   ├── lib/
 │   │   │   ├── data/
-│   │   │   │   ├── medusa-products.ts  # Medusa Store API fetching
-│   │   │   │   └── products.ts         # Static fallback data
-│   │   │   ├── admin-medusa.ts    # Medusa Admin API client
+│   │   │   │   ├── supabase-products.ts  # Supabase storefront queries
+│   │   │   │   └── products.ts           # Static fallback data
+│   │   │   ├── admin-supabase.ts  # Supabase admin CRUD client
 │   │   │   ├── admin-auth.tsx     # Admin auth context/provider
+│   │   │   ├── supabase.ts        # Browser Supabase client
+│   │   │   ├── supabase-server.ts # Server-side Supabase client
+│   │   │   ├── supabase-admin.ts  # Service role client
 │   │   │   ├── cart.tsx           # Cart context/provider
 │   │   │   ├── auth.tsx           # Customer auth context
 │   │   │   ├── wishlist.tsx       # Wishlist context
 │   │   │   ├── search.tsx         # Search context
-│   │   │   ├── medusa.ts          # Medusa SDK setup
 │   │   │   ├── utils.ts           # formatPrice, slugify, cn
 │   │   │   └── constants.ts       # Site config, social links
 │   │   ├── data/
@@ -122,12 +132,6 @@ aksa-fashion/
 │   │   ├── i18n/                  # Translation files (sq, en, tr, ar)
 │   │   └── types/                 # TypeScript interfaces
 │   └── public/                    # Static assets, PWA manifest
-├── backend/                       # Medusa.js v2 backend
-│   └── src/
-│       ├── scripts/seed.ts        # Seed 66 products, 7 categories, shipping
-│       ├── admin/                 # Admin customizations
-│       ├── api/                   # Custom API routes
-│       └── workflows/             # Custom workflows
 └── CLAUDE.md                      # This file
 ```
 
@@ -142,21 +146,35 @@ The admin lives at `/admin` and provides:
 
 ### Admin Auth Flow
 1. User enters email/password on `/admin/login`
-2. POST to `/auth/user/emailpass` → gets JWT token
-3. POST to `/auth/session` with Bearer token → creates session cookie
-4. All subsequent `/admin/*` requests use the session cookie (credentials: 'include')
-5. On page reload, stored JWT is used to restore session
+2. Supabase Auth `signInWithPassword` → returns session with JWT
+3. Verify user has a row in `admin_users` table (not just any auth user)
+4. Supabase client stores session automatically (localStorage)
+5. All subsequent queries use the authenticated session
 
 ### Demo Mode
 Login page has "Continue with demo data" — bypasses auth and uses `adminSampleData.ts`.
 
-## Database
+## Database (Supabase)
 - **66 products** across 7 categories (Bridal, Ball Gown, Cape and Train, Evening Dress, Royal Over Train, Ruffled Dream, Silhouette Whisper)
-- **567 inventory items** (50 units per variant)
+- **22 collections** for grouping products
+- **~567 inventory items** (50 units per variant)
 - **Currencies:** EUR (default), USD, GBP
-- **Countries:** Kosovo (XK), Albania, Germany, Austria, France, Italy, UK, Switzerland, Netherlands, Belgium
 - **Shipping:** Standard (€15, 3-5 days), Express (€30, 1-2 days), Free (orders over €150)
-- **Publishable API key:** Set in storefront `.env.local` as `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`
+- **Full-text search:** PostgreSQL `tsvector` on product title + description
+- **RLS policies:** Public read for storefront data, authenticated write for admin
+- **Storage bucket:** `product-images` for uploaded product images
+
+### Key Tables
+`products`, `product_images`, `product_options`, `product_option_values`, `product_variants`, `categories`, `collections`, `product_categories`, `product_collections`, `product_tags`, `customers`, `customer_addresses`, `orders`, `order_items`, `shipping_options`, `promotions`, `admin_users`, `store_settings`
+
+## Environment Variables
+```bash
+# storefront/.env.local
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+```
 
 ## Languages
 - **Albanian (sq)** — Default locale
@@ -169,24 +187,22 @@ Login page has "Continue with demo data" — bypasses auth and uses `adminSample
 - **Staging:** https://aksa-fashion.vercel.app
 - **GitHub:** https://github.com/donart-sudo/aksa-fashion
 - **Admin dashboard:** http://localhost:3000/admin
-- **Medusa admin (built-in):** http://localhost:9000/app
+- **Supabase dashboard:** https://supabase.com/dashboard
 
 ## Development Commands
 ```bash
-# Start everything
-cd backend && npm run dev          # Medusa backend (port 9000)
-cd storefront && npm run dev       # Next.js frontend (port 3000)
+# First-time setup (creates tables, storage bucket, seeds data, creates admin user)
+cd storefront && npm install && npm run setup
 
-# Database
-cd backend && npx medusa db:migrate    # Run migrations
-cd backend && npm run seed             # Seed 66 products
+# Start dev server
+cd storefront && npm run dev       # Next.js frontend (port 3000)
 
 # Build & Deploy
 cd storefront && npm run build         # Production build
 cd storefront && vercel --prod --yes   # Deploy to Vercel
 
-# Admin user
-cd backend && npx medusa user --email admin@aksafashion.com --password AksaAdmin123!
+# Re-seed data only (without schema)
+cd storefront && npx tsx scripts/seed-supabase.ts
 ```
 
 ## Code Conventions
@@ -198,7 +214,7 @@ cd backend && npx medusa user --email admin@aksafashion.com --password AksaAdmin
 - Use Tailwind CSS for styling — avoid inline styles
 - Component files: PascalCase (e.g., `ProductCard.tsx`)
 - Utility files: camelCase (e.g., `formatPrice.ts`)
-- Prices: stored as whole EUR in Medusa, converted to cents (×100) for `formatPrice()` display
+- Prices: stored as whole EUR in Supabase, converted to cents (x100) for `formatPrice()` display
 
 ## Brand Info
 - **Brand:** Aksa Fashion
