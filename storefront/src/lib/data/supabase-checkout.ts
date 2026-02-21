@@ -180,11 +180,17 @@ export interface CheckoutPayload {
 
 export async function placeOrder(payload: CheckoutPayload): Promise<MedusaOrder | null> {
   try {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 30000) // 30s timeout
+
     const res = await fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     })
+
+    clearTimeout(timeout)
 
     if (!res.ok) {
       const err = await res.json()
@@ -194,7 +200,11 @@ export async function placeOrder(payload: CheckoutPayload): Promise<MedusaOrder 
     const data = await res.json()
     return data.order
   } catch (error) {
-    console.error('Failed to place order:', error)
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.error('Order request timed out after 30 seconds')
+    } else {
+      console.error('Failed to place order:', error)
+    }
     return null
   }
 }

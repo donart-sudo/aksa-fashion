@@ -17,14 +17,29 @@ function MeasureIcon({ className }: { className?: string }) {
   );
 }
 
-const trustItems = [
+import type { TrustBarContent } from "@/types/content-blocks";
+
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  sparkles: SparklesIcon,
+  measure: MeasureIcon,
+  globe: GlobeAltIcon,
+  chat: ChatBubbleLeftRightIcon,
+};
+
+const defaultTrustItems = [
   { key: "trustHandcrafted" as const, Icon: SparklesIcon },
   { key: "trustMeasure" as const, Icon: MeasureIcon },
   { key: "trustShipping" as const, Icon: GlobeAltIcon },
   { key: "trustStyling" as const, Icon: ChatBubbleLeftRightIcon },
 ];
 
-export default function TrustBar() {
+export default function TrustBar({ content }: { content?: TrustBarContent }) {
+  const trustItems = content
+    ? content.items.map((item) => ({
+        key: item.textKey as "trustHandcrafted" | "trustMeasure" | "trustShipping" | "trustStyling",
+        Icon: ICON_MAP[item.iconKey] || SparklesIcon,
+      }))
+    : defaultTrustItems;
   const t = useTranslations("home");
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);

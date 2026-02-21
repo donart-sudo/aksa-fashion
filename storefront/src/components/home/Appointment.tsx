@@ -6,8 +6,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
 import { APPOINTMENT_IMAGE } from "@/lib/cdn-image-urls";
+import type { AppointmentContent } from "@/types/content-blocks";
 
-export default function Appointment() {
+export default function Appointment({ content }: { content?: AppointmentContent }) {
+  const appointmentImage = content?.image ?? APPOINTMENT_IMAGE;
+  const locationLabel = content?.location ?? "Prishtina, Kosovo";
+  const whatsappUrl = content?.whatsappUrl ?? SOCIAL_LINKS.whatsapp;
   const t = useTranslations("home");
   const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);
@@ -35,7 +39,7 @@ export default function Appointment() {
         {/* Left — atelier image */}
         <div className="relative h-[420px] lg:h-auto overflow-hidden">
           <Image
-            src={APPOINTMENT_IMAGE}
+            src={appointmentImage}
             alt="Bride in Aksa Fashion gown at our Prishtina atelier"
             fill
             className="object-cover object-[50%_20%]"
@@ -94,7 +98,7 @@ export default function Appointment() {
                 }}
               >
                 <span className="text-[11px] tracking-[0.35em] uppercase text-gold block mb-5">
-                  Prishtina, Kosovo
+                  {locationLabel}
                 </span>
               </div>
 
@@ -169,7 +173,7 @@ export default function Appointment() {
                   </svg>
                 </Link>
                 <a
-                  href={SOCIAL_LINKS.whatsapp}
+                  href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2.5 w-full sm:w-auto px-6 py-3.5 border border-white/15 hover:border-green-500/50 text-[11px] font-bold tracking-[0.15em] uppercase text-white/60 hover:text-green-400 transition-all duration-300"

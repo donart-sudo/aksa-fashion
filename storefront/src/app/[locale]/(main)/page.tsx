@@ -13,7 +13,19 @@ import Testimonials from "@/components/home/Testimonials";
 import AsSeenIn from "@/components/home/AsSeenIn";
 import Newsletter from "@/components/home/Newsletter";
 import ScrollReveal from "@/components/ui/ScrollReveal";
+import EditableSection from "@/components/editor/EditableSection";
 import { fetchNewProductsForCards, fetchProductsForCards } from "@/lib/data/supabase-products";
+import { getContentBlocks } from "@/lib/data/content-blocks";
+import type {
+  HeroContent,
+  TrustBarContent,
+  EditorialBandContent,
+  FeaturedCollectionsContent,
+  AppointmentContent,
+  TestimonialsContent,
+  AsSeenInContent,
+  NewsletterContent,
+} from "@/types/content-blocks";
 
 export async function generateMetadata({
   params,
@@ -83,9 +95,22 @@ export default async function HomePage({
   const { locale } = await params;
   const t = await getTranslations("home");
 
-  const [newProducts, moreProducts] = await Promise.all([
+  const [newProducts, moreProducts, contentMap] = await Promise.all([
     fetchNewProductsForCards(12),
     fetchProductsForCards(12),
+    getContentBlocks(
+      [
+        "homepage.hero",
+        "homepage.trustbar",
+        "homepage.editorial-band",
+        "homepage.featured-collections",
+        "homepage.appointment",
+        "homepage.testimonials",
+        "homepage.as-seen-in",
+        "homepage.newsletter",
+      ],
+      locale
+    ),
   ]);
 
   return (
@@ -93,10 +118,14 @@ export default async function HomePage({
       <StructuredData locale={locale} />
 
       {/* 1. Hero */}
-      <EditorialBanner />
+      <EditableSection sectionKey="homepage.hero" label="Hero">
+        <EditorialBanner content={contentMap["homepage.hero"] as HeroContent | undefined} />
+      </EditableSection>
 
       {/* 2. Trust Bar */}
-      <TrustBar />
+      <EditableSection sectionKey="homepage.trustbar" label="Trust Bar">
+        <TrustBar content={contentMap["homepage.trustbar"] as TrustBarContent | undefined} />
+      </EditableSection>
 
       {/* 3. Curated for You — bento grid */}
       <ScrollReveal>
@@ -104,16 +133,22 @@ export default async function HomePage({
       </ScrollReveal>
 
       {/* 4. Editorial Image Band */}
-      <EditorialBand />
+      <EditableSection sectionKey="homepage.editorial-band" label="Editorial Band">
+        <EditorialBand content={contentMap["homepage.editorial-band"] as EditorialBandContent | undefined} />
+      </EditableSection>
 
       {/* 5. Shop by Category */}
       <ScrollReveal distance={50} duration={900}>
-        <FeaturedCollections locale={locale} />
+        <EditableSection sectionKey="homepage.featured-collections" label="Collections">
+          <FeaturedCollections locale={locale} content={contentMap["homepage.featured-collections"] as FeaturedCollectionsContent | undefined} />
+        </EditableSection>
       </ScrollReveal>
 
       {/* 6. Appointment — primary conversion for bridal */}
       <ScrollReveal direction="up" distance={40} duration={900}>
-        <Appointment />
+        <EditableSection sectionKey="homepage.appointment" label="Appointment">
+          <Appointment content={contentMap["homepage.appointment"] as AppointmentContent | undefined} />
+        </EditableSection>
       </ScrollReveal>
 
       {/* 7. More to Discover — horizontal carousel */}
@@ -123,9 +158,15 @@ export default async function HomePage({
 
       {/* 8–10. Unified dark section: Testimonials → Press → Newsletter */}
       <div className="bg-charcoal">
-        <Testimonials />
-        <AsSeenIn />
-        <Newsletter />
+        <EditableSection sectionKey="homepage.testimonials" label="Testimonials">
+          <Testimonials content={contentMap["homepage.testimonials"] as TestimonialsContent | undefined} />
+        </EditableSection>
+        <EditableSection sectionKey="homepage.as-seen-in" label="As Seen In">
+          <AsSeenIn content={contentMap["homepage.as-seen-in"] as AsSeenInContent | undefined} />
+        </EditableSection>
+        <EditableSection sectionKey="homepage.newsletter" label="Newsletter">
+          <Newsletter content={contentMap["homepage.newsletter"] as NewsletterContent | undefined} />
+        </EditableSection>
       </div>
     </>
   );

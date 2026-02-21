@@ -1,8 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import type { AsSeenInContent } from "@/types/content-blocks";
 
-const PRESS_MARKS = [
+const DEFAULT_PRESS_MARKS = [
   "Vogue Sposa",
   "Brides Magazine",
   "Kosovo Fashion Week",
@@ -10,7 +11,8 @@ const PRESS_MARKS = [
   "Harper's Bazaar",
 ];
 
-export default function AsSeenIn() {
+export default function AsSeenIn({ content }: { content?: AsSeenInContent }) {
+  const PRESS_MARKS = content?.names ?? DEFAULT_PRESS_MARKS;
   const t = useTranslations("home");
 
   return (

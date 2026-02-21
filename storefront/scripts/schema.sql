@@ -213,6 +213,23 @@ CREATE TABLE IF NOT EXISTS store_settings (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- ── Content Blocks (visual content editor) ────────────────────────────────────
+CREATE TABLE IF NOT EXISTS content_blocks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  section_key TEXT NOT NULL,
+  locale TEXT NOT NULL DEFAULT 'en',
+  content JSONB NOT NULL DEFAULT '{}',
+  version INTEGER NOT NULL DEFAULT 1,
+  published BOOLEAN NOT NULL DEFAULT true,
+  updated_by TEXT,
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE (section_key, locale)
+);
+
+CREATE INDEX IF NOT EXISTS idx_content_blocks_section_key ON content_blocks(section_key);
+CREATE INDEX IF NOT EXISTS idx_content_blocks_locale ON content_blocks(locale);
+
 -- ══════════════════════════════════════════════════════════════════════════════
 -- INDEXES
 -- ══════════════════════════════════════════════════════════════════════════════
@@ -285,6 +302,7 @@ ALTER TABLE shipping_options ENABLE ROW LEVEL SECURITY;
 ALTER TABLE promotions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE store_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content_blocks ENABLE ROW LEVEL SECURITY;
 
 -- Public read for storefront data
 CREATE POLICY "Public read products" ON products FOR SELECT USING (true);
@@ -299,6 +317,7 @@ CREATE POLICY "Public read product_collections" ON product_collections FOR SELEC
 CREATE POLICY "Public read product_tags" ON product_tags FOR SELECT USING (true);
 CREATE POLICY "Public read shipping_options" ON shipping_options FOR SELECT USING (true);
 CREATE POLICY "Public read store_settings" ON store_settings FOR SELECT USING (true);
+CREATE POLICY "Public read published content_blocks" ON content_blocks FOR SELECT USING (published = true);
 
 -- Customers can read/update their own data
 CREATE POLICY "Customers read own data" ON customers
@@ -370,6 +389,8 @@ CREATE POLICY "Admin manage product_tags" ON product_tags
 CREATE POLICY "Admin manage promotions" ON promotions
   FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 CREATE POLICY "Admin manage store_settings" ON store_settings
+  FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "Admin manage content_blocks" ON content_blocks
   FOR ALL USING (is_admin()) WITH CHECK (is_admin());
 
 -- Admin can read and update all orders and customers

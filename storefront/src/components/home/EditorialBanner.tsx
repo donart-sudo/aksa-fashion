@@ -6,12 +6,14 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { isRtl } from "@/i18n/config";
 import { HERO_IMAGES } from "@/lib/cdn-image-urls";
+import type { HeroContent } from "@/types/content-blocks";
 
 const SLIDE_DURATION = 6000;
 
-const HERO_SLIDES = HERO_IMAGES;
+const HERO_SLIDES_DEFAULT = HERO_IMAGES;
 
-export default function EditorialBanner() {
+export default function EditorialBanner({ content }: { content?: HeroContent }) {
+  const HERO_SLIDES = content?.slides ?? HERO_SLIDES_DEFAULT;
   const t = useTranslations("home");
   const locale = useLocale();
   const rtl = isRtl(locale as "sq" | "en" | "tr" | "ar");

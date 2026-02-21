@@ -174,6 +174,8 @@ NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
 SUPABASE_SERVICE_ROLE_KEY=eyJ...
 DATABASE_URL=postgresql://postgres.[ref]:[password]@aws-0-[region].pooler.supabase.com:6543/postgres
+RESEND_API_KEY=re_BTfUJ31d_39vSxBwakrtJzvMjpvEmuBYu
+RESEND_FROM_EMAIL=Aksa Fashion <orders@aksa-fashion.com>
 ```
 
 ## Languages

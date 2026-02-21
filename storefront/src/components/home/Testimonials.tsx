@@ -8,9 +8,10 @@ import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import { TESTIMONIAL_IMAGES } from "@/lib/cdn-image-urls";
+import type { TestimonialsContent } from "@/types/content-blocks";
 
 /* ── Enriched testimonial data — each review linked to a real product ── */
-const BRIDE_STORIES = [
+const DEFAULT_BRIDE_STORIES = [
   {
     id: "1",
     name: "Elona K.",
@@ -59,7 +60,8 @@ const BRIDE_STORIES = [
 ];
 
 /* ── Main section ── */
-export default function Testimonials() {
+export default function Testimonials({ content }: { content?: TestimonialsContent }) {
+  const BRIDE_STORIES = content?.stories ?? DEFAULT_BRIDE_STORIES;
   const t = useTranslations("home");
   const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);

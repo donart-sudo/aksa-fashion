@@ -5,10 +5,15 @@ import { sendOrderConfirmationEmail } from '@/lib/email'
 // UUID v4 regex for validating product IDs from Supabase
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
+// Shipping costs in cents — single source of truth
+const STANDARD_SHIPPING = 1500  // €15
+const EXPRESS_SHIPPING = 3000   // €30
+const FREE_SHIPPING_THRESHOLD = 15000 // €150
+
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, items, shippingAddress, shippingOptionId, shippingCost, orderNote } = body
+    const { email, items, shippingAddress, shippingOptionId, orderNote } = body
 
     // Validate required fields
     if (!email || !items || items.length === 0) {
@@ -20,6 +25,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
+    // Normalize email to lowercase (prevents case-sensitivity mismatch on lookup)
+    const normalizedEmail = email.toLowerCase().trim()
+
     // Validate shipping address
     if (!shippingAddress || !shippingAddress.first_name || !shippingAddress.last_name ||
         !shippingAddress.address_1 || !shippingAddress.city || !shippingAddress.postal_code ||
@@ -27,24 +35,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Incomplete shipping address' }, { status: 400 })
     }
 
+    // Validate order note length
+    const sanitizedNote = typeof orderNote === 'string' ? orderNote.slice(0, 500) : ''
+
     const supabase = createAdminClient()
 
     // Server-side price verification: look up actual prices from database
-    // Extract product IDs that are valid UUIDs (from Supabase products)
-    const productIds = items
+    // Products may have UUID IDs (from Supabase) or numeric IDs (static fallback)
+    const uuidProductIds = items
       .map((item: { productId: string }) => item.productId)
       .filter((id: string) => UUID_REGEX.test(id))
 
     let productPriceMap: Record<string, number> = {}
-    if (productIds.length > 0) {
+    if (uuidProductIds.length > 0) {
       const { data: products } = await supabase
         .from('products')
         .select('id, product_variants(price_amount)')
-        .in('id', productIds)
+        .in('id', uuidProductIds)
 
       if (products) {
         for (const product of products) {
-          // Use the first variant's price (variants store price in whole EUR, cart stores in cents)
           const variants = product.product_variants as { price_amount: number }[]
           if (variants && variants.length > 0) {
             // price_amount is in whole EUR in db, cart items are in cents
@@ -54,7 +64,9 @@ export async function POST(request: Request) {
       }
     }
 
-    // Calculate totals server-side (prevents price manipulation)
+    // Calculate totals server-side
+    // For UUID products: use verified DB price (prevents manipulation)
+    // For static/fallback products: use client price (no DB record to verify against)
     let subtotal = 0
     const orderItems = items.map((item: {
       productId: string
@@ -66,22 +78,25 @@ export async function POST(request: Request) {
       size?: string
       color?: string
     }) => {
-      // Use verified price if available, otherwise trust client price
-      const verifiedPrice = UUID_REGEX.test(item.productId) && productPriceMap[item.productId]
+      const isUUID = UUID_REGEX.test(item.productId)
+      const verifiedPrice = isUUID && productPriceMap[item.productId]
         ? productPriceMap[item.productId]
         : item.price
-      const itemTotal = verifiedPrice * item.quantity
+
+      // Validate quantity
+      const quantity = Math.max(1, Math.min(item.quantity, 10))
+      const itemTotal = verifiedPrice * quantity
       subtotal += itemTotal
 
       // Only set product_id if it's a valid UUID (from Supabase)
-      const productId = UUID_REGEX.test(item.productId) ? item.productId : null
+      const productId = isUUID ? item.productId : null
 
       return {
         product_id: productId,
         title: item.title,
         subtitle: [item.color, item.size].filter(Boolean).join(' / ') || null,
         thumbnail: item.thumbnail,
-        quantity: item.quantity,
+        quantity,
         unit_price: verifiedPrice,
         total: itemTotal,
         metadata: {
@@ -93,28 +108,45 @@ export async function POST(request: Request) {
       }
     })
 
-    const shippingTotal = typeof shippingCost === 'number' ? shippingCost : 0
-    const total = subtotal + shippingTotal
-
-    // Look up shipping option name
+    // Server-side shipping cost verification — never trust client value
+    let shippingTotal = 0
     let shippingMethodName = 'Standard Shipping'
+
     if (shippingOptionId && shippingOptionId !== 'standard' && shippingOptionId !== 'express') {
+      // Real shipping option from database
       const { data: shippingOpt } = await supabase
         .from('shipping_options')
-        .select('name')
+        .select('name, amount')
         .eq('id', shippingOptionId)
         .single()
-      if (shippingOpt) shippingMethodName = shippingOpt.name
+      if (shippingOpt) {
+        shippingMethodName = shippingOpt.name
+        // Apply free shipping threshold
+        if (subtotal >= FREE_SHIPPING_THRESHOLD && (shippingOpt.name === 'Standard Shipping' || shippingOpt.name === 'Free Shipping')) {
+          shippingTotal = 0
+        } else {
+          shippingTotal = shippingOpt.amount
+        }
+      } else {
+        // Unknown shipping option — default to standard
+        shippingTotal = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING
+      }
     } else if (shippingOptionId === 'express') {
       shippingMethodName = 'Express Shipping'
+      shippingTotal = EXPRESS_SHIPPING
+    } else {
+      // Standard shipping
+      shippingTotal = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING
     }
+
+    const total = subtotal + shippingTotal
 
     // Look up existing customer by email to link order
     let customerId: string | null = null
     const { data: existingCustomer } = await supabase
       .from('customers')
       .select('id')
-      .eq('email', email)
+      .eq('email', normalizedEmail)
       .maybeSingle()
     if (existingCustomer) {
       customerId = existingCustomer.id
@@ -130,7 +162,7 @@ export async function POST(request: Request) {
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
-        email,
+        email: normalizedEmail,
         customer_id: customerId,
         status: 'pending',
         fulfillment_status: 'not_fulfilled',
@@ -142,7 +174,7 @@ export async function POST(request: Request) {
         shipping_address: normalizedAddress,
         billing_address: normalizedAddress,
         shipping_method: shippingMethodName,
-        metadata: orderNote ? { note: orderNote } : {},
+        metadata: sanitizedNote ? { note: sanitizedNote } : {},
       })
       .select('id, display_id')
       .single()
@@ -164,35 +196,43 @@ export async function POST(request: Request) {
 
     if (itemsError) {
       console.error('Order items error:', itemsError)
-      // Order was created but items failed — still return order ID
+      // Rollback: delete the order since it has no items
+      await supabase.from('orders').delete().eq('id', order.id)
+      return NextResponse.json({ error: 'Failed to create order items' }, { status: 500 })
     }
 
-    // Send confirmation email (fire-and-forget — don't block the response)
+    // Send confirmation email — must await to prevent serverless function from
+    // terminating before the email is sent (Vercel kills the process after response)
     const orderNumber = `AF-${order.display_id}`
-    sendOrderConfirmationEmail({
-      orderNumber,
-      displayId: order.display_id,
-      email,
-      items: orderItems.map((item: { title: string; subtitle?: string | null; quantity: number; unit_price: number; total: number; thumbnail?: string | null }) => ({
-        title: item.title,
-        subtitle: item.subtitle,
-        quantity: item.quantity,
-        unit_price: item.unit_price,
-        total: item.total,
-        thumbnail: item.thumbnail,
-      })),
-      subtotal,
-      shippingTotal,
-      total,
-      shippingAddress: normalizedAddress,
-      shippingMethod: shippingMethodName,
-    }).catch(err => console.error('[Checkout] Email send failed:', err))
+    try {
+      await sendOrderConfirmationEmail({
+        orderNumber,
+        displayId: order.display_id,
+        email: normalizedEmail,
+        items: orderItems.map((item: { title: string; subtitle?: string | null; quantity: number; unit_price: number; total: number; thumbnail?: string | null }) => ({
+          title: item.title,
+          subtitle: item.subtitle,
+          quantity: item.quantity,
+          unit_price: item.unit_price,
+          total: item.total,
+          thumbnail: item.thumbnail,
+        })),
+        subtotal,
+        shippingTotal,
+        total,
+        shippingAddress: normalizedAddress,
+        shippingMethod: shippingMethodName,
+      })
+    } catch (err) {
+      // Email failure should not block the order — log and continue
+      console.error('[Checkout] Email send failed:', err)
+    }
 
     return NextResponse.json({
       order: {
         id: order.id,
         display_id: order.display_id,
-        email,
+        email: normalizedEmail,
         status: 'pending',
         total,
         subtotal,
@@ -201,6 +241,7 @@ export async function POST(request: Request) {
     })
   } catch (error) {
     console.error('Checkout error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    const message = error instanceof Error ? error.message : 'Internal server error'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

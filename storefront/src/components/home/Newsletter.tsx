@@ -4,13 +4,14 @@ import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { NEWSLETTER_IMAGES } from "@/lib/cdn-image-urls";
+import type { NewsletterContent } from "@/types/content-blocks";
 
 /* ── Product images for the scrolling marquee ── */
-const MARQUEE_IMAGES = NEWSLETTER_IMAGES;
+const DEFAULT_MARQUEE_IMAGES = NEWSLETTER_IMAGES;
 
 /* ── Infinite scrolling marquee ── */
-function ImageMarquee() {
-  const images = [...MARQUEE_IMAGES, ...MARQUEE_IMAGES];
+function ImageMarquee({ images: marqueeImages }: { images: typeof DEFAULT_MARQUEE_IMAGES }) {
+  const images = [...marqueeImages, ...marqueeImages];
 
   return (
     <div className="relative overflow-hidden py-1">
@@ -81,7 +82,8 @@ const BENEFITS = [
 ];
 
 /* ── Main section ── */
-export default function Newsletter() {
+export default function Newsletter({ content }: { content?: NewsletterContent }) {
+  const marqueeImages = content?.marqueeImages ?? DEFAULT_MARQUEE_IMAGES;
   const t = useTranslations("home");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -117,7 +119,7 @@ export default function Newsletter() {
     <section ref={sectionRef} className="relative overflow-hidden">
       {/* ── Scrolling product marquee ── */}
       <div className="pb-10 sm:pb-12">
-        <ImageMarquee />
+        <ImageMarquee images={marqueeImages} />
       </div>
 
       {/* ── Centered content ── */}

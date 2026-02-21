@@ -45,12 +45,23 @@ function formatPrice(amount: number): string {
   return `€${(amount / 100).toFixed(2)}`
 }
 
+function escapeHtml(text: string): string {
+  const map: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+  }
+  return text.replace(/[&<>"']/g, char => map[char])
+}
+
 function buildOrderConfirmationHtml(data: OrderEmailData): string {
   const itemRows = data.items.map(item => `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #E8E5E0;">
-        <div style="font-weight: 500; color: #2D2D2D;">${item.title}</div>
-        ${item.subtitle ? `<div style="font-size: 13px; color: #888; margin-top: 2px;">${item.subtitle}</div>` : ''}
+        <div style="font-weight: 500; color: #2D2D2D;">${escapeHtml(item.title)}</div>
+        ${item.subtitle ? `<div style="font-size: 13px; color: #888; margin-top: 2px;">${escapeHtml(item.subtitle)}</div>` : ''}
         <div style="font-size: 13px; color: #888; margin-top: 2px;">Qty: ${item.quantity}</div>
       </td>
       <td style="padding: 12px 0; border-bottom: 1px solid #E8E5E0; text-align: right; font-weight: 500; color: #2D2D2D; vertical-align: top;">

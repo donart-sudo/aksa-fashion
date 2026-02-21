@@ -2,8 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { COLLECTION_COVERS } from "@/lib/cdn-image-urls";
+import type { FeaturedCollectionsContent } from "@/types/content-blocks";
 
-const collections = [
+const defaultCollections = [
   { key: "bridal", image: COLLECTION_COVERS.bridal, href: "/collections/bridal" },
   { key: "evening", image: COLLECTION_COVERS.evening, href: "/collections/evening-dress" },
   { key: "cape-and-train", image: COLLECTION_COVERS["cape-and-train"], href: "/collections/cape-and-train-elegance" },
@@ -14,9 +15,12 @@ const collections = [
 
 export default async function FeaturedCollections({
   locale,
+  content,
 }: {
   locale: string;
+  content?: FeaturedCollectionsContent;
 }) {
+  const collections = content?.collections ?? defaultCollections;
   const t = await getTranslations();
 
   const collectionLabels: Record<string, string> = {
@@ -148,7 +152,7 @@ function CollectionCard({
   locale,
   index,
 }: {
-  collection: (typeof collections)[number];
+  collection: (typeof defaultCollections)[number];
   label: string;
   locale: string;
   index: number;

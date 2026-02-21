@@ -23,10 +23,10 @@ class SupabaseAdminClient {
   }
 
   /**
-   * Route a database write through the server-side API proxy,
+   * Route a database operation through the server-side API proxy,
    * which uses the service role key to bypass RLS.
    */
-  private async adminWrite(body: Record<string, unknown>): Promise<{ data: unknown; count?: number | null }> {
+  private async adminQuery(body: Record<string, unknown>): Promise<{ data: unknown; count?: number | null }> {
     const { data: { session } } = await this.client.auth.getSession()
     const token = session?.access_token
     if (!token) throw new Error('Not authenticated')
@@ -144,7 +144,7 @@ class SupabaseAdminClient {
   }
 
   async createProduct(productData: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'products',
       operation: 'insert',
       data: {
@@ -160,7 +160,7 @@ class SupabaseAdminClient {
     // Create default variant if price provided
     const product = data as Record<string, unknown>
     if (productData.price !== undefined) {
-      await this.adminWrite({
+      await this.adminQuery({
         table: 'product_variants',
         operation: 'insert',
         data: {
@@ -176,7 +176,7 @@ class SupabaseAdminClient {
   }
 
   async updateProduct(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'products',
       operation: 'update',
       data: {
@@ -195,7 +195,7 @@ class SupabaseAdminClient {
   }
 
   async updateVariant(variantId: string, updates: Record<string, unknown>) {
-    await this.adminWrite({
+    await this.adminQuery({
       table: 'product_variants',
       operation: 'update',
       data: updates,
@@ -204,52 +204,42 @@ class SupabaseAdminClient {
   }
 
   async deleteProduct(id: string) {
-    await this.adminWrite({ table: 'products', operation: 'delete', match: { id } })
+    await this.adminQuery({ table: 'products', operation: 'delete', match: { id } })
     return {}
   }
 
   // ── Orders ────────────────────────────────────────────────────────────
 
   async getOrders(params?: Record<string, string>) {
-    let query = this.client
-      .from('orders')
-      .select(`
-        *,
-        order_items(id, title, quantity, unit_price, thumbnail, subtitle),
-        customers(id, first_name, last_name, email)
-      `, { count: 'exact' })
-      .order('created_at', { ascending: false })
-
-    if (params?.status) query = query.eq('status', params.status)
-
+    // Route through server proxy to bypass RLS
     const limit = params?.limit ? parseInt(params.limit) : 50
-    const offset = params?.offset ? parseInt(params.offset) : 0
-    query = query.range(offset, offset + limit - 1)
+    const match = params?.status ? { status: params.status } : undefined
+    const { data, count } = await this.adminQuery({
+      table: 'orders',
+      operation: 'select',
+      select: '*, order_items(id, title, quantity, unit_price, thumbnail, subtitle), customers(id, first_name, last_name, email)',
+      match,
+      order: { column: 'created_at', ascending: false },
+      limit,
+    })
 
-    const { data, count, error } = await query
-    if (error) throw new Error(error.message)
-
-    const orders: MedusaOrder[] = (data || []).map(toAdminOrder)
+    const orders: MedusaOrder[] = ((data as unknown[]) || []).map(toAdminOrder)
     return { orders, count: count || 0 }
   }
 
   async getOrder(id: string) {
-    const { data, error } = await this.client
-      .from('orders')
-      .select(`
-        *,
-        order_items(id, title, quantity, unit_price, thumbnail, subtitle, metadata),
-        customers(id, first_name, last_name, email)
-      `)
-      .eq('id', id)
-      .single()
+    const { data } = await this.adminQuery({
+      table: 'orders',
+      operation: 'select_single',
+      select: '*, order_items(id, title, quantity, unit_price, thumbnail, subtitle, metadata), customers(id, first_name, last_name, email)',
+      match: { id },
+    })
 
-    if (error) throw new Error(error.message)
     return { order: toAdminOrder(data) }
   }
 
   async updateOrder(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'orders',
       operation: 'update',
       data: { ...updates, updated_at: new Date().toISOString() },
@@ -357,7 +347,7 @@ class SupabaseAdminClient {
   }
 
   async createCollection(collectionData: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'collections',
       operation: 'insert',
       data: {
@@ -370,7 +360,7 @@ class SupabaseAdminClient {
   }
 
   async updateCollection(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'collections',
       operation: 'update',
       data: { ...updates, updated_at: new Date().toISOString() },
@@ -380,7 +370,7 @@ class SupabaseAdminClient {
   }
 
   async deleteCollection(id: string) {
-    await this.adminWrite({ table: 'collections', operation: 'delete', match: { id } })
+    await this.adminQuery({ table: 'collections', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -418,7 +408,7 @@ class SupabaseAdminClient {
   }
 
   async createCategory(categoryData: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'categories',
       operation: 'insert',
       data: {
@@ -432,7 +422,7 @@ class SupabaseAdminClient {
   }
 
   async updateCategory(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'categories',
       operation: 'update',
       data: { ...updates, updated_at: new Date().toISOString() },
@@ -442,7 +432,7 @@ class SupabaseAdminClient {
   }
 
   async deleteCategory(id: string) {
-    await this.adminWrite({ table: 'categories', operation: 'delete', match: { id } })
+    await this.adminQuery({ table: 'categories', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -485,7 +475,7 @@ class SupabaseAdminClient {
   }
 
   async createPromotion(promoData: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'promotions',
       operation: 'insert',
       data: {
@@ -503,7 +493,7 @@ class SupabaseAdminClient {
   }
 
   async updatePromotion(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'promotions',
       operation: 'update',
       data: { ...updates, updated_at: new Date().toISOString() },
@@ -513,7 +503,7 @@ class SupabaseAdminClient {
   }
 
   async deletePromotion(id: string) {
-    await this.adminWrite({ table: 'promotions', operation: 'delete', match: { id } })
+    await this.adminQuery({ table: 'promotions', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -545,7 +535,7 @@ class SupabaseAdminClient {
   }
 
   async createProductTag(tagData: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'product_tags',
       operation: 'insert',
       data: { value: tagData.value as string },
@@ -554,7 +544,7 @@ class SupabaseAdminClient {
   }
 
   async updateProductTag(id: string, updates: Record<string, unknown>) {
-    const { data } = await this.adminWrite({
+    const { data } = await this.adminQuery({
       table: 'product_tags',
       operation: 'update',
       data: { ...updates, updated_at: new Date().toISOString() },
@@ -564,7 +554,7 @@ class SupabaseAdminClient {
   }
 
   async deleteProductTag(id: string) {
-    await this.adminWrite({ table: 'product_tags', operation: 'delete', match: { id } })
+    await this.adminQuery({ table: 'product_tags', operation: 'delete', match: { id } })
     return {}
   }
 
@@ -613,7 +603,7 @@ class SupabaseAdminClient {
   }
 
   async updateInventoryLevel(inventoryItemId: string, _locationId: string, data: { stocked_quantity: number }) {
-    await this.adminWrite({
+    await this.adminQuery({
       table: 'product_variants',
       operation: 'update',
       data: { inventory_quantity: data.stocked_quantity },

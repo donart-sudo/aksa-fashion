@@ -17,6 +17,8 @@ import { SearchProvider } from "@/lib/search";
 import { AuthProvider } from "@/lib/auth";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { ToastProvider } from "@/components/ui/Toast";
+import { StorefrontAdminProvider } from "@/lib/storefront-admin";
+import EditModeToggle from "@/components/editor/EditModeToggle";
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -126,12 +128,15 @@ export default async function LocaleLayout({
               <WishlistProvider>
                 <SearchProvider>
                   <ToastProvider>
-                    <Header />
-                    <main className="min-h-screen animate-page-fade-in">{children}</main>
-                    <Footer />
-                    <MobileNav />
-                    <CartDrawer />
-                    <WhatsAppButton />
+                    <StorefrontAdminProvider>
+                      <Header />
+                      <main className="min-h-screen animate-page-fade-in">{children}</main>
+                      <Footer />
+                      <MobileNav />
+                      <CartDrawer />
+                      <WhatsAppButton />
+                      <EditModeToggle />
+                    </StorefrontAdminProvider>
                   </ToastProvider>
                 </SearchProvider>
               </WishlistProvider>

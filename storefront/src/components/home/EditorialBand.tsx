@@ -5,8 +5,11 @@ import { useTranslations, useLocale } from "next-intl";
 import Image from "next/image";
 import Link from "next/link";
 import { EDITORIAL_BAND_IMAGE } from "@/lib/cdn-image-urls";
+import type { EditorialBandContent } from "@/types/content-blocks";
 
-export default function EditorialBand() {
+export default function EditorialBand({ content }: { content?: EditorialBandContent }) {
+  const bandImage = content?.image ?? EDITORIAL_BAND_IMAGE;
+  const bandAlt = content?.alt ?? "Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier";
   const t = useTranslations("home");
   const locale = useLocale();
   const sectionRef = useRef<HTMLElement>(null);
@@ -66,8 +69,8 @@ export default function EditorialBand() {
         }}
       >
         <Image
-          src={EDITORIAL_BAND_IMAGE}
-          alt="Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier"
+          src={bandImage}
+          alt={bandAlt}
           fill
           className="object-cover object-[50%_30%]"
           sizes="100vw"

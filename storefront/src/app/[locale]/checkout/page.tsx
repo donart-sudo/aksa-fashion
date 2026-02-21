@@ -495,7 +495,11 @@ export default function CheckoutPage() {
       setStep(2);
     } catch (err) {
       console.error("Checkout step 1 error:", err);
+      // Still advance — fallback shipping options will show
       setStep(2);
+      setShippingOptions([]);
+      setSelectedShippingOption("standard");
+      setShippingCostValue(subtotal >= 15000 ? 0 : 1500);
     } finally {
       setCartCreating(false);
     }
@@ -519,6 +523,9 @@ export default function CheckoutPage() {
 
   /* ── Place order handler ── */
   const handlePlaceOrder = async () => {
+    // Prevent double-click / double-submit
+    if (processing) return;
+
     setProcessing(true);
     setError("");
 
@@ -1117,7 +1124,10 @@ export default function CheckoutPage() {
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handlePlaceOrder}
-                      className="px-8 py-3.5 bg-gold text-white text-sm font-medium rounded-lg hover:bg-gold/90 transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-gold/20"
+                      disabled={processing}
+                      className={`px-8 py-3.5 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer flex items-center gap-2 shadow-lg shadow-gold/20 ${
+                        processing ? "bg-gold/50 cursor-not-allowed" : "bg-gold hover:bg-gold/90"
+                      }`}
                     >
                       <CheckCircleIcon className="w-4 h-4" />
                       {tCo("placeOrder")} · {formatPrice(subtotal + shippingCost)}
