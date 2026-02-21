@@ -895,6 +895,16 @@ export default function SearchModal() {
                   </div>
                 )}
 
+                {/* === SEARCHING (no local results, API still loading) === */}
+                {hasSearched && results.length === 0 && apiLoading && (
+                  <div className="text-center py-8">
+                    <div className="w-5 h-5 border-2 border-charcoal/10 border-t-charcoal/40 rounded-full animate-spin mx-auto mb-3" />
+                    <p className="text-[14px] text-charcoal/40">
+                      {t("searching") || "Searching..."}
+                    </p>
+                  </div>
+                )}
+
                 {/* === NO RESULTS === */}
                 {noResults && (
                   <div className="text-center py-8">

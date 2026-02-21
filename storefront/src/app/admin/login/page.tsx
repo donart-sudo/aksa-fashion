@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertCircle, Eye, EyeOff, Store, Loader2 } from 'lucide-react'
+import { AlertCircle, Eye, EyeOff, Store, Loader2, Lock } from 'lucide-react'
 import { useAdminAuth } from '@/lib/admin-auth'
 
 export default function AdminLoginPage() {
   const { login, enterDemo, backendOnline, ready, authed } = useAdminAuth()
   const router = useRouter()
   const [email, setEmail] = useState('admin@aksafashion.com')
-  const [password, setPassword] = useState('admin')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -51,24 +51,34 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="login-page">
-      {/* Decorative background */}
-      <div className="login-bg-top" />
-
-      <div className="login-container">
-        {/* Logo */}
-        <div className="login-logo">
-          <div className="login-logo-icon">
-            <Store strokeWidth={1.5} />
+    <div className="login-page-v2">
+      {/* Left panel — brand */}
+      <div className="login-brand">
+        <div className="login-brand-inner">
+          <div className="login-brand-logo">
+            <Store size={22} strokeWidth={2} />
           </div>
+          <h1 className="login-brand-name">Aksa Fashion</h1>
+          <p className="login-brand-tagline">Admin Dashboard</p>
         </div>
+        <p className="login-brand-footer">Luxury Bridal &middot; Prishtina, Kosovo</p>
+      </div>
 
-        {/* Card */}
-        <div className="login-card">
-          <h1 className="login-title">Log in to Aksa Fashion</h1>
-          <p className="login-subtitle">
-            Enter your credentials to access the admin dashboard
-          </p>
+      {/* Right panel — form */}
+      <div className="login-form-panel">
+        <div className="login-form-wrapper">
+          {/* Mobile brand */}
+          <div className="login-mobile-brand">
+            <div className="login-brand-logo login-brand-logo--sm">
+              <Store size={16} strokeWidth={2.2} />
+            </div>
+            <span className="login-mobile-brand-text">Aksa Fashion</span>
+          </div>
+
+          <div className="login-form-header">
+            <h2 className="login-form-title">Welcome back</h2>
+            <p className="login-form-subtitle">Sign in to your admin account</p>
+          </div>
 
           {error && (
             <div className="login-error">
@@ -80,19 +90,19 @@ export default function AdminLoginPage() {
           {!backendOnline && (
             <div className="login-warning">
               <span className="login-warning-dot" />
-              <span>Backend offline — check Supabase connection</span>
+              <span>Database offline — check connection</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="login-field">
-              <label htmlFor="email" className="login-label">Email address</label>
+              <label htmlFor="email" className="login-label">Email</label>
               <input
                 id="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@aksafashion.com"
+                placeholder="you@example.com"
                 className="login-input"
                 autoFocus
                 autoComplete="email"
@@ -133,27 +143,22 @@ export default function AdminLoginPage() {
               {loading ? (
                 <>
                   <Loader2 className="login-submit-spinner" />
-                  Logging in…
+                  Signing in…
                 </>
               ) : (
-                'Log in'
+                <>
+                  <Lock size={14} strokeWidth={2.5} />
+                  Sign in
+                </>
               )}
             </button>
           </form>
 
-          <div className="login-divider">
-            <span>or</span>
+          <div className="login-secure-note">
+            <Lock size={12} strokeWidth={2} />
+            <span>Secured with Supabase Auth</span>
           </div>
-
-          <button onClick={handleDemo} className="login-demo-btn">
-            Explore with demo data
-          </button>
         </div>
-
-        {/* Footer */}
-        <p className="login-footer">
-          Aksa Fashion Admin &middot; Powered by Supabase
-        </p>
       </div>
     </div>
   )

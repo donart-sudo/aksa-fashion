@@ -73,10 +73,17 @@ export default function EditProductPage() {
     )
   }
 
+  async function handleDelete() {
+    if (!demo) {
+      await adminMedusa.deleteProduct(productId)
+    }
+  }
+
   return (
     <ProductForm
       initialData={product}
       onSave={handleSave}
+      onDelete={handleDelete}
       mode="edit"
     />
   )

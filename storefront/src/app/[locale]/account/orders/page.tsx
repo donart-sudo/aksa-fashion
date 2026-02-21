@@ -40,22 +40,30 @@ export default function OrdersPage() {
   const { customer, isLoading: authLoading } = useAuth();
 
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [ordersLoading, setOrdersLoading] = useState(false);
   const [count, setCount] = useState(0);
+  const [fetched, setFetched] = useState(false);
 
   useEffect(() => {
-    if (!customer) return;
+    if (authLoading || !customer || fetched) return;
 
+    setOrdersLoading(true);
     async function fetchOrders() {
-      const data = await getOrders(20, 0);
-      setOrders(data.orders);
-      setCount(data.count);
-      setLoading(false);
+      try {
+        const data = await getOrders(20, 0);
+        setOrders(data.orders);
+        setCount(data.count);
+      } catch (err) {
+        console.error("[Orders] fetchOrders error:", err);
+      } finally {
+        setOrdersLoading(false);
+        setFetched(true);
+      }
     }
     fetchOrders();
-  }, [customer]);
+  }, [authLoading, customer, fetched]);
 
-  if (authLoading || loading) {
+  if (authLoading || ordersLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <motion.div

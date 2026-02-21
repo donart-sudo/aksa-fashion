@@ -44,7 +44,10 @@ function loadCart(): CartItem[] {
   if (typeof window === "undefined") return [];
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
+    if (!stored) return [];
+    const items: CartItem[] = JSON.parse(stored);
+    // Filter out items with stale localhost URLs from old backend
+    return items.filter(item => !item.thumbnail?.includes("localhost:9000"));
   } catch {
     return [];
   }

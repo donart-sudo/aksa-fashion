@@ -266,7 +266,10 @@
     "westernUnion": "Western Union",
     "cashOnPickup": "Cash on Pickup",
     "whatsappPayment": "Chat with us about payment",
-    "whatsappMessage": "Hi, I'd like to arrange payment for my order."
+    "whatsappMessage": "Hi, I'd like to arrange payment for my order.",
+    "calculatedAtNextStep": "Calculated at next step",
+    "required": "This field is required",
+    "selectState": "Select..."
   },
   "cart": {
     "title": "Your Bag",
@@ -345,6 +348,7 @@
     "noAccount": "New here?",
     "hasAccount": "Already a member?",
     "loginError": "Invalid email or password. Please try again.",
+    "noCustomerAccount": "This email is not registered as a customer. If you're an admin, use /admin/login instead. Otherwise, create a new account.",
     "registerError": "Registration failed. Please try again.",
     "firstName": "First Name",
     "lastName": "Last Name",
@@ -390,6 +394,8 @@
     "resetSent": "Check Your Email",
     "resetSentDesc": "If an account exists with that email, we\u2019ve sent password reset instructions.",
     "backToSignIn": "Back to sign in",
+    "checkYourEmail": "Check your email",
+    "confirmationSentDesc": "We sent a confirmation link to verify your account. Please check your inbox and click the link to activate your account.",
     "enterEmailDesc": "Enter your email address and we\u2019ll send you a link to reset your password.",
     "authFailed": "Authentication Failed",
     "authFailedDesc": "We couldn\u2019t complete the sign-in. Please try again or use email and password.",
@@ -423,7 +429,6 @@
     "estimatedDelivery": "Estimated Delivery",
     "shippingTo": "Shipping To",
     "orderDetails": "Order Details",
-    "trackOrder": "Track Order",
     "continueMessage": "Continue exploring our collections",
     "needHelp": "Need help with your order?",
     "contactSupport": "Contact Support",
@@ -435,6 +440,8 @@
     "shippingMethod": "Shipping Method",
     "orderPlaced": "Order Placed",
     "viewAllOrders": "View All Orders",
+    "trackOrder": "Track Your Order",
+    "createAccountToTrack": "Create Account to Track Orders",
     "orderSummary": "Order Summary",
     "whatsNext": "What\u2019s Next?",
     "step1": "We\u2019re preparing your order in our Prishtina atelier",
@@ -443,5 +450,21 @@
     "paymentArrangement": "Payment Arrangement",
     "paymentArrangementDesc": "Our team will contact you within 24 hours via WhatsApp to arrange payment. We accept bank transfer, Western Union, and cash on pickup.",
     "chatToArrangePayment": "Chat to Arrange Payment"
+  },
+  "orderTracking": {
+    "title": "Track Your Order",
+    "subtitle": "Enter your email and order number to check your order status",
+    "emailLabel": "Email Address",
+    "orderNumberLabel": "Order Number",
+    "trackButton": "Track Order",
+    "notFound": "Order not found. Please check your email and order number.",
+    "order": "Order",
+    "payment": "Payment",
+    "shipping": "Shipping",
+    "items": "Order Items",
+    "shippingTo": "Shipping To",
+    "statusProcessing": "Processing",
+    "statusShipped": "Shipped",
+    "statusDelivered": "Delivered"
   }
 }

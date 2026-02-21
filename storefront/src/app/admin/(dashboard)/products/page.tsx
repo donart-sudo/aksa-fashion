@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, Search, MoreHorizontal, Pencil, Trash2, Archive, Package, FileText } from 'lucide-react'
 import Badge from '@/components/admin/Badge'
@@ -31,7 +31,17 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState('')
   const [delId, setDelId] = useState<string | null>(null)
   const [menuId, setMenuId] = useState<string | null>(null)
+  const [menuUp, setMenuUp] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  const toggleMenu = useCallback((id: string, e: React.MouseEvent) => {
+    if (menuId === id) { setMenuId(null); return }
+    const btn = e.currentTarget as HTMLElement
+    const rect = btn.getBoundingClientRect()
+    const spaceBelow = window.innerHeight - rect.bottom
+    setMenuUp(spaceBelow < 180)
+    setMenuId(id)
+  }, [menuId])
 
   useEffect(() => {
     let cancel = false
@@ -83,6 +93,14 @@ export default function AdminProductsPage() {
     load()
     return () => { cancel = true }
   }, [demo])
+
+  // Close menu on outside click
+  useEffect(() => {
+    if (!menuId) return
+    const handler = () => setMenuId(null)
+    document.addEventListener('click', handler)
+    return () => document.removeEventListener('click', handler)
+  }, [menuId])
 
   const filtered = useMemo(() => list.filter(p => {
     const ms = filter === 'all' || p.status === filter
@@ -185,12 +203,12 @@ export default function AdminProductsPage() {
                     <span className="text-[13px] font-semibold text-[#1a1a1a] tabular-nums">{formatCurrency(p.price)}</span>
                   </td>
                   <td className="px-3 py-3 relative" onClick={e => e.stopPropagation()}>
-                    <button onClick={() => setMenuId(menuId === p.id ? null : p.id)}
+                    <button onClick={(e) => toggleMenu(p.id, e)}
                       className="w-[28px] h-[28px] rounded-[6px] flex items-center justify-center text-[#b5b5b5] hover:text-[#303030] hover:bg-[#f1f1f1] transition-colors opacity-0 group-hover:opacity-100">
                       <MoreHorizontal className="w-[15px] h-[15px]" />
                     </button>
                     {menuId === p.id && (
-                      <div className="absolute right-4 top-full mt-1 w-40 bg-white rounded-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-20 py-1">
+                      <div className={`absolute right-4 w-40 bg-white rounded-[10px] shadow-[0_4px_16px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-20 py-1 ${menuUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}>
                         <button onClick={() => { setMenuId(null); router.push(`/admin/products/${p.id}`) }} className="w-full flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-[#616161] hover:bg-[#f6f6f6] transition-colors">
                           <Pencil className="w-3.5 h-3.5" />Edit
                         </button>

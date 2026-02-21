@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -9,12 +9,14 @@ import { motion } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import { getOrder, type MedusaOrder } from "@/lib/data/supabase-checkout";
+import { useAuth } from "@/lib/auth";
 import {
   CheckCircleIcon,
   TruckIcon,
   EnvelopeIcon,
   GiftIcon,
   ArrowRightIcon,
+  UserPlusIcon,
 } from "@heroicons/react/24/outline";
 
 /* ─── Animated confetti dot ─── */
@@ -81,11 +83,26 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export default function OrderConfirmationPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-gold/20 border-t-gold rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <OrderConfirmationContent />
+    </Suspense>
+  );
+}
+
+function OrderConfirmationContent() {
   const t = useTranslations("order");
   const tc = useTranslations("common");
   const locale = useLocale();
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
+  const { customer } = useAuth();
 
   const [order, setOrder] = useState<MedusaOrder | null>(null);
   const [loading, setLoading] = useState(!!orderId);
@@ -222,7 +239,7 @@ export default function OrderConfirmationPage() {
             </div>
           </div>
 
-          {/* Order items (if from Medusa) */}
+          {/* Order items */}
           {order?.items && order.items.length > 0 && (
             <div className="mt-6 pt-6 border-t border-soft-gray/30">
               <p className="text-xs font-medium text-charcoal/40 uppercase tracking-wider mb-4">
@@ -232,7 +249,7 @@ export default function OrderConfirmationPage() {
                 {order.items.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     {item.thumbnail && (
-                      <div className="relative w-14 h-18 bg-soft-gray/20 rounded-lg overflow-hidden flex-shrink-0">
+                      <div className="relative w-14 h-[72px] bg-soft-gray/20 rounded-lg overflow-hidden flex-shrink-0">
                         <Image
                           src={item.thumbnail}
                           alt={item.title}
@@ -244,8 +261,8 @@ export default function OrderConfirmationPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-charcoal font-medium line-clamp-1">{item.title}</p>
-                      {item.variant?.title && item.variant.title !== "Default" && (
-                        <p className="text-xs text-charcoal/40 mt-0.5">{item.variant.title}</p>
+                      {item.subtitle && (
+                        <p className="text-xs text-charcoal/40 mt-0.5">{item.subtitle}</p>
                       )}
                       <p className="text-xs text-charcoal/40 mt-0.5">
                         {tc("quantity")}: {item.quantity}
@@ -378,12 +395,21 @@ export default function OrderConfirmationPage() {
             <ArrowRightIcon className="w-4 h-4" />
           </Link>
 
-          <Link
-            href={`/${locale}/account/orders`}
-            className="flex items-center justify-center gap-2 w-full py-3.5 border border-soft-gray/40 text-charcoal text-sm font-medium rounded-xl hover:border-gold/40 hover:bg-gold/5 transition-colors"
-          >
-            {t("viewAllOrders")}
-          </Link>
+          {customer ? (
+            <Link
+              href={`/${locale}/account/orders`}
+              className="flex items-center justify-center gap-2 w-full py-3.5 border border-soft-gray/40 text-charcoal text-sm font-medium rounded-xl hover:border-gold/40 hover:bg-gold/5 transition-colors"
+            >
+              {t("viewAllOrders")}
+            </Link>
+          ) : (
+            <Link
+              href={`/${locale}/order-tracking`}
+              className="flex items-center justify-center gap-2 w-full py-3.5 border border-soft-gray/40 text-charcoal text-sm font-medium rounded-xl hover:border-gold/40 hover:bg-gold/5 transition-colors"
+            >
+              {t("trackOrder")}
+            </Link>
+          )}
         </motion.div>
       </div>
     </div>

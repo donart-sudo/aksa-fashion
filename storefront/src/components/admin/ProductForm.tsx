@@ -42,6 +42,7 @@ interface Category {
 interface ProductFormProps {
   initialData?: MedusaProduct
   onSave: (data: Record<string, unknown>) => Promise<void>
+  onDelete?: () => Promise<void>
   mode: 'create' | 'edit'
 }
 
@@ -185,7 +186,7 @@ function TagInput({ tags, onChange, placeholder }: { tags: string[]; onChange: (
 
 /* ── Main Component ───────────────────────────────────────── */
 
-export default function ProductForm({ initialData, onSave, mode }: ProductFormProps) {
+export default function ProductForm({ initialData, onSave, onDelete, mode }: ProductFormProps) {
   const router = useRouter()
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -209,6 +210,8 @@ export default function ProductForm({ initialData, onSave, mode }: ProductFormPr
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [dragOver, setDragOver] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   /* Initialize from existing product data */
   useEffect(() => {
@@ -416,6 +419,11 @@ export default function ProductForm({ initialData, onSave, mode }: ProductFormPr
           </h1>
         </div>
         <div className="flex items-center gap-2.5">
+          {mode === 'edit' && onDelete && (
+            <button onClick={() => setShowDeleteConfirm(true)} className="btn btn-secondary" style={{ color: '#e22c38' }}>
+              <Trash2 className="w-4 h-4" />Delete
+            </button>
+          )}
           <button onClick={() => router.push('/admin/products')} className="btn btn-secondary">Discard</button>
           <button
             onClick={handleSave}
@@ -691,6 +699,40 @@ export default function ProductForm({ initialData, onSave, mode }: ProductFormPr
           </div>
         </div>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/30" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative bg-white rounded-[12px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] p-6 w-full max-w-sm mx-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-[#fee8eb] flex items-center justify-center mx-auto mb-3">
+              <Trash2 className="w-5 h-5 text-[#e22c38]" />
+            </div>
+            <p className="text-[14px] font-semibold text-[#1a1a1a] mb-1">Delete this product?</p>
+            <p className="text-[13px] text-[#616161] mb-5">This action cannot be undone.</p>
+            <div className="flex justify-center gap-2">
+              <button onClick={() => setShowDeleteConfirm(false)} className="btn btn-secondary">Cancel</button>
+              <button
+                onClick={async () => {
+                  setDeleting(true)
+                  try {
+                    await onDelete?.()
+                    router.push('/admin/products')
+                  } catch (err) {
+                    console.error('Delete failed:', err)
+                    setDeleting(false)
+                    setShowDeleteConfirm(false)
+                  }
+                }}
+                disabled={deleting}
+                className="btn btn-danger"
+              >
+                {deleting ? <><Loader2 className="w-4 h-4 animate-spin" />Deleting&hellip;</> : 'Delete product'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

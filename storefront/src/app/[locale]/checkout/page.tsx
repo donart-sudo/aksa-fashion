@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,6 +28,94 @@ import {
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 
 type Step = 1 | 2 | 3;
+
+/* ─── Country configuration ─── */
+interface CountryConfig {
+  code: string;
+  name: string;
+  phone: string;
+  postalLabel: string;
+  postalPlaceholder: string;
+  postalPattern?: RegExp;
+  hasStates: boolean;
+  stateLabel?: string;
+  states?: { code: string; name: string }[];
+  group: "popular" | "other";
+}
+
+const US_STATES = [
+  { code: "AL", name: "Alabama" }, { code: "AK", name: "Alaska" }, { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" }, { code: "CA", name: "California" }, { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" }, { code: "DE", name: "Delaware" }, { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" }, { code: "HI", name: "Hawaii" }, { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" }, { code: "IN", name: "Indiana" }, { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" }, { code: "KY", name: "Kentucky" }, { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" }, { code: "MD", name: "Maryland" }, { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" }, { code: "MN", name: "Minnesota" }, { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" }, { code: "MT", name: "Montana" }, { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" }, { code: "NH", name: "New Hampshire" }, { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" }, { code: "NY", name: "New York" }, { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" }, { code: "OH", name: "Ohio" }, { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" }, { code: "PA", name: "Pennsylvania" }, { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" }, { code: "SD", name: "South Dakota" }, { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" }, { code: "UT", name: "Utah" }, { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" }, { code: "WA", name: "Washington" }, { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" }, { code: "WY", name: "Wyoming" },
+];
+
+const CA_PROVINCES = [
+  { code: "AB", name: "Alberta" }, { code: "BC", name: "British Columbia" }, { code: "MB", name: "Manitoba" },
+  { code: "NB", name: "New Brunswick" }, { code: "NL", name: "Newfoundland and Labrador" },
+  { code: "NS", name: "Nova Scotia" }, { code: "NT", name: "Northwest Territories" },
+  { code: "NU", name: "Nunavut" }, { code: "ON", name: "Ontario" }, { code: "PE", name: "Prince Edward Island" },
+  { code: "QC", name: "Quebec" }, { code: "SK", name: "Saskatchewan" }, { code: "YT", name: "Yukon" },
+];
+
+const COUNTRIES: CountryConfig[] = [
+  // Popular — Balkan & EU (shown first)
+  { code: "xk", name: "Kosovo", phone: "+383", postalLabel: "Postal Code", postalPlaceholder: "10000", hasStates: false, group: "popular" },
+  { code: "al", name: "Albania", phone: "+355", postalLabel: "Postal Code", postalPlaceholder: "1001", hasStates: false, group: "popular" },
+  { code: "mk", name: "North Macedonia", phone: "+389", postalLabel: "Postal Code", postalPlaceholder: "1000", hasStates: false, group: "popular" },
+  { code: "me", name: "Montenegro", phone: "+382", postalLabel: "Postal Code", postalPlaceholder: "81000", hasStates: false, group: "popular" },
+  { code: "rs", name: "Serbia", phone: "+381", postalLabel: "Postal Code", postalPlaceholder: "11000", hasStates: false, group: "popular" },
+  { code: "de", name: "Germany", phone: "+49", postalLabel: "Postal Code", postalPlaceholder: "10115", hasStates: false, group: "popular" },
+  { code: "at", name: "Austria", phone: "+43", postalLabel: "Postal Code", postalPlaceholder: "1010", hasStates: false, group: "popular" },
+  { code: "ch", name: "Switzerland", phone: "+41", postalLabel: "Postal Code", postalPlaceholder: "8001", hasStates: false, group: "popular" },
+  { code: "fr", name: "France", phone: "+33", postalLabel: "Postal Code", postalPlaceholder: "75001", hasStates: false, group: "popular" },
+  { code: "it", name: "Italy", phone: "+39", postalLabel: "Postal Code", postalPlaceholder: "00100", hasStates: false, group: "popular" },
+  { code: "nl", name: "Netherlands", phone: "+31", postalLabel: "Postal Code", postalPlaceholder: "1011 AB", hasStates: false, group: "popular" },
+  { code: "be", name: "Belgium", phone: "+32", postalLabel: "Postal Code", postalPlaceholder: "1000", hasStates: false, group: "popular" },
+  { code: "gb", name: "United Kingdom", phone: "+44", postalLabel: "Postcode", postalPlaceholder: "SW1A 1AA", postalPattern: /^[A-Z]{1,2}\d[A-Z\d]?\s?\d[A-Z]{2}$/i, hasStates: false, group: "popular" },
+  // Other — Alphabetical
+  { code: "au", name: "Australia", phone: "+61", postalLabel: "Postcode", postalPlaceholder: "2000", hasStates: true, stateLabel: "State", states: [
+    { code: "ACT", name: "Australian Capital Territory" }, { code: "NSW", name: "New South Wales" },
+    { code: "NT", name: "Northern Territory" }, { code: "QLD", name: "Queensland" },
+    { code: "SA", name: "South Australia" }, { code: "TAS", name: "Tasmania" },
+    { code: "VIC", name: "Victoria" }, { code: "WA", name: "Western Australia" },
+  ], group: "other" },
+  { code: "ba", name: "Bosnia and Herzegovina", phone: "+387", postalLabel: "Postal Code", postalPlaceholder: "71000", hasStates: false, group: "other" },
+  { code: "br", name: "Brazil", phone: "+55", postalLabel: "Postal Code", postalPlaceholder: "01000-000", hasStates: false, group: "other" },
+  { code: "bg", name: "Bulgaria", phone: "+359", postalLabel: "Postal Code", postalPlaceholder: "1000", hasStates: false, group: "other" },
+  { code: "ca", name: "Canada", phone: "+1", postalLabel: "Postal Code", postalPlaceholder: "K1A 0B1", postalPattern: /^[A-Z]\d[A-Z]\s?\d[A-Z]\d$/i, hasStates: true, stateLabel: "Province", states: CA_PROVINCES, group: "other" },
+  { code: "hr", name: "Croatia", phone: "+385", postalLabel: "Postal Code", postalPlaceholder: "10000", hasStates: false, group: "other" },
+  { code: "cz", name: "Czech Republic", phone: "+420", postalLabel: "Postal Code", postalPlaceholder: "110 00", hasStates: false, group: "other" },
+  { code: "dk", name: "Denmark", phone: "+45", postalLabel: "Postal Code", postalPlaceholder: "1000", hasStates: false, group: "other" },
+  { code: "gr", name: "Greece", phone: "+30", postalLabel: "Postal Code", postalPlaceholder: "10431", hasStates: false, group: "other" },
+  { code: "hu", name: "Hungary", phone: "+36", postalLabel: "Postal Code", postalPlaceholder: "1011", hasStates: false, group: "other" },
+  { code: "ie", name: "Ireland", phone: "+353", postalLabel: "Eircode", postalPlaceholder: "D02 AF30", hasStates: false, group: "other" },
+  { code: "no", name: "Norway", phone: "+47", postalLabel: "Postal Code", postalPlaceholder: "0001", hasStates: false, group: "other" },
+  { code: "pl", name: "Poland", phone: "+48", postalLabel: "Postal Code", postalPlaceholder: "00-001", hasStates: false, group: "other" },
+  { code: "pt", name: "Portugal", phone: "+351", postalLabel: "Postal Code", postalPlaceholder: "1000-001", hasStates: false, group: "other" },
+  { code: "ro", name: "Romania", phone: "+40", postalLabel: "Postal Code", postalPlaceholder: "010011", hasStates: false, group: "other" },
+  { code: "es", name: "Spain", phone: "+34", postalLabel: "Postal Code", postalPlaceholder: "28001", hasStates: false, group: "other" },
+  { code: "se", name: "Sweden", phone: "+46", postalLabel: "Postal Code", postalPlaceholder: "111 22", hasStates: false, group: "other" },
+  { code: "tr", name: "Turkey", phone: "+90", postalLabel: "Postal Code", postalPlaceholder: "34000", hasStates: false, group: "other" },
+  { code: "ae", name: "United Arab Emirates", phone: "+971", postalLabel: "Postal Code", postalPlaceholder: "", hasStates: false, group: "other" },
+  { code: "us", name: "United States", phone: "+1", postalLabel: "ZIP Code", postalPlaceholder: "10001", postalPattern: /^\d{5}(-\d{4})?$/, hasStates: true, stateLabel: "State", states: US_STATES, group: "other" },
+];
+
+const COUNTRY_MAP_BY_CODE = Object.fromEntries(COUNTRIES.map((c) => [c.code, c]));
+const DEFAULT_COUNTRY = COUNTRIES[0]; // Kosovo
 
 /* ─── Mobile progress bar (3 segments) ─── */
 function MobileProgressBar({ currentStep }: { currentStep: Step }) {
@@ -109,6 +197,7 @@ function OrderSummary({
   items,
   subtotal,
   shippingCost,
+  currentStep,
   tCo,
   t,
   tCart,
@@ -118,13 +207,15 @@ function OrderSummary({
   items: ReturnType<typeof useCart>["items"];
   subtotal: number;
   shippingCost: number;
+  currentStep: Step;
   tCo: (key: string) => string;
   t: (key: string) => string;
   tCart: (key: string) => string;
   expanded: boolean;
   setExpanded: (v: boolean) => void;
 }) {
-  const total = subtotal + shippingCost;
+  const shippingResolved = currentStep >= 2;
+  const total = subtotal + (shippingResolved ? shippingCost : 0);
 
   return (
     <div className="lg:sticky lg:top-24">
@@ -189,12 +280,18 @@ function OrderSummary({
             </div>
             <div className="flex justify-between text-charcoal/60">
               <span>{t("shipping")}</span>
-              <span>{shippingCost === 0 ? t("free") : formatPrice(shippingCost)}</span>
+              <span className={!shippingResolved ? "text-charcoal/40 text-xs italic" : ""}>
+                {shippingResolved
+                  ? shippingCost === 0
+                    ? t("free")
+                    : formatPrice(shippingCost)
+                  : tCo("calculatedAtNextStep")}
+              </span>
             </div>
           </div>
           <div className="flex justify-between text-lg font-semibold text-charcoal mt-4 pt-4 border-t border-soft-gray/40">
             <span>{t("total")}</span>
-            <span>{formatPrice(total)}</span>
+            <span>{shippingResolved ? formatPrice(total) : formatPrice(subtotal)}</span>
           </div>
         </div>
 
@@ -282,17 +379,63 @@ export default function CheckoutPage() {
   const [apartment, setApartment] = useState("");
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
-  const [country, setCountry] = useState("Kosovo");
+  const [countryCode, setCountryCode] = useState(DEFAULT_COUNTRY.code);
+  const [stateProvince, setStateProvince] = useState("");
   const [phone, setPhone] = useState("");
   const [emailUpdates, setEmailUpdates] = useState(true);
   const [saveInfo, setSaveInfo] = useState(true);
   const [orderNote, setOrderNote] = useState("");
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
+  /* Validation state */
+  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+  const [submitted, setSubmitted] = useState(false);
+
   /* Checkout flow state */
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState("");
   const [cartCreating, setCartCreating] = useState(false);
+
+  /* Derived country config */
+  const selectedCountry = useMemo(
+    () => COUNTRY_MAP_BY_CODE[countryCode] || DEFAULT_COUNTRY,
+    [countryCode]
+  );
+
+  const popularCountries = useMemo(() => COUNTRIES.filter((c) => c.group === "popular"), []);
+  const otherCountries = useMemo(() => COUNTRIES.filter((c) => c.group === "other"), []);
+
+  /* Country change handler */
+  const handleCountryChange = useCallback(
+    (newCode: string) => {
+      const prevCountry = COUNTRY_MAP_BY_CODE[countryCode];
+      const newCountry = COUNTRY_MAP_BY_CODE[newCode];
+      if (!newCountry) return;
+
+      setCountryCode(newCode);
+
+      // Update phone prefix if empty or still has old prefix
+      if (!phone || (prevCountry && phone === prevCountry.phone)) {
+        setPhone(newCountry.phone);
+      } else if (prevCountry && phone.startsWith(prevCountry.phone)) {
+        setPhone(newCountry.phone + phone.slice(prevCountry.phone.length));
+      }
+
+      // Clear state if switching to country without states
+      if (!newCountry.hasStates) {
+        setStateProvince("");
+      }
+
+      // Clear field errors for fields that changed
+      setFieldErrors((prev) => {
+        const next = { ...prev };
+        delete next.postalCode;
+        delete next.stateProvince;
+        return next;
+      });
+    },
+    [countryCode, phone]
+  );
 
   /* Shipping state */
   const [shippingOptions, setShippingOptions] = useState<MedusaShippingOption[]>([]);
@@ -303,9 +446,35 @@ export default function CheckoutPage() {
 
   const goToStep = useCallback((s: Step) => setStep(s), []);
 
+  /* ── Validate step 1 fields ── */
+  const validateStep1 = useCallback((): boolean => {
+    const errors: Record<string, boolean> = {};
+    if (!email) errors.email = true;
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = true;
+    if (!firstName.trim()) errors.firstName = true;
+    if (!lastName.trim()) errors.lastName = true;
+    if (!address.trim()) errors.address = true;
+    if (!city.trim()) errors.city = true;
+    if (!postalCode.trim()) errors.postalCode = true;
+    if (selectedCountry.hasStates && !stateProvince) errors.stateProvince = true;
+
+    // Phone: must have more than just the country prefix
+    const phoneDigits = phone.replace(/[^\d]/g, "");
+    if (!phone || phoneDigits.length < 7) errors.phone = true;
+
+    // Postal code format validation
+    if (postalCode && selectedCountry.postalPattern && !selectedCountry.postalPattern.test(postalCode.trim())) {
+      errors.postalCode = true;
+    }
+
+    setFieldErrors(errors);
+    setSubmitted(true);
+    return Object.keys(errors).length === 0;
+  }, [email, firstName, lastName, address, city, phone, postalCode, stateProvince, selectedCountry]);
+
   /* ── Step 1 → Step 2: Fetch shipping options ── */
   const handleContinueToShipping = async () => {
-    if (!email || !firstName || !lastName || !address || !city || !country) {
+    if (!validateStep1()) {
       setError(tCo("fillRequired"));
       return;
     }
@@ -354,8 +523,6 @@ export default function CheckoutPage() {
     setError("");
 
     try {
-      const countryCode = resolveCountryCode(country);
-
       const order = await placeOrder({
         email,
         items: items.map((item) => ({
@@ -374,6 +541,7 @@ export default function CheckoutPage() {
           address_1: address,
           address_2: apartment || undefined,
           city,
+          province: stateProvince || undefined,
           postal_code: postalCode,
           country_code: countryCode,
           phone: phone || undefined,
@@ -508,8 +676,9 @@ export default function CheckoutPage() {
                         inputMode="email"
                         autoComplete="email"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: false })); }}
                         placeholder="your@email.com"
+                        error={fieldErrors.email ? tCo("required") : undefined}
                         required
                       />
                       <label className="flex items-center gap-2.5 cursor-pointer">
@@ -530,14 +699,43 @@ export default function CheckoutPage() {
                       {tCo("shippingAddress")}
                     </h2>
                     <div className="bg-white border border-soft-gray/30 rounded-xl p-5 space-y-4">
+                      {/* Country dropdown (full width, first) */}
+                      <div className="w-full">
+                        <label htmlFor="country" className="block text-sm font-medium text-charcoal/70 mb-1.5">
+                          {tCo("country")}
+                        </label>
+                        <div className="relative">
+                          <select
+                            id="country"
+                            value={countryCode}
+                            onChange={(e) => handleCountryChange(e.target.value)}
+                            autoComplete="country"
+                            className="w-full px-4 py-3 bg-white border border-soft-gray rounded-none text-sm text-charcoal appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:border-gold pr-10"
+                          >
+                            <optgroup label="Popular">
+                              {popularCountries.map((c) => (
+                                <option key={c.code} value={c.code}>{c.name}</option>
+                              ))}
+                            </optgroup>
+                            <optgroup label="───────────">
+                              {otherCountries.map((c) => (
+                                <option key={c.code} value={c.code}>{c.name}</option>
+                              ))}
+                            </optgroup>
+                          </select>
+                          <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40 pointer-events-none" />
+                        </div>
+                      </div>
+
                       <div className="grid grid-cols-2 gap-3">
                         <Input
                           id="firstName"
                           label={tAccount("firstName")}
                           autoComplete="given-name"
                           value={firstName}
-                          onChange={(e) => setFirstName(e.target.value)}
+                          onChange={(e) => { setFirstName(e.target.value); setFieldErrors((p) => ({ ...p, firstName: false })); }}
                           placeholder="Elena"
+                          error={fieldErrors.firstName ? tCo("required") : undefined}
                           required
                         />
                         <Input
@@ -545,8 +743,9 @@ export default function CheckoutPage() {
                           label={tAccount("lastName")}
                           autoComplete="family-name"
                           value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
+                          onChange={(e) => { setLastName(e.target.value); setFieldErrors((p) => ({ ...p, lastName: false })); }}
                           placeholder="Krasniqi"
+                          error={fieldErrors.lastName ? tCo("required") : undefined}
                           required
                         />
                       </div>
@@ -555,8 +754,9 @@ export default function CheckoutPage() {
                         label={tCo("address")}
                         autoComplete="address-line1"
                         value={address}
-                        onChange={(e) => setAddress(e.target.value)}
+                        onChange={(e) => { setAddress(e.target.value); setFieldErrors((p) => ({ ...p, address: false })); }}
                         placeholder="123 Bulevardi Nënë Tereza"
+                        error={fieldErrors.address ? tCo("required") : undefined}
                         required
                       />
                       <Input
@@ -567,49 +767,68 @@ export default function CheckoutPage() {
                         onChange={(e) => setApartment(e.target.value)}
                         placeholder={tCo("apartment")}
                       />
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className={`grid gap-3 ${selectedCountry.hasStates ? "grid-cols-3" : "grid-cols-2"}`}>
                         <Input
                           id="city"
                           label={tCo("city")}
                           autoComplete="address-level2"
                           value={city}
-                          onChange={(e) => setCity(e.target.value)}
+                          onChange={(e) => { setCity(e.target.value); setFieldErrors((p) => ({ ...p, city: false })); }}
                           placeholder="Prishtina"
+                          error={fieldErrors.city ? tCo("required") : undefined}
                           required
                         />
+                        {/* State/Province — only visible for countries with states */}
+                        {selectedCountry.hasStates && (
+                          <div className="w-full">
+                            <label htmlFor="stateProvince" className="block text-sm font-medium text-charcoal/70 mb-1.5">
+                              {selectedCountry.stateLabel || "State"}
+                            </label>
+                            <div className="relative">
+                              <select
+                                id="stateProvince"
+                                value={stateProvince}
+                                onChange={(e) => { setStateProvince(e.target.value); setFieldErrors((p) => ({ ...p, stateProvince: false })); }}
+                                autoComplete="address-level1"
+                                className={`w-full px-4 py-3 bg-white border text-sm text-charcoal appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:border-gold pr-10 rounded-none ${
+                                  fieldErrors.stateProvince ? "border-red-400" : "border-soft-gray"
+                                }`}
+                              >
+                                <option value="">{tCo("selectState")}</option>
+                                {(selectedCountry.states || []).map((s) => (
+                                  <option key={s.code} value={s.code}>{s.name}</option>
+                                ))}
+                              </select>
+                              <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40 pointer-events-none" />
+                            </div>
+                            {fieldErrors.stateProvince && (
+                              <p className="mt-1 text-xs text-red-500">{tCo("required")}</p>
+                            )}
+                          </div>
+                        )}
                         <Input
                           id="postalCode"
-                          label={tCo("postalCode")}
-                          inputMode="numeric"
+                          label={selectedCountry.postalLabel}
                           autoComplete="postal-code"
                           value={postalCode}
-                          onChange={(e) => setPostalCode(e.target.value)}
-                          placeholder="10000"
+                          onChange={(e) => { setPostalCode(e.target.value); setFieldErrors((p) => ({ ...p, postalCode: false })); }}
+                          placeholder={selectedCountry.postalPlaceholder}
+                          error={fieldErrors.postalCode ? tCo("required") : undefined}
                           required
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-3">
-                        <Input
-                          id="country"
-                          label={tCo("country")}
-                          autoComplete="country-name"
-                          value={country}
-                          onChange={(e) => setCountry(e.target.value)}
-                          placeholder="Kosovo"
-                          required
-                        />
-                        <Input
-                          id="phone"
-                          label={tCo("phone")}
-                          type="tel"
-                          inputMode="tel"
-                          autoComplete="tel"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          placeholder="+383 49 123 456"
-                          required
-                        />
-                      </div>
+                      <Input
+                        id="phone"
+                        label={tCo("phone")}
+                        type="tel"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={phone}
+                        onChange={(e) => { setPhone(e.target.value); setFieldErrors((p) => ({ ...p, phone: false })); }}
+                        placeholder={`${selectedCountry.phone} 49 123 456`}
+                        error={fieldErrors.phone ? tCo("required") : undefined}
+                        required
+                      />
                       <label className="flex items-center gap-2.5 cursor-pointer">
                         <input
                           type="checkbox"
@@ -691,7 +910,7 @@ export default function CheckoutPage() {
                       </button>
                     </div>
                     <p className="text-sm text-charcoal">
-                      {firstName} {lastName}, {address}{apartment ? `, ${apartment}` : ""}, {city} {postalCode}, {country}
+                      {firstName} {lastName}, {address}{apartment ? `, ${apartment}` : ""}, {city}{stateProvince ? ` ${stateProvince}` : ""} {postalCode}, {selectedCountry.name}
                     </p>
                   </div>
 
@@ -702,13 +921,14 @@ export default function CheckoutPage() {
                     </h2>
                     <div className="space-y-3">
                       {shippingOptions.length > 0 ? (
-                        // Real shipping options from Medusa
+                        // Real shipping options from Supabase
                         shippingOptions.map((option) => {
                           const price = option.calculated_price?.calculated_amount ?? option.amount;
                           return (
                             <ShippingOptionRadio
                               key={option.id}
                               name={option.name}
+                              description={option.estimated_days}
                               price={price === 0 ? t("free") : formatPrice(price)}
                               selected={selectedShippingOption === option.id}
                               onSelect={() => handleSelectShipping(option.id)}
@@ -810,7 +1030,7 @@ export default function CheckoutPage() {
                       </button>
                     </div>
                     <p className="text-sm text-charcoal mb-3">
-                      {firstName} {lastName}, {address}, {city} {postalCode}, {country}
+                      {firstName} {lastName}, {address}, {city}{stateProvince ? ` ${stateProvince}` : ""} {postalCode}, {selectedCountry.name}
                     </p>
                     <div className="h-px bg-soft-gray/30 my-3" />
                     <div className="flex items-center justify-between text-sm mb-2">
@@ -914,6 +1134,7 @@ export default function CheckoutPage() {
               items={items}
               subtotal={subtotal}
               shippingCost={shippingCost}
+              currentStep={step}
               tCo={tCo}
               t={t}
               tCart={tCart}

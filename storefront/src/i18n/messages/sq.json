@@ -265,7 +265,10 @@
     "westernUnion": "Western Union",
     "cashOnPickup": "Para n\u00eb Dor\u00eb",
     "whatsappPayment": "Bisedoni me ne p\u00ebr pages\u00ebn",
-    "whatsappMessage": "P\u00ebrsh\u00ebndetje, do t\u00eb doja t\u00eb rregulloja pages\u00ebn p\u00ebr porosin\u00eb time."
+    "whatsappMessage": "P\u00ebrsh\u00ebndetje, do t\u00eb doja t\u00eb rregulloja pages\u00ebn p\u00ebr porosin\u00eb time.",
+    "calculatedAtNextStep": "Llogaritet n\u00eb hapin e ardhsh\u00ebm",
+    "required": "Kjo fush\u00eb \u00ebsht\u00eb e detyrueshme",
+    "selectState": "Zgjidhni..."
   },
   "cart": {
     "title": "\u00c7anta Juaj",
@@ -344,6 +347,7 @@
     "noAccount": "I ri k\u00ebtu?",
     "hasAccount": "Tashm\u00eb an\u00ebtar?",
     "loginError": "Email ose fjal\u00ebkalim i pavlefsh\u00ebm. Provoni p\u00ebrs\u00ebri.",
+    "noCustomerAccount": "Ky email nuk \u00ebsht\u00eb i regjistruar si klient. N\u00ebse jeni admin, p\u00ebrdorni /admin/login. P\u00ebrndryshe, krijoni nj\u00eb llogari t\u00eb re.",
     "registerError": "Regjistrimi d\u00ebshtoi. Provoni p\u00ebrs\u00ebri.",
     "firstName": "Emri",
     "lastName": "Mbiemri",
@@ -389,6 +393,8 @@
     "resetSent": "Kontrollo Email-in T\u00ebnd",
     "resetSentDesc": "N\u00ebse ekziston nj\u00eb llogari me at\u00eb email, kemi d\u00ebrguar udh\u00ebzime p\u00ebr rivendosjen e fjal\u00ebkalimit.",
     "backToSignIn": "Kthehu te identifikimi",
+    "checkYourEmail": "Kontrollo email-in t\u00ebnd",
+    "confirmationSentDesc": "D\u00ebrguam nj\u00eb link konfirmimi p\u00ebr t\u00eb verifikuar llogarin\u00eb t\u00ebnde. Kontrollo inbox-in dhe kliko linkun p\u00ebr t\u00eb aktivizuar llogarin\u00eb.",
     "enterEmailDesc": "Shkruaj adres\u00ebn t\u00ebnde t\u00eb email-it dhe do t\u00eb d\u00ebrgojm\u00eb nj\u00eb link p\u00ebr t\u00eb rivendosur fjal\u00ebkalimin.",
     "authFailed": "Identifikimi D\u00ebshtoi",
     "authFailedDesc": "Nuk mund\u00ebm t\u00eb p\u00ebrfundonim identifikimin. Provo p\u00ebrs\u00ebri ose p\u00ebrdor email-in dhe fjal\u00ebkalimin.",
@@ -422,7 +428,6 @@
     "estimatedDelivery": "Dor\u00ebzimi i Vler\u00ebsuar",
     "shippingTo": "D\u00ebrgohet Tek",
     "orderDetails": "Detajet e Porosis\u00eb",
-    "trackOrder": "Gjurmo Porosin\u00eb",
     "continueMessage": "Vazhdoni t\u00eb eksploroni koleksionet tona",
     "needHelp": "Keni nevoj\u00eb p\u00ebr ndihm\u00eb me porosin\u00eb?",
     "contactSupport": "Kontakto Mb\u00ebshtetjen",
@@ -434,6 +439,8 @@
     "shippingMethod": "M\u00ebnyra e D\u00ebrges\u00ebs",
     "orderPlaced": "Porosia u Vendos",
     "viewAllOrders": "Shiko T\u00eb Gjitha Porosit\u00eb",
+    "trackOrder": "Ndiq Porsin\u00eb T\u00ebnde",
+    "createAccountToTrack": "Krijo Llogari p\u00ebr t\u00eb Ndjekur Porosit\u00eb",
     "orderSummary": "P\u00ebrmbledhja e Porosis\u00eb",
     "whatsNext": "\u00c7far\u00eb Pason?",
     "step1": "Po p\u00ebrgatisim porosin\u00eb tuaj n\u00eb atelien\u00eb ton\u00eb n\u00eb Prishtin\u00eb",
@@ -442,5 +449,21 @@
     "paymentArrangement": "Rregullimi i Pages\u00ebs",
     "paymentArrangementDesc": "Ekipi yn\u00eb do t'ju kontaktoj\u00eb brenda 24 or\u00ebve p\u00ebrmes WhatsApp p\u00ebr t\u00eb rregulluar pages\u00ebn. Pranojm\u00eb transfer bankar, Western Union, dhe para n\u00eb dor\u00eb.",
     "chatToArrangePayment": "Bisedo p\u00ebr Pages\u00ebn"
+  },
+  "orderTracking": {
+    "title": "Ndiq Porsin\u00eb T\u00ebnde",
+    "subtitle": "Shkruaj email-in dhe numrin e porosis\u00eb p\u00ebr t\u00eb kontrolluar statusin",
+    "emailLabel": "Adresa Email",
+    "orderNumberLabel": "Numri i Porosis\u00eb",
+    "trackButton": "Ndiq Porsin\u00eb",
+    "notFound": "Porosia nuk u gjet. Kontrolloni email-in dhe numrin e porosis\u00eb.",
+    "order": "Porosia",
+    "payment": "Pagesa",
+    "shipping": "D\u00ebrgesa",
+    "items": "Artikujt e Porosis\u00eb",
+    "shippingTo": "D\u00ebrgohet n\u00eb",
+    "statusProcessing": "N\u00eb Proces",
+    "statusShipped": "D\u00ebrguar",
+    "statusDelivered": "Dor\u00ebzuar"
   }
 }
