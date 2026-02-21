@@ -1,6 +1,11 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+let _resend: Resend | null = null
+function getResend(): Resend | null {
+  if (!process.env.RESEND_API_KEY) return null
+  if (!_resend) _resend = new Resend(process.env.RESEND_API_KEY)
+  return _resend
+}
 
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Aksa Fashion <orders@aksa-fashion.com>'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://aksa-fashion.vercel.app'
@@ -155,7 +160,8 @@ function buildOrderConfirmationHtml(data: OrderEmailData): string {
 }
 
 export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<{ success: boolean; error?: string }> {
-  if (!process.env.RESEND_API_KEY) {
+  const resend = getResend()
+  if (!resend) {
     console.warn('[Email] RESEND_API_KEY not set, skipping confirmation email')
     return { success: false, error: 'RESEND_API_KEY not configured' }
   }
