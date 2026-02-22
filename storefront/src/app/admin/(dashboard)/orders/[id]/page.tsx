@@ -104,6 +104,9 @@ export default function OrderDetailPage() {
   // Payment state
   const [markingPaid, setMarkingPaid] = useState(false)
 
+  // Complete state
+  const [completing, setCompleting] = useState(false)
+
   // Cancel state
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelling, setCancelling] = useState(false)
@@ -201,6 +204,19 @@ export default function OrderDetailPage() {
     }
   }
 
+  async function handleComplete() {
+    if (!order) return
+    setCompleting(true)
+    try {
+      await adminMedusa.completeOrder(orderId)
+      await loadOrder()
+    } catch (err) {
+      alert('Failed to complete: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setCompleting(false)
+    }
+  }
+
   async function handleCancel() {
     setCancelling(true)
     try {
@@ -271,9 +287,12 @@ export default function OrderDetailPage() {
 
   const currency = order.currency_code || 'eur'
   const isCancelled = order.status === 'canceled' || order.status === 'cancelled'
+  const isCompleted = order.status === 'completed'
   const isUnfulfilled = !order.fulfillment_status || order.fulfillment_status === 'not_fulfilled' || order.fulfillment_status === 'unfulfilled'
   const isShipped = order.fulfillment_status === 'shipped' || order.fulfillment_status === 'partially_shipped' || order.fulfillment_status === 'fulfilled'
-  const isDelivered = order.fulfillment_status === 'delivered' || order.status === 'completed'
+  const isDelivered = order.fulfillment_status === 'delivered' || isCompleted
+  const isPaid = order.payment_status === 'captured'
+  const canComplete = isShipped && isPaid && !isDelivered && !isCancelled && !isCompleted
   const hasTracking = order.fulfillments?.some(f => f.labels?.length)
   const trackingInfo = order.fulfillments?.flatMap(f => f.labels || []) || []
 
@@ -283,11 +302,20 @@ export default function OrderDetailPage() {
         title={`Order #${order.display_id}`}
         subtitle={formatDateTime(order.created_at)}
         actions={
-          !isCancelled ? (
+          isCancelled || isCompleted ? undefined : canComplete ? (
+            <div className="flex items-center gap-2">
+              <button onClick={handleComplete} disabled={completing} className="btn btn-primary">
+                {completing ? <><Loader2 className="w-4 h-4 animate-spin" />Completing...</> : <><CheckCircle className="w-4 h-4" />Complete order</>}
+              </button>
+              <button onClick={() => setCancelOpen(true)} className="btn btn-secondary" style={{ color: '#e22c38', borderColor: '#fca5a5' }}>
+                <XCircle className="w-4 h-4" /> Cancel
+              </button>
+            </div>
+          ) : (
             <button onClick={() => setCancelOpen(true)} className="btn btn-secondary" style={{ color: '#e22c38', borderColor: '#fca5a5' }}>
               <XCircle className="w-4 h-4" /> Cancel
             </button>
-          ) : undefined
+          )
         }
       />
 
