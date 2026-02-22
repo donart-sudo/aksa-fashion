@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -55,6 +55,7 @@ export default function OrderDetailPage() {
   const locale = useLocale();
   const params = useParams();
   const orderId = params.id as string;
+  const router = useRouter();
   const { customer, isLoading: authLoading } = useAuth();
   const { addItem: addToCart } = useCart();
   const sc = useSiteConstants();
@@ -148,20 +149,24 @@ export default function OrderDetailPage() {
               onClick={() => {
                 if (reordered) return;
                 for (const item of order.items) {
+                  const pid = item.metadata?.product_id_raw || item.metadata?.product_id || "";
+                  const size = item.metadata?.size || undefined;
+                  const color = item.metadata?.color || undefined;
                   addToCart({
-                    productId: item.metadata?.product_id_raw || item.metadata?.product_id || "",
-                    variantId: item.metadata?.product_id_raw || "",
+                    productId: pid,
+                    variantId: `${pid}-${size || "default"}`,
                     handle: item.metadata?.handle || "",
                     title: item.title,
                     thumbnail: item.thumbnail || "",
                     price: item.unit_price,
                     quantity: item.quantity,
-                    size: item.metadata?.size,
-                    color: item.metadata?.color,
+                    size,
+                    color,
                   });
                 }
                 setReordered(true);
-                setTimeout(() => setReordered(false), 3000);
+                // Redirect to cart so user can review items and sizes
+                setTimeout(() => router.push(`/${locale}/cart`), 500);
               }}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
                 reordered
