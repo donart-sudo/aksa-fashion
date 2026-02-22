@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_INFO } from "@/lib/constants";
+import { getSiteConstants } from "@/lib/data/content-blocks";
 
 export const metadata: Metadata = {
   title: "Terms & Conditions",
@@ -8,12 +8,14 @@ export const metadata: Metadata = {
     "Terms and conditions governing purchases from Aksa Fashion, in accordance with the laws of the Republic of Kosovo.",
 };
 
-export default function TermsPage({
+export default async function TermsPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const locale = params.locale;
+  const { locale } = await params;
+  const sc = await getSiteConstants();
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">

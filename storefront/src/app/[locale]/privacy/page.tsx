@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { CONTACT_INFO } from "@/lib/constants";
+import { getSiteConstants } from "@/lib/data/content-blocks";
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -8,12 +8,14 @@ export const metadata: Metadata = {
     "Learn how Aksa Fashion collects, uses, and protects your personal data in compliance with Kosovo's Law on Protection of Personal Data.",
 };
 
-export default function PrivacyPolicyPage({
+export default async function PrivacyPolicyPage({
   params,
 }: {
-  params: { locale: string };
+  params: Promise<{ locale: string }>;
 }) {
-  const locale = params.locale;
+  const { locale } = await params;
+  const sc = await getSiteConstants();
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">

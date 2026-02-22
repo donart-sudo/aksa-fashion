@@ -3,9 +3,7 @@
     "ann1": "\u20ac150 \u00fczeri sipari\u015flerde \u00fccretsiz kargo",
     "ann2": "Pri\u015ftine, Kosova\u2019da el i\u015f\u00e7ili\u011fiyle \u00fcretildi",
     "ann3": "\u00d6l\u00e7\u00fclerinize \u00f6zel dikim \u00b7 2\u20135 g\u00fcnde haz\u0131r",
-    "ann4": "Yeni koleksiyon geldi \u2014 Ke\u015ffedin",
-    "chatWithUs": "Bize yaz\u0131n",
-    "storeHours": "Pzt\u2013Cmt: 10\u202f\u2013\u202f20"
+    "ann4": "Yeni koleksiyon geldi \u2014 Ke\u015ffedin"
   },
   "common": {
     "brandName": "Aksa Fashion",
@@ -112,7 +110,8 @@
     "royalOverTrain": "Kraliyet Kuyruk",
     "ruffledDream": "Rüştü Hayal",
     "silhouetteWhisper": "Siluet Fısıltısı",
-    "eveningDress": "Abiye Elbise"
+    "eveningDress": "Abiye Elbise",
+    "chatWithUs": "Bize yaz\u0131n"
   },
   "home": {
     "slide0Subtitle": "Haute Couture",

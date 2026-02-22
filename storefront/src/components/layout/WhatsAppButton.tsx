@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 
 export default function WhatsAppButton() {
+  const { whatsapp } = useSiteConstants();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -13,7 +14,7 @@ export default function WhatsAppButton() {
 
   return (
     <a
-      href={SOCIAL_LINKS.whatsapp}
+      href={whatsapp}
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Chat with us on WhatsApp"

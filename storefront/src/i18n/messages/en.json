@@ -3,9 +3,7 @@
     "ann1": "Complimentary shipping on orders over \u20ac150",
     "ann2": "Handcrafted with love in Prishtina, Kosovo",
     "ann3": "Made to your measure \u00b7 Ready in 2\u20135 days",
-    "ann4": "New arrivals just dropped \u2014 Explore now",
-    "chatWithUs": "Chat with us",
-    "storeHours": "Mon\u2013Sat: 10\u202f\u2013\u202f20"
+    "ann4": "New arrivals just dropped \u2014 Explore now"
   },
   "common": {
     "brandName": "Aksa Fashion",
@@ -112,7 +110,8 @@
     "royalOverTrain": "Royal Over Train",
     "ruffledDream": "Ruffled Dream",
     "silhouetteWhisper": "Silhouette Whisper",
-    "eveningDress": "Evening Dress"
+    "eveningDress": "Evening Dress",
+    "chatWithUs": "Chat with us"
   },
   "home": {
     "slide0Subtitle": "Haute Couture",

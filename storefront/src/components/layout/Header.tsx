@@ -23,7 +23,7 @@ import { HEADER_IMAGES } from "@/lib/cdn-image-urls";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { useSearch } from "@/lib/search";
-import { SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 
 import {
   products as staticProducts,
@@ -198,6 +198,9 @@ export default function Header() {
   const pathname = usePathname();
   const { openCart, itemCount } = useCart();
   const { itemCount: wishlistCount } = useWishlist();
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
   const { isOpen: searchOpen, openSearch, closeSearch } = useSearch();
   const [scrolled, setScrolled] = useState(false);
   const [showSuperSticky, setShowSuperSticky] = useState(false);
@@ -1459,7 +1462,7 @@ export default function Header() {
                     className="flex items-center gap-1.5 px-3 py-1.5 bg-[#25D366]/10 text-[#25D366] rounded-full text-[11px] tracking-[0.05em] font-medium hover:bg-[#25D366]/20 transition-colors"
                   >
                     <WhatsAppIcon className="w-3.5 h-3.5" />
-                    {t("topBar.chatWithUs")}
+                    {t("nav.chatWithUs")}
                   </a>
                 </div>
 

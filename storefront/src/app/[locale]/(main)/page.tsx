@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { SITE_NAME, SITE_URL, SITE_DESCRIPTION, CONTACT_INFO } from "@/lib/constants";
+import { SITE_NAME, SITE_URL, SITE_DESCRIPTION } from "@/lib/constants";
+import { getSiteConstants } from "@/lib/data/content-blocks";
 import { cdnUrl } from "@/lib/cdn-image-urls";
 import EditorialBanner from "@/components/home/EditorialBanner";
 import TrustBar from "@/components/home/TrustBar";
@@ -45,7 +46,7 @@ export async function generateMetadata({
 }
 
 /* JSON-LD structured data for LocalBusiness + Organization */
-function StructuredData({ locale }: { locale: string }) {
+function StructuredData({ locale, contactInfo }: { locale: string; contactInfo: { email: string; phone: string; address: string; hours: string } }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ClothingStore",
@@ -54,8 +55,8 @@ function StructuredData({ locale }: { locale: string }) {
     url: `${SITE_URL}/${locale}`,
     logo: `${SITE_URL}/icons/icon-512.png`,
     image: cdnUrl("allure-bridals-a1400-01.jpg"),
-    telephone: CONTACT_INFO.phone,
-    email: CONTACT_INFO.email,
+    telephone: contactInfo.phone,
+    email: contactInfo.email,
     address: {
       "@type": "PostalAddress",
       addressLocality: "Prishtina",
@@ -95,7 +96,7 @@ export default async function HomePage({
   const { locale } = await params;
   const t = await getTranslations("home");
 
-  const [newProducts, moreProducts, contentMap] = await Promise.all([
+  const [newProducts, moreProducts, contentMap, sc] = await Promise.all([
     fetchNewProductsForCards(12),
     fetchProductsForCards(12),
     getContentBlocks(
@@ -111,11 +112,13 @@ export default async function HomePage({
       ],
       locale
     ),
+    getSiteConstants(),
   ]);
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   return (
     <>
-      <StructuredData locale={locale} />
+      <StructuredData locale={locale} contactInfo={CONTACT_INFO} />
 
       {/* 1. Hero */}
       <EditableSection sectionKey="homepage.hero" label="Hero">

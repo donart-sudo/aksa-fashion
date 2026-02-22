@@ -4,11 +4,14 @@ import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
-import { CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import { APPOINTMENT_IMAGE } from "@/lib/cdn-image-urls";
 import type { AppointmentContent } from "@/types/content-blocks";
 
 export default function Appointment({ content }: { content?: AppointmentContent }) {
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
   const appointmentImage = content?.image ?? APPOINTMENT_IMAGE;
   const locationLabel = content?.location ?? "Prishtina, Kosovo";
   const whatsappUrl = content?.whatsappUrl ?? SOCIAL_LINKS.whatsapp;

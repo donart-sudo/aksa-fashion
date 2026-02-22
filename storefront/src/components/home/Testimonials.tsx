@@ -6,7 +6,7 @@ import { StarIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/utils";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import { TESTIMONIAL_IMAGES } from "@/lib/cdn-image-urls";
 import type { TestimonialsContent } from "@/types/content-blocks";
 
@@ -64,6 +64,8 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
   const BRIDE_STORIES = content?.stories ?? DEFAULT_BRIDE_STORIES;
   const t = useTranslations("home");
   const locale = useLocale();
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
   const sectionRef = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
   const [active, setActive] = useState(0);

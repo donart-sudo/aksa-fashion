@@ -1,5 +1,6 @@
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import type { SectionKey, SectionContentMap, ContentBlockRow, TranslationOverrideContent } from "@/types/content-blocks";
+import type { SectionKey, SectionContentMap, ContentBlockRow, TranslationOverrideContent, SiteConstantsContent } from "@/types/content-blocks";
+import { SOCIAL_LINKS, CONTACT_INFO, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
 
 /**
  * Fetch a content block from Supabase. Returns null if not found or on error.
@@ -85,5 +86,34 @@ export async function getI18nOverrides(
     return result;
   } catch {
     return {};
+  }
+}
+
+/** Default site constants built from the hardcoded constants.ts values */
+const SITE_DEFAULTS: SiteConstantsContent = {
+  siteName: SITE_NAME,
+  siteDescription: SITE_DESCRIPTION,
+  email: CONTACT_INFO.email,
+  phone: CONTACT_INFO.phone,
+  address: CONTACT_INFO.address,
+  hours: CONTACT_INFO.hours,
+  instagram: SOCIAL_LINKS.instagram,
+  facebook: SOCIAL_LINKS.facebook,
+  tiktok: SOCIAL_LINKS.tiktok,
+  whatsapp: SOCIAL_LINKS.whatsapp,
+};
+
+/**
+ * Fetch site constants (social links, contact info) from Supabase.
+ * Falls back to hardcoded constants.ts if not saved or on error.
+ * Locale-independent — always fetches "en" row.
+ */
+export async function getSiteConstants(): Promise<SiteConstantsContent> {
+  try {
+    const saved = await getContentBlock("site.constants", "en");
+    if (!saved) return SITE_DEFAULTS;
+    return { ...SITE_DEFAULTS, ...saved };
+  } catch {
+    return SITE_DEFAULTS;
   }
 }

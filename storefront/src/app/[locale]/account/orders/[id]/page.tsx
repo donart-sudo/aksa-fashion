@@ -10,7 +10,7 @@ import { useAuth } from "@/lib/auth";
 import { useCart } from "@/lib/cart";
 import { getOrder, type CustomerOrder } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import {
   ChevronLeftIcon,
   ArrowPathIcon,
@@ -57,6 +57,8 @@ export default function OrderDetailPage() {
   const orderId = params.id as string;
   const { customer, isLoading: authLoading } = useAuth();
   const { addItem: addToCart } = useCart();
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
 
   const [order, setOrder] = useState<CustomerOrder | null>(null);
   const [loading, setLoading] = useState(true);

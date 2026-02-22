@@ -3,9 +3,7 @@
     "ann1": "Transporti falas p\u00ebr porosi mbi \u20ac150",
     "ann2": "Pun\u00eb dore me dashuri n\u00eb Prishtin\u00eb, Kosov\u00eb",
     "ann3": "B\u00ebrhet sipas mas\u00ebs suaj \u00b7 Gati n\u00eb 2\u20135 dit\u00eb",
-    "ann4": "Koleksioni i ri sapo mbrriti \u2014 Zbuloni tani",
-    "chatWithUs": "Na shkruani",
-    "storeHours": "H\u00ebn\u2013Sht: 10\u202f\u2013\u202f20"
+    "ann4": "Koleksioni i ri sapo mbrriti \u2014 Zbuloni tani"
   },
   "common": {
     "brandName": "Aksa Fashion",
@@ -112,7 +110,8 @@
     "royalOverTrain": "Bisht Mbret\u00ebror",
     "ruffledDream": "Ruffled Dream",
     "silhouetteWhisper": "Silhouette Whisper",
-    "eveningDress": "Fustane Mbr\u00ebmjeje"
+    "eveningDress": "Fustane Mbr\u00ebmjeje",
+    "chatWithUs": "Na shkruani"
   },
   "home": {
     "slide0Subtitle": "Haute Couture",

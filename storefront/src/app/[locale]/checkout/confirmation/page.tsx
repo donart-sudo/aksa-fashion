@@ -7,7 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { formatPrice } from "@/lib/utils";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import { getOrder, type MedusaOrder } from "@/lib/data/supabase-checkout";
 import { useAuth } from "@/lib/auth";
 import {
@@ -103,6 +103,8 @@ function OrderConfirmationContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
   const { customer } = useAuth();
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
 
   const [order, setOrder] = useState<MedusaOrder | null>(null);
   const [loading, setLoading] = useState(!!orderId);

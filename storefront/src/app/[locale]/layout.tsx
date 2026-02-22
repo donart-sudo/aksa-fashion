@@ -19,6 +19,8 @@ import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { ToastProvider } from "@/components/ui/Toast";
 import { StorefrontAdminProvider } from "@/lib/storefront-admin";
 import EditModeToggle from "@/components/editor/EditModeToggle";
+import { getSiteConstants } from "@/lib/data/content-blocks";
+import { SiteConstantsProvider } from "@/lib/site-constants";
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -109,6 +111,7 @@ export default async function LocaleLayout({
 
   const messages = await getMessages();
   const rtl = isRtl(locale as Locale);
+  const siteConstants = await getSiteConstants();
 
   return (
     <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
@@ -123,6 +126,7 @@ export default async function LocaleLayout({
         className={`${inter.variable} ${cormorant.variable} font-sans antialiased bg-cream text-charcoal overflow-x-hidden`}
       >
         <NextIntlClientProvider messages={messages}>
+          <SiteConstantsProvider value={siteConstants}>
           <AuthProvider>
             <CartProvider>
               <WishlistProvider>
@@ -142,6 +146,7 @@ export default async function LocaleLayout({
               </WishlistProvider>
             </CartProvider>
           </AuthProvider>
+          </SiteConstantsProvider>
         </NextIntlClientProvider>
         <script
           dangerouslySetInnerHTML={{

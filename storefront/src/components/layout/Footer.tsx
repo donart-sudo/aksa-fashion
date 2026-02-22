@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import InlineEditButton from "@/components/editor/InlineEditButton";
 
 /* ── Payment card SVG icons (simplified brand marks) ── */
@@ -123,6 +123,9 @@ export default function Footer() {
   const locale = useLocale();
   const year = new Date().getFullYear();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set());
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   const toggleSection = (key: string) => {
     setOpenSections((prev) => {

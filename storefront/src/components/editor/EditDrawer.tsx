@@ -203,31 +203,34 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
   return (
     <>
       {/* Drawer — no backdrop, non-blocking side panel */}
-      <div className="fixed top-0 right-0 bottom-0 z-[99999] w-full max-w-md bg-white shadow-[-8px_0_30px_rgba(0,0,0,0.15)] flex flex-col animate-slide-in-right border-l border-soft-gray/30">
+      <div className="fixed top-0 right-0 bottom-0 z-[99999] w-full max-w-md bg-cream shadow-[-8px_0_30px_rgba(0,0,0,0.12)] flex flex-col animate-slide-in-right border-l border-soft-gray/40">
         {/* Header */}
-        <div className="flex-shrink-0 border-b border-soft-gray/50 px-6 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-charcoal">Edit: {label}</h2>
+        <div className="flex-shrink-0 bg-white border-b border-soft-gray/50 px-6 py-5">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <p className="text-[10px] font-medium text-gold uppercase tracking-[0.15em] mb-1">Editing</p>
+              <h2 className="text-base font-semibold text-charcoal">{label}</h2>
+            </div>
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-gray-100 rounded transition-colors"
+              className="p-2 hover:bg-soft-gray/30 rounded-lg transition-colors cursor-pointer"
             >
-              <svg className="w-5 h-5 text-charcoal/60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-5 h-5 text-charcoal/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
-          {/* Locale tabs — show for all sections */}
-          <div className="flex gap-1">
+          {/* Locale tabs */}
+          <div className="flex gap-1.5 bg-soft-gray/30 p-1 rounded-lg">
             {LOCALES.map((l) => (
               <button
                 key={l.code}
                 onClick={() => setLocale(l.code)}
-                className={`px-3 py-1.5 text-[11px] font-medium tracking-wider rounded transition-colors ${
+                className={`flex-1 px-3 py-1.5 text-xs font-semibold tracking-wide rounded-md transition-all cursor-pointer ${
                   locale === l.code
-                    ? "bg-gold text-white"
-                    : "bg-gray-100 text-charcoal/50 hover:text-charcoal hover:bg-gray-200"
+                    ? "bg-white text-charcoal shadow-sm"
+                    : "text-charcoal/40 hover:text-charcoal/70"
                 }`}
               >
                 {l.label}
@@ -235,27 +238,27 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
             ))}
           </div>
           {isI18n && (
-            <p className="text-[10px] text-charcoal/35 mt-1.5">
-              Editing translation overrides for {LOCALES.find(l => l.code === locale)?.label || locale}. Changes apply to this language only.
+            <p className="text-xs text-charcoal/40 mt-2.5 leading-relaxed">
+              Editing <span className="font-medium text-charcoal/60">{LOCALES.find(l => l.code === locale)?.label || locale}</span> translations. Changes apply to this language only.
             </p>
           )}
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-5">
           {renderEditor()}
         </div>
 
         {/* Footer */}
-        <div className="flex-shrink-0 border-t border-soft-gray/50 px-6 py-4">
+        <div className="flex-shrink-0 bg-white border-t border-soft-gray/50 px-6 py-4">
           {error && (
-            <p className="text-red-500 text-[12px] mb-2">{error}</p>
+            <p className="text-red-500 text-xs mb-2.5 font-medium">{error}</p>
           )}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-gold hover:bg-gold/90 text-white text-[12px] font-medium tracking-wide rounded transition-colors disabled:opacity-50"
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-2.5 bg-charcoal hover:bg-charcoal/90 text-white text-sm font-medium rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
             >
               {saving ? (
                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -264,7 +267,7 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
-                  Saved
+                  Saved!
                 </>
               ) : (
                 "Save Changes"
@@ -272,13 +275,13 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
             </button>
             <button
               onClick={handleReset}
-              className="px-4 py-2.5 border border-soft-gray text-charcoal/60 text-[12px] font-medium tracking-wide rounded hover:bg-gray-50 transition-colors"
+              className="px-4 py-2.5 border border-soft-gray/60 text-charcoal/60 text-sm font-medium rounded-lg hover:bg-soft-gray/20 transition-colors cursor-pointer"
             >
               Reset
             </button>
             <button
               onClick={onClose}
-              className="px-4 py-2.5 text-charcoal/40 text-[12px] font-medium tracking-wide hover:text-charcoal/60 transition-colors"
+              className="px-4 py-2.5 text-charcoal/40 text-sm font-medium hover:text-charcoal/60 transition-colors cursor-pointer"
             >
               Cancel
             </button>

@@ -4,7 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "next-intl";
 import { motion } from "framer-motion";
-import { PLACEHOLDER_IMAGES, CONTACT_INFO, SOCIAL_LINKS } from "@/lib/constants";
+import { PLACEHOLDER_IMAGES } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import { cdnUrl } from "@/lib/cdn-image-urls";
 
 const fadeUp = {
@@ -106,6 +107,9 @@ const craftImages = [
 
 export default function AboutPage() {
   const locale = useLocale();
+  const sc = useSiteConstants();
+  const SOCIAL_LINKS = { instagram: sc.instagram, facebook: sc.facebook, tiktok: sc.tiktok, whatsapp: sc.whatsapp };
+  const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   return (
     <div>
