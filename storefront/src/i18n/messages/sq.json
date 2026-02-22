@@ -268,7 +268,10 @@
     "whatsappMessage": "P\u00ebrsh\u00ebndetje, do t\u00eb doja t\u00eb rregulloja pages\u00ebn p\u00ebr porosin\u00eb time.",
     "calculatedAtNextStep": "Llogaritet n\u00eb hapin e ardhsh\u00ebm",
     "required": "Kjo fush\u00eb \u00ebsht\u00eb e detyrueshme",
-    "selectState": "Zgjidhni..."
+    "selectState": "Zgjidhni...",
+    "savedAddresses": "Adresat e ruajtura",
+    "useNewAddress": "Përdor adresë tjetër",
+    "saveAddress": "Ruaje këtë adresë në llogarinë time"
   },
   "cart": {
     "title": "\u00c7anta Juaj",
@@ -418,7 +421,8 @@
     "currentPasswordWrong": "Fjal\u00ebkalimi aktual \u00ebsht\u00eb i gabuar",
     "passwordUpdateFailed": "Ndryshimi i fjal\u00ebkalimit d\u00ebshtoi. Ju lutem provoni p\u00ebrs\u00ebri.",
     "passwordUpdated": "Fjal\u00ebkalimi u p\u00ebrdit\u00ebsua me sukses",
-    "passwordHint": "Minimumi 8 karaktere"
+    "passwordHint": "Minimumi 8 karaktere",
+    "resetPassword": "Rivendos Fjalëkalimin"
   },
   "order": {
     "confirmed": "Porosia u Konfirmua",
@@ -448,7 +452,8 @@
     "step3": "Fustani juaj do t\u00eb dor\u00ebzohet n\u00eb der\u00ebn tuaj me kujdes",
     "paymentArrangement": "Rregullimi i Pages\u00ebs",
     "paymentArrangementDesc": "Ekipi yn\u00eb do t'ju kontaktoj\u00eb brenda 24 or\u00ebve p\u00ebrmes WhatsApp p\u00ebr t\u00eb rregulluar pages\u00ebn. Pranojm\u00eb transfer bankar, Western Union, dhe para n\u00eb dor\u00eb.",
-    "chatToArrangePayment": "Bisedo p\u00ebr Pages\u00ebn"
+    "chatToArrangePayment": "Bisedo p\u00ebr Pages\u00ebn",
+    "reorder": "Porosit p\u00ebrs\u00ebri"
   },
   "orderTracking": {
     "title": "Ndiq Porsin\u00eb T\u00ebnde",

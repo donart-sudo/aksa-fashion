@@ -139,6 +139,13 @@ export interface SiteConstantsContent {
   whatsapp: string;
 }
 
+/* ── Translation overrides ─────────────────────────────────────────────── */
+
+/** Flat key→value map for overriding i18n strings */
+export interface TranslationOverrideContent {
+  overrides: Record<string, string>;
+}
+
 /* ── Section key union ─────────────────────────────────────────────────── */
 
 export type SectionKey =
@@ -155,7 +162,19 @@ export type SectionKey =
   | "page.privacy"
   | "layout.announcements"
   | "layout.footer"
-  | "site.constants";
+  | "site.constants"
+  | "i18n.topBar"
+  | "i18n.common"
+  | "i18n.nav"
+  | "i18n.home"
+  | "i18n.product"
+  | "i18n.checkout"
+  | "i18n.cart"
+  | "i18n.footer"
+  | "i18n.search"
+  | "i18n.account"
+  | "i18n.order"
+  | "i18n.orderTracking";
 
 /** Map section keys to their content types */
 export interface SectionContentMap {
@@ -173,4 +192,16 @@ export interface SectionContentMap {
   "layout.announcements": AnnouncementsContent;
   "layout.footer": FooterContent;
   "site.constants": SiteConstantsContent;
+  "i18n.topBar": TranslationOverrideContent;
+  "i18n.common": TranslationOverrideContent;
+  "i18n.nav": TranslationOverrideContent;
+  "i18n.home": TranslationOverrideContent;
+  "i18n.product": TranslationOverrideContent;
+  "i18n.checkout": TranslationOverrideContent;
+  "i18n.cart": TranslationOverrideContent;
+  "i18n.footer": TranslationOverrideContent;
+  "i18n.search": TranslationOverrideContent;
+  "i18n.account": TranslationOverrideContent;
+  "i18n.order": TranslationOverrideContent;
+  "i18n.orderTracking": TranslationOverrideContent;
 }

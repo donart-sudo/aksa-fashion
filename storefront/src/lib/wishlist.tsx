@@ -6,8 +6,11 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
+import { useAuth } from "./auth";
+import { getServerWishlist, syncWishlistToServer } from "./data/supabase-wishlist";
 
 export interface WishlistItem {
   id: string;
@@ -50,9 +53,29 @@ function saveWishlist(items: WishlistItem[]) {
   }
 }
 
+/** Merge local + server wishlists: union by product ID */
+function mergeWishlists(local: WishlistItem[], server: WishlistItem[]): WishlistItem[] {
+  const merged = new Map<string, WishlistItem>();
+
+  for (const item of local) {
+    merged.set(item.id, item);
+  }
+
+  for (const item of server) {
+    if (!merged.has(item.id)) {
+      merged.set(item.id, item);
+    }
+  }
+
+  return Array.from(merged.values());
+}
+
 export function WishlistProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<WishlistItem[]>([]);
   const [hydrated, setHydrated] = useState(false);
+  const { customer } = useAuth();
+  const prevCustomerIdRef = useRef<string | null>(null);
+  const syncingRef = useRef(false);
 
   useEffect(() => {
     setItems(loadWishlist());
@@ -64,6 +87,51 @@ export function WishlistProvider({ children }: { children: ReactNode }) {
       saveWishlist(items);
     }
   }, [items, hydrated]);
+
+  // Auth-aware: merge on login (non-blocking)
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const prevId = prevCustomerIdRef.current;
+    const newId = customer?.id || null;
+    prevCustomerIdRef.current = newId;
+
+    if (!prevId && newId) {
+      getServerWishlist()
+        .then((serverItems) => {
+          setItems((localItems) => {
+            const merged = mergeWishlists(localItems, serverItems);
+            syncWishlistToServer(merged).catch(() => {});
+            return merged;
+          });
+        })
+        .catch(() => {
+          // Server wishlist unavailable — keep local
+        });
+    }
+  }, [customer?.id, hydrated]);
+
+  // Sync to server on changes (debounced, non-blocking)
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!hydrated || !customer?.id || syncingRef.current) return;
+
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    syncTimeoutRef.current = setTimeout(() => {
+      syncingRef.current = true;
+      syncWishlistToServer(items)
+        .catch(() => {})
+        .finally(() => { syncingRef.current = false; });
+    }, 1000);
+
+    return () => {
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    };
+  }, [items, hydrated, customer?.id]);
 
   const toggleItem = useCallback((item: WishlistItem) => {
     setItems((prev) => {

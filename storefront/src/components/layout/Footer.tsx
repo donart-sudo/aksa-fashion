@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { SOCIAL_LINKS, CONTACT_INFO } from "@/lib/constants";
+import InlineEditButton from "@/components/editor/InlineEditButton";
 
 /* ── Payment card SVG icons (simplified brand marks) ── */
 
@@ -184,7 +185,10 @@ export default function Footer() {
       </div>
 
       {/* Main footer */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        <span className="absolute top-4 right-6 z-10">
+          <InlineEditButton sectionKey="i18n.footer" label="Footer Text" />
+        </span>
         <div className="pt-12 sm:pt-14 lg:pt-16 pb-10 sm:pb-12 grid grid-cols-2 lg:grid-cols-12 gap-x-6 gap-y-10 lg:gap-8">
           {/* Brand column */}
           <div className="col-span-2 lg:col-span-3">

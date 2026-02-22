@@ -268,7 +268,10 @@
     "whatsappMessage": "Merhaba, sipari\u015fim i\u00e7in \u00f6deme d\u00fczenlemek istiyorum.",
     "calculatedAtNextStep": "Sonraki ad\u0131mda hesaplanacak",
     "required": "Bu alan zorunludur",
-    "selectState": "Se\u00e7iniz..."
+    "selectState": "Se\u00e7iniz...",
+    "savedAddresses": "Kay\u0131tl\u0131 adresler",
+    "useNewAddress": "Farkl\u0131 bir adres kullan",
+    "saveAddress": "Bu adresi hesab\u0131ma kaydet"
   },
   "cart": {
     "title": "Sepetiniz",
@@ -418,7 +421,8 @@
     "currentPasswordWrong": "Mevcut \u015fifre yanl\u0131\u015f",
     "passwordUpdateFailed": "\u015eifre g\u00fcncellenemedi. L\u00fctfen tekrar deneyin.",
     "passwordUpdated": "\u015eifre ba\u015far\u0131yla g\u00fcncellendi",
-    "passwordHint": "En az 8 karakter"
+    "passwordHint": "En az 8 karakter",
+    "resetPassword": "Şifreyi Sıfırla"
   },
   "order": {
     "confirmed": "Sipariş Onaylandı",
@@ -448,7 +452,8 @@
     "step3": "Elbiseniz \u00f6zenle kap\u0131n\u0131za teslim edilecek",
     "paymentArrangement": "\u00d6deme D\u00fczenleme",
     "paymentArrangementDesc": "Ekibimiz 24 saat i\u00e7inde WhatsApp \u00fczerinden \u00f6deme d\u00fczenlemeniz i\u00e7in sizinle ileti\u015fime ge\u00e7ecek. Banka havalesi, Western Union ve teslimatta nakit kabul ediyoruz.",
-    "chatToArrangePayment": "\u00d6deme D\u00fczenlemek \u0130\u00e7in Yaz\u0131n"
+    "chatToArrangePayment": "\u00d6deme D\u00fczenlemek \u0130\u00e7in Yaz\u0131n",
+    "reorder": "Tekrar sipari\u015f ver"
   },
   "orderTracking": {
     "title": "Sipari\u015finizi Takip Edin",

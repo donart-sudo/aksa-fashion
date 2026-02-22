@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from "@/lib/supabase-server";
-import type { SectionKey, SectionContentMap, ContentBlockRow } from "@/types/content-blocks";
+import type { SectionKey, SectionContentMap, ContentBlockRow, TranslationOverrideContent } from "@/types/content-blocks";
 
 /**
  * Fetch a content block from Supabase. Returns null if not found or on error.
@@ -47,6 +47,40 @@ export async function getContentBlocks(
     const result: Partial<Record<SectionKey, unknown>> = {};
     for (const row of data as Pick<ContentBlockRow, "section_key" | "content">[]) {
       result[row.section_key as SectionKey] = row.content;
+    }
+    return result;
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Fetch all i18n.* overrides for a locale. Returns a nested object
+ * matching the shape of the messages JSON, e.g. { topBar: { ann1: "..." }, common: { ... } }.
+ * Used in i18n/request.ts to merge overrides on top of static JSON.
+ */
+export async function getI18nOverrides(
+  locale: string
+): Promise<Record<string, Record<string, string>>> {
+  try {
+    const supabase = await createServerSupabaseClient();
+    const { data, error } = await supabase
+      .from("content_blocks")
+      .select("section_key, content")
+      .like("section_key", "i18n.%")
+      .eq("locale", locale)
+      .eq("published", true);
+
+    if (error || !data || data.length === 0) return {};
+
+    const result: Record<string, Record<string, string>> = {};
+    for (const row of data as Pick<ContentBlockRow, "section_key" | "content">[]) {
+      // section_key is e.g. "i18n.topBar" → namespace is "topBar"
+      const namespace = row.section_key.replace("i18n.", "");
+      const content = row.content as unknown as TranslationOverrideContent;
+      if (content?.overrides && Object.keys(content.overrides).length > 0) {
+        result[namespace] = content.overrides;
+      }
     }
     return result;
   } catch {

@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { useAuth } from "@/lib/auth";
+import { getOrderCount, getAddressCount } from "@/lib/data/supabase-customer";
 
 import { cdnUrl } from "@/lib/cdn-image-urls";
 import { useWishlist } from "@/lib/wishlist";
@@ -31,6 +32,7 @@ import {
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { HeartIcon as HeartSolidIcon } from "@heroicons/react/24/solid";
+import EditableSection from "@/components/editor/EditableSection";
 
 /* ─── Animated background orb ─── */
 function FloatingOrb({ delay, size, x, y }: { delay: number; size: number; x: string; y: string }) {
@@ -226,7 +228,17 @@ export default function AccountPage() {
   const [resetSent, setResetSent] = useState(false);
   const [resetSubmitting, setResetSubmitting] = useState(false);
 
+  /* Dynamic counts for dashboard */
+  const [orderCount, setOrderCount] = useState(0);
+  const [addressCount, setAddressCount] = useState(0);
+
   useEffect(() => setMounted(true), []);
+
+  useEffect(() => {
+    if (!customer) return;
+    getOrderCount().then(setOrderCount).catch(() => {});
+    getAddressCount().then(setAddressCount).catch(() => {});
+  }, [customer]);
 
   /* ─── Social login handler ─── */
   const handleGoogleLogin = () => {
@@ -262,6 +274,7 @@ export default function AccountPage() {
     const initials = `${customer.first_name?.[0] || ""}${customer.last_name?.[0] || ""}`.toUpperCase();
 
     return (
+      <EditableSection sectionKey="i18n.account" label="Account Text">
       <div className="min-h-screen bg-cream">
         {/* Hero header */}
         <div className="relative bg-charcoal overflow-hidden">
@@ -332,6 +345,7 @@ export default function AccountPage() {
                 icon={ShoppingBagIcon}
                 label={t("myOrders")}
                 description={t("noOrdersDesc")}
+                badge={orderCount}
               />
               <QuickLinkCard
                 href={`/${locale}/wishlist`}
@@ -345,6 +359,7 @@ export default function AccountPage() {
                 icon={MapPinIcon}
                 label={t("savedAddresses")}
                 description={t("noAddresses")}
+                badge={addressCount}
               />
               <QuickLinkCard
                 href={`/${locale}/account/profile`}
@@ -433,6 +448,7 @@ export default function AccountPage() {
           </motion.div>
         </div>
       </div>
+      </EditableSection>
     );
   }
 

@@ -269,7 +269,10 @@
     "whatsappMessage": "Hi, I'd like to arrange payment for my order.",
     "calculatedAtNextStep": "Calculated at next step",
     "required": "This field is required",
-    "selectState": "Select..."
+    "selectState": "Select...",
+    "savedAddresses": "Saved addresses",
+    "useNewAddress": "Use a different address",
+    "saveAddress": "Save this address to my account"
   },
   "cart": {
     "title": "Your Bag",
@@ -419,7 +422,8 @@
     "currentPasswordWrong": "Current password is incorrect",
     "passwordUpdateFailed": "Failed to update password. Please try again.",
     "passwordUpdated": "Password updated successfully",
-    "passwordHint": "Minimum 8 characters"
+    "passwordHint": "Minimum 8 characters",
+    "resetPassword": "Reset Password"
   },
   "order": {
     "confirmed": "Order Confirmed",
@@ -449,7 +453,8 @@
     "step3": "Your gown will be delivered to your door with care",
     "paymentArrangement": "Payment Arrangement",
     "paymentArrangementDesc": "Our team will contact you within 24 hours via WhatsApp to arrange payment. We accept bank transfer, Western Union, and cash on pickup.",
-    "chatToArrangePayment": "Chat to Arrange Payment"
+    "chatToArrangePayment": "Chat to Arrange Payment",
+    "reorder": "Reorder"
   },
   "orderTracking": {
     "title": "Track Your Order",

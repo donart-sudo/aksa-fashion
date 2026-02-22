@@ -7,11 +7,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { useAuth } from "@/lib/auth";
+import { useCart } from "@/lib/cart";
 import { getOrder, type CustomerOrder } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {
   ChevronLeftIcon,
+  ArrowPathIcon,
 } from "@heroicons/react/24/outline";
 
 function StatusBadge({ status }: { status: string }) {
@@ -54,9 +56,11 @@ export default function OrderDetailPage() {
   const params = useParams();
   const orderId = params.id as string;
   const { customer, isLoading: authLoading } = useAuth();
+  const { addItem: addToCart } = useCart();
 
   const [order, setOrder] = useState<CustomerOrder | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reordered, setReordered] = useState(false);
 
   useEffect(() => {
     if (!customer || !orderId) return;
@@ -135,7 +139,38 @@ export default function OrderDetailPage() {
             </h1>
             <p className="text-sm text-charcoal/50 mt-1">{orderDate}</p>
           </div>
-          <StatusBadge status={order.status} />
+          <div className="flex items-center gap-3">
+            <StatusBadge status={order.status} />
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                if (reordered) return;
+                for (const item of order.items) {
+                  addToCart({
+                    productId: item.metadata?.product_id || item.id,
+                    variantId: item.id,
+                    handle: item.metadata?.handle || "",
+                    title: item.title,
+                    thumbnail: item.thumbnail || "",
+                    price: item.unit_price,
+                    quantity: item.quantity,
+                    size: item.metadata?.size,
+                    color: item.metadata?.color,
+                  });
+                }
+                setReordered(true);
+                setTimeout(() => setReordered(false), 3000);
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+                reordered
+                  ? "bg-green-50 text-green-700 border border-green-200"
+                  : "bg-gold/10 text-gold border border-gold/20 hover:bg-gold/20"
+              }`}
+            >
+              <ArrowPathIcon className="w-3.5 h-3.5" />
+              {reordered ? tc("addedToCart") || "Added!" : tOrder("reorder") || "Reorder"}
+            </motion.button>
+          </div>
         </div>
 
         {/* Items */}

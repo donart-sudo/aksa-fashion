@@ -101,15 +101,15 @@ function buildOrderConfirmationHtml(data: OrderEmailData): string {
       <p style="text-align: center; color: #888; font-size: 14px; margin: 0 0 28px 0;">Order confirmed</p>
 
       <!-- Order info -->
-      <div style="background: #FAF8F5; border-radius: 12px; padding: 16px; margin-bottom: 24px;">
-        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px;">
+      <div style="background: #FAF8F5; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="font-size: 14px; table-layout: fixed;">
           <tr>
-            <td style="color: #888; padding: 4px 0;">Order Number</td>
-            <td style="text-align: right; font-weight: 600; color: #2D2D2D; font-family: monospace; font-size: 15px;">${data.orderNumber}</td>
+            <td style="color: #888; padding: 6px 0; width: 50%;">Order Number</td>
+            <td style="text-align: right; font-weight: 600; color: #2D2D2D; font-family: monospace; font-size: 15px; padding: 6px 0;">${data.orderNumber}</td>
           </tr>
           <tr>
-            <td style="color: #888; padding: 4px 0;">Shipping</td>
-            <td style="text-align: right; color: #2D2D2D;">${data.shippingMethod}</td>
+            <td style="color: #888; padding: 6px 0; width: 50%;">Shipping</td>
+            <td style="text-align: right; color: #2D2D2D; padding: 6px 0;">${data.shippingMethod}</td>
           </tr>
         </table>
       </div>

@@ -20,6 +20,7 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { formatPrice } from "@/lib/utils";
+import EditableSection from "@/components/editor/EditableSection";
 
 const FREE_SHIPPING_THRESHOLD = 15000; // €150 in cents
 
@@ -360,6 +361,7 @@ export default function CartPage() {
   }
 
   return (
+    <EditableSection sectionKey="i18n.cart" label="Cart Text">
     <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10 lg:py-14">
       {/* Header */}
       <motion.div
@@ -656,5 +658,6 @@ export default function CartPage() {
         </div>
       </div>
     </div>
+    </EditableSection>
   );
 }

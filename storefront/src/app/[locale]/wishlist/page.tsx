@@ -17,6 +17,7 @@ import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { useWishlist, type WishlistItem } from "@/lib/wishlist";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
+import EditableSection from "@/components/editor/EditableSection";
 
 /* ── Wishlist item card with rich interactions ── */
 function WishlistCard({
@@ -363,6 +364,7 @@ export default function WishlistPage() {
   }, [items, addItem, removeItem, openCart]);
 
   return (
+    <EditableSection sectionKey="i18n.common" label="Wishlist Text">
     <div className="min-h-[60vh] sm:min-h-[70vh]">
       {/* Hero header */}
       <div
@@ -471,5 +473,6 @@ export default function WishlistPage() {
         )}
       </div>
     </div>
+    </EditableSection>
   );
 }

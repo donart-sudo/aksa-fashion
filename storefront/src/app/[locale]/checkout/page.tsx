@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Input from "@/components/ui/Input";
+import EditableSection from "@/components/editor/EditableSection";
 import { useCart } from "@/lib/cart";
+import { useAuth } from "@/lib/auth";
+import { getAddresses, createAddress, type CustomerAddress } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import {
@@ -24,6 +27,7 @@ import {
   ChevronDownIcon,
   ShoppingBagIcon,
   ExclamationTriangleIcon,
+  UserCircleIcon,
 } from "@heroicons/react/24/outline";
 import { CheckCircleIcon as CheckCircleSolidIcon } from "@heroicons/react/24/solid";
 
@@ -116,6 +120,22 @@ const COUNTRIES: CountryConfig[] = [
 
 const COUNTRY_MAP_BY_CODE = Object.fromEntries(COUNTRIES.map((c) => [c.code, c]));
 const DEFAULT_COUNTRY = COUNTRIES[0]; // Kosovo
+
+/* ─── Stripe-style field sanitizers ─── */
+// Names/cities: letters (incl. Unicode for Albanian ë, Turkish ç/ş, Arabic), spaces, hyphens, apostrophes, dots
+const NAME_CHARS = /[^a-zA-ZÀ-ÖØ-öø-ÿĀ-žÇçŞşĞğÜüÖöIıİ\u0600-\u06FF\s'\-.]/g;
+const sanitizeName = (v: string) => v.replace(NAME_CHARS, "").slice(0, 50);
+const sanitizeCity = (v: string) => v.replace(NAME_CHARS, "").slice(0, 100);
+// Phone: digits, +, spaces, parens, dashes
+const sanitizePhone = (v: string) => v.replace(/[^\d+\s()-]/g, "").slice(0, 20);
+// Address: letters, digits, common address punctuation
+const sanitizeAddress = (v: string) => v.replace(/[^\w\sÀ-ÖØ-öø-ÿĀ-žÇçŞşĞğÜüÖöIıİ\u0600-\u06FF.,#\-'/°()]/g, "").slice(0, 200);
+// Postal: country-specific character sets
+function sanitizePostal(v: string, country: CountryConfig): string {
+  if (country.code === "us") return v.replace(/[^\d-]/g, "").slice(0, 10);
+  if (country.code === "gb" || country.code === "ca") return v.replace(/[^a-zA-Z\d\s]/g, "").toUpperCase().slice(0, 8);
+  return v.replace(/[^a-zA-Z\d\s-]/g, "").slice(0, 12);
+}
 
 /* ─── Mobile progress bar (3 segments) ─── */
 function MobileProgressBar({ currentStep }: { currentStep: Step }) {
@@ -369,6 +389,7 @@ export default function CheckoutPage() {
   const locale = useLocale();
   const router = useRouter();
   const { items, subtotal, itemCount, clearCart } = useCart();
+  const { customer } = useAuth();
 
   /* Form state */
   const [step, setStep] = useState<Step>(1);
@@ -387,8 +408,13 @@ export default function CheckoutPage() {
   const [orderNote, setOrderNote] = useState("");
   const [summaryExpanded, setSummaryExpanded] = useState(false);
 
-  /* Validation state */
-  const [fieldErrors, setFieldErrors] = useState<Record<string, boolean>>({});
+  /* Saved addresses state */
+  const [savedAddresses, setSavedAddresses] = useState<CustomerAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>("new");
+  const [addressesLoaded, setAddressesLoaded] = useState(false);
+
+  /* Validation state — stores error messages (empty string = no error) */
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
   /* Checkout flow state */
@@ -427,15 +453,74 @@ export default function CheckoutPage() {
       }
 
       // Clear field errors for fields that changed
-      setFieldErrors((prev) => {
-        const next = { ...prev };
-        delete next.postalCode;
-        delete next.stateProvince;
-        return next;
-      });
+      setFieldErrors((prev) => ({ ...prev, postalCode: "", stateProvince: "" }));
     },
     [countryCode, phone]
   );
+
+  /* Fill form from a saved address */
+  const fillFormFromAddress = useCallback((addr: CustomerAddress) => {
+    setFirstName(addr.first_name || "");
+    setLastName(addr.last_name || "");
+    setAddress(addr.address_1 || "");
+    setApartment(addr.address_2 || "");
+    setCity(addr.city || "");
+    setPostalCode(addr.postal_code || "");
+    setStateProvince("");
+    setFieldErrors({});
+    if (addr.country_code && COUNTRY_MAP_BY_CODE[addr.country_code]) {
+      setCountryCode(addr.country_code);
+    }
+    if (addr.phone) {
+      setPhone(addr.phone);
+    }
+  }, []);
+
+  /* Load saved addresses + pre-fill for logged-in customers */
+  useEffect(() => {
+    if (!customer || addressesLoaded) return;
+
+    // Pre-fill email immediately
+    setEmail(customer.email);
+
+    (async () => {
+      try {
+        const addresses = await getAddresses();
+        setSavedAddresses(addresses);
+        setAddressesLoaded(true);
+
+        if (addresses.length > 0) {
+          // Use default shipping address, or first address
+          const defaultAddr = addresses.find((a) => a.is_default_shipping) || addresses[0];
+          setSelectedAddressId(defaultAddr.id);
+          fillFormFromAddress(defaultAddr);
+        }
+      } catch {
+        setAddressesLoaded(true);
+      }
+    })();
+  }, [customer, addressesLoaded, fillFormFromAddress]);
+
+  /* Handle address selector change */
+  const handleAddressSelect = useCallback((addressId: string) => {
+    setSelectedAddressId(addressId);
+    if (addressId === "new") {
+      // Clear form for new address entry
+      setFirstName("");
+      setLastName("");
+      setAddress("");
+      setApartment("");
+      setCity("");
+      setPostalCode("");
+      setStateProvince("");
+      setPhone("");
+      setFieldErrors({});
+      setCountryCode(DEFAULT_COUNTRY.code);
+    } else {
+      const addr = savedAddresses.find((a) => a.id === addressId);
+      if (addr) fillFormFromAddress(addr);
+    }
+  }, [savedAddresses, fillFormFromAddress]);
 
   /* Shipping state */
   const [shippingOptions, setShippingOptions] = useState<MedusaShippingOption[]>([]);
@@ -446,31 +531,67 @@ export default function CheckoutPage() {
 
   const goToStep = useCallback((s: Step) => setStep(s), []);
 
+  /* ── Stripe-style per-field validation (returns error message or "") ── */
+  const validateField = useCallback((field: string, value: string): string => {
+    switch (field) {
+      case "email":
+        if (!value) return "Enter your email address";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return "Enter a valid email address";
+        return "";
+      case "firstName":
+        if (!value.trim()) return "Enter your first name";
+        if (value.trim().length < 2) return "First name is too short";
+        return "";
+      case "lastName":
+        if (!value.trim()) return "Enter your last name";
+        if (value.trim().length < 2) return "Last name is too short";
+        return "";
+      case "address":
+        if (!value.trim()) return "Enter your street address";
+        if (value.trim().length < 5) return "Please enter a complete address";
+        if (!/[a-zA-ZÀ-ÖØ-öø-ÿ]/.test(value)) return "Enter a valid street address";
+        return "";
+      case "city":
+        if (!value.trim()) return "Enter your city";
+        if (value.trim().length < 2) return "City name is too short";
+        return "";
+      case "phone": {
+        const digits = value.replace(/[^\d]/g, "");
+        if (!value || digits.length < 7) return "Enter a valid phone number";
+        if (digits.length > 15) return "Phone number is too long";
+        return "";
+      }
+      case "postalCode":
+        if (!value.trim()) return `Enter your ${selectedCountry.postalLabel.toLowerCase()}`;
+        if (selectedCountry.postalPattern && !selectedCountry.postalPattern.test(value.trim()))
+          return `Enter a valid ${selectedCountry.postalLabel.toLowerCase()}`;
+        return "";
+      case "stateProvince":
+        if (selectedCountry.hasStates && !value)
+          return `Select your ${(selectedCountry.stateLabel || "state").toLowerCase()}`;
+        return "";
+      default:
+        return "";
+    }
+  }, [selectedCountry]);
+
+  const handleBlur = useCallback((field: string, value: string) => {
+    const error = validateField(field, value);
+    setFieldErrors((p) => ({ ...p, [field]: error }));
+  }, [validateField]);
+
   /* ── Validate step 1 fields ── */
   const validateStep1 = useCallback((): boolean => {
-    const errors: Record<string, boolean> = {};
-    if (!email) errors.email = true;
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = true;
-    if (!firstName.trim()) errors.firstName = true;
-    if (!lastName.trim()) errors.lastName = true;
-    if (!address.trim()) errors.address = true;
-    if (!city.trim()) errors.city = true;
-    if (!postalCode.trim()) errors.postalCode = true;
-    if (selectedCountry.hasStates && !stateProvince) errors.stateProvince = true;
-
-    // Phone: must have more than just the country prefix
-    const phoneDigits = phone.replace(/[^\d]/g, "");
-    if (!phone || phoneDigits.length < 7) errors.phone = true;
-
-    // Postal code format validation
-    if (postalCode && selectedCountry.postalPattern && !selectedCountry.postalPattern.test(postalCode.trim())) {
-      errors.postalCode = true;
+    const fields: Record<string, string> = { email, firstName, lastName, address, city, phone, postalCode, stateProvince };
+    const errors: Record<string, string> = {};
+    for (const [field, value] of Object.entries(fields)) {
+      const error = validateField(field, value);
+      if (error) errors[field] = error;
     }
-
     setFieldErrors(errors);
     setSubmitted(true);
     return Object.keys(errors).length === 0;
-  }, [email, firstName, lastName, address, city, phone, postalCode, stateProvince, selectedCountry]);
+  }, [email, firstName, lastName, address, city, phone, postalCode, stateProvince, validateField]);
 
   /* ── Step 1 → Step 2: Fetch shipping options ── */
   const handleContinueToShipping = async () => {
@@ -483,6 +604,21 @@ export default function CheckoutPage() {
     setCartCreating(true);
 
     try {
+      // Save address if logged in, "save info" checked, and using a new address
+      if (customer && saveInfo && selectedAddressId === "new") {
+        createAddress({
+          first_name: firstName,
+          last_name: lastName,
+          address_1: address,
+          address_2: apartment || undefined,
+          city,
+          postal_code: postalCode,
+          country_code: countryCode,
+          phone: phone || undefined,
+          is_default_shipping: savedAddresses.length === 0,
+        }).catch(() => {});
+      }
+
       // Fetch shipping options based on subtotal
       const options = await getShippingOptions(subtotal);
       setShippingOptions(options);
@@ -623,6 +759,7 @@ export default function CheckoutPage() {
   }
 
   return (
+    <EditableSection sectionKey="i18n.checkout" label="Checkout Text">
     <div className="min-h-screen bg-cream">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
         {/* Header */}
@@ -676,6 +813,14 @@ export default function CheckoutPage() {
                       {tCo("contactInfo")}
                     </h2>
                     <div className="bg-white border border-soft-gray/30 rounded-xl p-5 space-y-4">
+                      {customer && (
+                        <div className="flex items-center gap-2 px-3 py-2 bg-gold/5 border border-gold/15 rounded-lg mb-1">
+                          <UserCircleIcon className="w-4 h-4 text-gold flex-shrink-0" />
+                          <span className="text-xs text-charcoal/70">
+                            Logged in as <span className="font-medium text-charcoal">{customer.email}</span>
+                          </span>
+                        </div>
+                      )}
                       <Input
                         id="checkoutEmail"
                         label={tAccount("email")}
@@ -683,10 +828,12 @@ export default function CheckoutPage() {
                         inputMode="email"
                         autoComplete="email"
                         value={email}
-                        onChange={(e) => { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: false })); }}
+                        onChange={(e) => { if (!customer) { setEmail(e.target.value); setFieldErrors((p) => ({ ...p, email: "" })); } }}
+                        onBlur={() => handleBlur("email", email)}
                         placeholder="your@email.com"
-                        error={fieldErrors.email ? tCo("required") : undefined}
+                        error={fieldErrors.email || undefined}
                         required
+                        disabled={!!customer}
                       />
                       <label className="flex items-center gap-2.5 cursor-pointer">
                         <input
@@ -706,6 +853,30 @@ export default function CheckoutPage() {
                       {tCo("shippingAddress")}
                     </h2>
                     <div className="bg-white border border-soft-gray/30 rounded-xl p-5 space-y-4">
+                      {/* Saved address selector (logged-in customers with addresses) */}
+                      {customer && savedAddresses.length > 0 && (
+                        <div className="w-full">
+                          <label htmlFor="savedAddress" className="block text-sm font-medium text-charcoal/70 mb-1.5">
+                            {tCo("savedAddresses") || "Saved addresses"}
+                          </label>
+                          <div className="relative">
+                            <select
+                              id="savedAddress"
+                              value={selectedAddressId}
+                              onChange={(e) => handleAddressSelect(e.target.value)}
+                              className="w-full px-4 py-3 bg-white border border-soft-gray rounded-none text-sm text-charcoal appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:border-gold pr-10"
+                            >
+                              {savedAddresses.map((addr) => (
+                                <option key={addr.id} value={addr.id}>
+                                  {addr.first_name} {addr.last_name} — {addr.address_1}, {addr.city}{addr.is_default_shipping ? " (Default)" : ""}
+                                </option>
+                              ))}
+                              <option value="new">{tCo("useNewAddress") || "Use a different address"}</option>
+                            </select>
+                            <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40 pointer-events-none" />
+                          </div>
+                        </div>
+                      )}
                       {/* Country dropdown (full width, first) */}
                       <div className="w-full">
                         <label htmlFor="country" className="block text-sm font-medium text-charcoal/70 mb-1.5">
@@ -740,9 +911,11 @@ export default function CheckoutPage() {
                           label={tAccount("firstName")}
                           autoComplete="given-name"
                           value={firstName}
-                          onChange={(e) => { setFirstName(e.target.value); setFieldErrors((p) => ({ ...p, firstName: false })); }}
+                          onChange={(e) => { setFirstName(sanitizeName(e.target.value)); setFieldErrors((p) => ({ ...p, firstName: "" })); }}
+                          onBlur={() => handleBlur("firstName", firstName)}
                           placeholder="Elena"
-                          error={fieldErrors.firstName ? tCo("required") : undefined}
+                          error={fieldErrors.firstName || undefined}
+                          maxLength={50}
                           required
                         />
                         <Input
@@ -750,9 +923,11 @@ export default function CheckoutPage() {
                           label={tAccount("lastName")}
                           autoComplete="family-name"
                           value={lastName}
-                          onChange={(e) => { setLastName(e.target.value); setFieldErrors((p) => ({ ...p, lastName: false })); }}
+                          onChange={(e) => { setLastName(sanitizeName(e.target.value)); setFieldErrors((p) => ({ ...p, lastName: "" })); }}
+                          onBlur={() => handleBlur("lastName", lastName)}
                           placeholder="Krasniqi"
-                          error={fieldErrors.lastName ? tCo("required") : undefined}
+                          error={fieldErrors.lastName || undefined}
+                          maxLength={50}
                           required
                         />
                       </div>
@@ -761,9 +936,11 @@ export default function CheckoutPage() {
                         label={tCo("address")}
                         autoComplete="address-line1"
                         value={address}
-                        onChange={(e) => { setAddress(e.target.value); setFieldErrors((p) => ({ ...p, address: false })); }}
+                        onChange={(e) => { setAddress(sanitizeAddress(e.target.value)); setFieldErrors((p) => ({ ...p, address: "" })); }}
+                        onBlur={() => handleBlur("address", address)}
                         placeholder="123 Bulevardi Nënë Tereza"
-                        error={fieldErrors.address ? tCo("required") : undefined}
+                        error={fieldErrors.address || undefined}
+                        maxLength={200}
                         required
                       />
                       <Input
@@ -771,8 +948,9 @@ export default function CheckoutPage() {
                         label={tCo("apartment")}
                         autoComplete="address-line2"
                         value={apartment}
-                        onChange={(e) => setApartment(e.target.value)}
+                        onChange={(e) => setApartment(sanitizeAddress(e.target.value))}
                         placeholder={tCo("apartment")}
+                        maxLength={100}
                       />
                       <div className={`grid gap-3 ${selectedCountry.hasStates ? "grid-cols-3" : "grid-cols-2"}`}>
                         <Input
@@ -780,9 +958,11 @@ export default function CheckoutPage() {
                           label={tCo("city")}
                           autoComplete="address-level2"
                           value={city}
-                          onChange={(e) => { setCity(e.target.value); setFieldErrors((p) => ({ ...p, city: false })); }}
+                          onChange={(e) => { setCity(sanitizeCity(e.target.value)); setFieldErrors((p) => ({ ...p, city: "" })); }}
+                          onBlur={() => handleBlur("city", city)}
                           placeholder="Prishtina"
-                          error={fieldErrors.city ? tCo("required") : undefined}
+                          error={fieldErrors.city || undefined}
+                          maxLength={100}
                           required
                         />
                         {/* State/Province — only visible for countries with states */}
@@ -795,10 +975,10 @@ export default function CheckoutPage() {
                               <select
                                 id="stateProvince"
                                 value={stateProvince}
-                                onChange={(e) => { setStateProvince(e.target.value); setFieldErrors((p) => ({ ...p, stateProvince: false })); }}
+                                onChange={(e) => { setStateProvince(e.target.value); setFieldErrors((p) => ({ ...p, stateProvince: "" })); }}
                                 autoComplete="address-level1"
                                 className={`w-full px-4 py-3 bg-white border text-sm text-charcoal appearance-none cursor-pointer transition-colors duration-200 focus:outline-none focus:border-gold pr-10 rounded-none ${
-                                  fieldErrors.stateProvince ? "border-red-400" : "border-soft-gray"
+                                  fieldErrors.stateProvince && fieldErrors.stateProvince !== "" ? "border-red-400" : "border-soft-gray"
                                 }`}
                               >
                                 <option value="">{tCo("selectState")}</option>
@@ -808,8 +988,8 @@ export default function CheckoutPage() {
                               </select>
                               <ChevronDownIcon className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal/40 pointer-events-none" />
                             </div>
-                            {fieldErrors.stateProvince && (
-                              <p className="mt-1 text-xs text-red-500">{tCo("required")}</p>
+                            {fieldErrors.stateProvince && fieldErrors.stateProvince !== "" && (
+                              <p className="mt-1 text-xs text-red-500">{fieldErrors.stateProvince}</p>
                             )}
                           </div>
                         )}
@@ -818,9 +998,10 @@ export default function CheckoutPage() {
                           label={selectedCountry.postalLabel}
                           autoComplete="postal-code"
                           value={postalCode}
-                          onChange={(e) => { setPostalCode(e.target.value); setFieldErrors((p) => ({ ...p, postalCode: false })); }}
+                          onChange={(e) => { setPostalCode(sanitizePostal(e.target.value, selectedCountry)); setFieldErrors((p) => ({ ...p, postalCode: "" })); }}
+                          onBlur={() => handleBlur("postalCode", postalCode)}
                           placeholder={selectedCountry.postalPlaceholder}
-                          error={fieldErrors.postalCode ? tCo("required") : undefined}
+                          error={fieldErrors.postalCode || undefined}
                           required
                         />
                       </div>
@@ -831,20 +1012,25 @@ export default function CheckoutPage() {
                         inputMode="tel"
                         autoComplete="tel"
                         value={phone}
-                        onChange={(e) => { setPhone(e.target.value); setFieldErrors((p) => ({ ...p, phone: false })); }}
+                        onChange={(e) => { setPhone(sanitizePhone(e.target.value)); setFieldErrors((p) => ({ ...p, phone: "" })); }}
+                        onBlur={() => handleBlur("phone", phone)}
                         placeholder={`${selectedCountry.phone} 49 123 456`}
-                        error={fieldErrors.phone ? tCo("required") : undefined}
+                        error={fieldErrors.phone || undefined}
                         required
                       />
-                      <label className="flex items-center gap-2.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={saveInfo}
-                          onChange={(e) => setSaveInfo(e.target.checked)}
-                          className="w-4 h-4 rounded border-soft-gray text-gold focus:ring-gold accent-gold cursor-pointer"
-                        />
-                        <span className="text-sm text-charcoal/60">{tCo("saveInfo")}</span>
-                      </label>
+                      {(!customer || selectedAddressId === "new") && (
+                        <label className="flex items-center gap-2.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={saveInfo}
+                            onChange={(e) => setSaveInfo(e.target.checked)}
+                            className="w-4 h-4 rounded border-soft-gray text-gold focus:ring-gold accent-gold cursor-pointer"
+                          />
+                          <span className="text-sm text-charcoal/60">
+                            {customer ? (tCo("saveAddress") || "Save this address to my account") : tCo("saveInfo")}
+                          </span>
+                        </label>
+                      )}
                     </div>
                   </div>
 
@@ -1155,5 +1341,6 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </EditableSection>
   );
 }

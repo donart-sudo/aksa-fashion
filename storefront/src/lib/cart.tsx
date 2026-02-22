@@ -6,8 +6,11 @@ import {
   useState,
   useCallback,
   useEffect,
+  useRef,
   type ReactNode,
 } from "react";
+import { useAuth } from "./auth";
+import { getServerCart, syncCartToServer, clearServerCart } from "./data/supabase-cart";
 
 export interface CartItem {
   id: string;
@@ -61,10 +64,35 @@ function saveCart(items: CartItem[]) {
   }
 }
 
+/** Merge local + server carts: union by variantId+size+color, sum quantities (cap 10) */
+function mergeCarts(local: CartItem[], server: CartItem[]): CartItem[] {
+  const merged = new Map<string, CartItem>();
+
+  for (const item of local) {
+    const key = `${item.variantId}|${item.size || ""}|${item.color || ""}`;
+    merged.set(key, { ...item });
+  }
+
+  for (const item of server) {
+    const key = `${item.variantId}|${item.size || ""}|${item.color || ""}`;
+    const existing = merged.get(key);
+    if (existing) {
+      existing.quantity = Math.min(existing.quantity + item.quantity, 10);
+    } else {
+      merged.set(key, { ...item });
+    }
+  }
+
+  return Array.from(merged.values());
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const { customer } = useAuth();
+  const prevCustomerIdRef = useRef<string | null>(null);
+  const syncingRef = useRef(false);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -78,6 +106,52 @@ export function CartProvider({ children }: { children: ReactNode }) {
       saveCart(items);
     }
   }, [items, hydrated]);
+
+  // Auth-aware: merge on login, sync on changes
+  useEffect(() => {
+    if (!hydrated) return;
+
+    const prevId = prevCustomerIdRef.current;
+    const newId = customer?.id || null;
+    prevCustomerIdRef.current = newId;
+
+    // Login detected: merge server cart with local cart (non-blocking)
+    if (!prevId && newId) {
+      getServerCart()
+        .then((serverItems) => {
+          setItems((localItems) => {
+            const merged = mergeCarts(localItems, serverItems);
+            syncCartToServer(merged).catch(() => {});
+            return merged;
+          });
+        })
+        .catch(() => {
+          // Server cart unavailable — keep local
+        });
+    }
+  }, [customer?.id, hydrated]);
+
+  // Sync to server on cart changes (debounced, non-blocking)
+  const syncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (!hydrated || !customer?.id || syncingRef.current) return;
+
+    if (syncTimeoutRef.current) {
+      clearTimeout(syncTimeoutRef.current);
+    }
+
+    syncTimeoutRef.current = setTimeout(() => {
+      syncingRef.current = true;
+      syncCartToServer(items)
+        .catch(() => {})
+        .finally(() => { syncingRef.current = false; });
+    }, 1000);
+
+    return () => {
+      if (syncTimeoutRef.current) clearTimeout(syncTimeoutRef.current);
+    };
+  }, [items, hydrated, customer?.id]);
 
   const openCart = useCallback(() => setIsOpen(true), []);
   const closeCart = useCallback(() => setIsOpen(false), []);
@@ -123,7 +197,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => {
     setItems([]);
     setIsOpen(false);
-  }, []);
+    // Also clear server cart if logged in
+    if (customer?.id) {
+      clearServerCart().catch(() => {});
+    }
+  }, [customer?.id]);
 
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce(

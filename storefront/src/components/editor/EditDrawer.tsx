@@ -21,6 +21,7 @@ import LegalEditor from "./sections/LegalEditor";
 import AnnouncementsEditor from "./sections/AnnouncementsEditor";
 import FooterEditor from "./sections/FooterEditor";
 import SiteConstantsEditor from "./sections/SiteConstantsEditor";
+import TranslationGroupEditor from "./sections/TranslationGroupEditor";
 
 // Default content
 import {
@@ -45,7 +46,14 @@ const LOCALES = [
   { code: "ar", label: "AR" },
 ] as const;
 
+function isI18nSection(key: string): boolean {
+  return key.startsWith("i18n.");
+}
+
 function getDefaultContent(sectionKey: SectionKey): unknown {
+  if (isI18nSection(sectionKey)) {
+    return { overrides: {} };
+  }
   const defaults: Record<string, unknown> = {
     "homepage.hero": DEFAULT_HERO,
     "homepage.trustbar": DEFAULT_TRUSTBAR,
@@ -74,7 +82,9 @@ interface EditDrawerProps {
 export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerProps) {
   const currentLocale = useLocale();
   const { token } = useStorefrontAdmin();
-  const [locale, setLocale] = useState(currentLocale);
+  const isI18n = isI18nSection(sectionKey);
+  // For i18n sections, always use the current locale (override applies per-locale)
+  const [locale, setLocale] = useState(isI18n ? currentLocale : currentLocale);
   const [content, setContent] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -124,6 +134,17 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
     if (result.success) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
+      // Trigger ISR revalidation for i18n changes (affects all pages)
+      if (isI18n && token) {
+        fetch("/api/admin/revalidate", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ paths: ["/"] }),
+        }).catch(() => {});
+      }
     } else {
       setError(result.error || "Failed to save");
     }
@@ -162,7 +183,20 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
       case "layout.announcements": return <AnnouncementsEditor {...props} />;
       case "layout.footer": return <FooterEditor {...props} />;
       case "site.constants": return <SiteConstantsEditor {...props} />;
-      default: return <p className="text-sm text-charcoal/50 p-4">No editor available for this section.</p>;
+      default: {
+        // Handle i18n.* sections
+        if (isI18nSection(sectionKey)) {
+          const namespace = sectionKey.replace("i18n.", "");
+          return (
+            <TranslationGroupEditor
+              namespace={namespace}
+              content={content as import("@/types/content-blocks").TranslationOverrideContent}
+              onChange={setContent as (c: import("@/types/content-blocks").TranslationOverrideContent) => void}
+            />
+          );
+        }
+        return <p className="text-sm text-charcoal/50 p-4">No editor available for this section.</p>;
+      }
     }
   };
 
@@ -184,7 +218,7 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
             </button>
           </div>
 
-          {/* Locale tabs */}
+          {/* Locale tabs — show for all sections */}
           <div className="flex gap-1">
             {LOCALES.map((l) => (
               <button
@@ -200,6 +234,11 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
               </button>
             ))}
           </div>
+          {isI18n && (
+            <p className="text-[10px] text-charcoal/35 mt-1.5">
+              Editing translation overrides for {LOCALES.find(l => l.code === locale)?.label || locale}. Changes apply to this language only.
+            </p>
+          )}
         </div>
 
         {/* Content */}

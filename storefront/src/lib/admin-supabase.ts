@@ -708,15 +708,15 @@ function toAdminOrder(row: any): MedusaOrder {
     status: row.status,
     fulfillment_status: row.fulfillment_status || 'not_fulfilled',
     payment_status: row.payment_status || 'awaiting',
-    total: (row.total || 0) * 100,
-    subtotal: (row.subtotal || 0) * 100,
+    total: row.total || 0,
+    subtotal: row.subtotal || 0,
     tax_total: 0,
     currency_code: row.currency_code || 'eur',
     items: (row.order_items || []).map((item: { id: string; title: string; quantity: number; unit_price: number; thumbnail: string | null }) => ({
       id: item.id,
       title: item.title,
       quantity: item.quantity,
-      unit_price: (item.unit_price || 0) * 100,
+      unit_price: item.unit_price || 0,
       thumbnail: item.thumbnail,
     })),
     customer: row.customers

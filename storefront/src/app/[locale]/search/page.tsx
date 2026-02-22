@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { MagnifyingGlassIcon, ClockIcon, ArrowTrendingUpIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatPrice } from "@/lib/utils";
+import EditableSection from "@/components/editor/EditableSection";
 
 interface SearchResult {
   id: string;
@@ -145,6 +146,7 @@ export default function SearchPage() {
   }, [query, searchProducts]);
 
   return (
+    <EditableSection sectionKey="i18n.search" label="Search Text">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
       <h1 className="font-serif text-3xl lg:text-4xl text-charcoal mb-6 text-center">
         {t("placeholder").replace("...", "")}
@@ -285,5 +287,6 @@ export default function SearchPage() {
         </p>
       )}
     </div>
+    </EditableSection>
   );
 }

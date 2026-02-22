@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/24/outline";
 import LanguageSwitcher from "./LanguageSwitcher";
 import ProductCard, { type ProductCardData } from "@/components/product/ProductCard";
+import InlineEditButton from "@/components/editor/InlineEditButton";
 import { HEADER_IMAGES } from "@/lib/cdn-image-urls";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
@@ -576,6 +577,9 @@ export default function Header() {
                       {t(`topBar.${ANNOUNCEMENTS[annIndex]}`)}
                     </motion.p>
                   </AnimatePresence>
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <InlineEditButton sectionKey="i18n.topBar" label="Top Bar" />
+                  </span>
                 </div>
 
                 {/* Right — Social icons + WhatsApp + Language (desktop) */}
@@ -682,6 +686,7 @@ export default function Header() {
 
               {/* Desktop: Navigation links */}
               <nav className="hidden lg:flex items-center gap-0">
+                <InlineEditButton sectionKey="i18n.nav" label="Nav" className="mr-2" />
                 {PAGE_LINKS.filter((l) => l.key === "home").map((link) => {
                   const active = isActive(link.handle);
                   return (
@@ -1188,6 +1193,13 @@ export default function Header() {
                   </AnimatePresence>
                 </div>
                 <Link
+                  href={`/${locale}/account`}
+                  className="p-2 text-charcoal/50 hover:text-charcoal transition-colors"
+                  aria-label={t("common.account")}
+                >
+                  <UserIcon className="w-[18px] h-[18px]" />
+                </Link>
+                <Link
                   href={`/${locale}/wishlist`}
                   className="p-2 text-charcoal/50 hover:text-charcoal transition-colors relative"
                   aria-label={t("common.wishlist")}
@@ -1212,7 +1224,7 @@ export default function Header() {
                   )}
                 </button>
                 <div className="ml-1">
-                  <LanguageSwitcher />
+                  <LanguageSwitcher className="text-charcoal/50 hover:text-charcoal" />
                 </div>
               </div>
             </div>

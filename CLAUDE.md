@@ -207,6 +207,13 @@ cd storefront && vercel --prod --yes   # Deploy to Vercel
 cd storefront && npx tsx scripts/seed-supabase.ts
 ```
 
+## Agent Behavior
+- **Never ask the user to run commands** — always run them yourself (dev server, builds, deploys, installs, migrations, etc.)
+- **Never ask the user to restart anything** — kill and restart processes yourself
+- **Never tell the user to do manual steps** if you can do it programmatically (updating env vars, DNS, config, etc.)
+- **Only ask the user for help** when something is truly impossible for you (e.g., logging into a third-party dashboard with their credentials, physical access, billing decisions)
+- **Be autonomous** — figure it out, fix it, run it, verify it
+
 ## Code Conventions
 - Use TypeScript strict mode
 - Prefer React Server Components where possible

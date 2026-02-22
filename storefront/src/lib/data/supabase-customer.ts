@@ -49,6 +49,12 @@ export interface CustomerOrder {
       title: string
       options?: { value: string }[]
     }
+    metadata?: {
+      handle?: string
+      size?: string
+      color?: string
+      product_id?: string
+    }
   }[]
   shipping_address?: {
     first_name: string
@@ -162,7 +168,7 @@ export async function getOrders(
       email: o.email,
       status: o.status,
       created_at: o.created_at,
-      items: (o.order_items || []).map((item: { id: string; title: string; subtitle?: string; thumbnail?: string; quantity: number; unit_price: number; total: number }) => ({
+      items: (o.order_items || []).map((item: { id: string; title: string; subtitle?: string; thumbnail?: string; quantity: number; unit_price: number; total: number; metadata?: Record<string, string> }) => ({
         id: item.id,
         title: item.title,
         subtitle: item.subtitle,
@@ -170,6 +176,7 @@ export async function getOrders(
         quantity: item.quantity,
         unit_price: item.unit_price,
         total: item.total,
+        metadata: item.metadata,
       })),
       shipping_address: o.shipping_address,
       shipping_methods: o.shipping_method ? [{ name: o.shipping_method, amount: o.shipping_total }] : [],
@@ -207,7 +214,7 @@ export async function getOrder(id: string): Promise<CustomerOrder | null> {
       email: data.email,
       status: data.status,
       created_at: data.created_at,
-      items: (data.order_items || []).map((item: { id: string; title: string; subtitle?: string; thumbnail?: string; quantity: number; unit_price: number; total: number }) => ({
+      items: (data.order_items || []).map((item: { id: string; title: string; subtitle?: string; thumbnail?: string; quantity: number; unit_price: number; total: number; metadata?: Record<string, string> }) => ({
         id: item.id,
         title: item.title,
         subtitle: item.subtitle,
@@ -215,6 +222,7 @@ export async function getOrder(id: string): Promise<CustomerOrder | null> {
         quantity: item.quantity,
         unit_price: item.unit_price,
         total: item.total,
+        metadata: item.metadata,
       })),
       shipping_address: data.shipping_address,
       shipping_methods: data.shipping_method ? [{ name: data.shipping_method, amount: data.shipping_total }] : [],
@@ -227,6 +235,42 @@ export async function getOrder(id: string): Promise<CustomerOrder | null> {
   } catch (error) {
     console.error('Failed to fetch order:', error)
     return null
+  }
+}
+
+export async function getOrderCount(): Promise<number> {
+  try {
+    const customerId = await getCustomerId()
+    if (!customerId) return 0
+
+    const supabase = getClient()
+    const { count, error } = await supabase
+      .from('orders')
+      .select('id', { count: 'exact', head: true })
+      .eq('customer_id', customerId)
+
+    if (error) throw error
+    return count || 0
+  } catch {
+    return 0
+  }
+}
+
+export async function getAddressCount(): Promise<number> {
+  try {
+    const customerId = await getCustomerId()
+    if (!customerId) return 0
+
+    const supabase = getClient()
+    const { count, error } = await supabase
+      .from('customer_addresses')
+      .select('id', { count: 'exact', head: true })
+      .eq('customer_id', customerId)
+
+    if (error) throw error
+    return count || 0
+  } catch {
+    return 0
   }
 }
 

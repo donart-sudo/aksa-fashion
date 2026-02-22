@@ -268,7 +268,10 @@
     "whatsappMessage": "مرحباً، أود ترتيب الدفع لطلبي.",
     "calculatedAtNextStep": "يُحسب في الخطوة التالية",
     "required": "هذا الحقل مطلوب",
-    "selectState": "اختاري..."
+    "selectState": "اختاري...",
+    "savedAddresses": "العناوين المحفوظة",
+    "useNewAddress": "استخدام عنوان مختلف",
+    "saveAddress": "حفظ هذا العنوان في حسابي"
   },
   "cart": {
     "title": "حقيبتك",
@@ -418,7 +421,8 @@
     "currentPasswordWrong": "كلمة المرور الحالية غير صحيحة",
     "passwordUpdateFailed": "فشل تحديث كلمة المرور. يرجى المحاولة مرة أخرى.",
     "passwordUpdated": "تم تحديث كلمة المرور بنجاح",
-    "passwordHint": "8 أحرف كحد أدنى"
+    "passwordHint": "8 أحرف كحد أدنى",
+    "resetPassword": "إعادة تعيين كلمة المرور"
   },
   "order": {
     "confirmed": "تم تأكيد الطلب",
@@ -448,7 +452,8 @@
     "step3": "سيتم تسليم فستانك إلى بابك بعناية",
     "paymentArrangement": "ترتيب الدفع",
     "paymentArrangementDesc": "سيتواصل فريقنا معك خلال 24 ساعة عبر واتساب لترتيب الدفع. نقبل التحويل البنكي، ويسترن يونيون، والدفع نقداً عند الاستلام.",
-    "chatToArrangePayment": "تحدثي لترتيب الدفع"
+    "chatToArrangePayment": "تحدثي لترتيب الدفع",
+    "reorder": "\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0637\u0644\u0628"
   },
   "orderTracking": {
     "title": "تتبع طلبك",

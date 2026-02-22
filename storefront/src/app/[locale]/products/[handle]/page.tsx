@@ -6,6 +6,7 @@ import {
 } from "@/lib/data/supabase-products";
 import ProductDetail from "./ProductDetail";
 import RelatedProducts from "@/components/product/RelatedProducts";
+import EditableSection from "@/components/editor/EditableSection";
 
 export const dynamic = "force-dynamic";
 
@@ -60,9 +61,9 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <>
+    <EditableSection sectionKey="i18n.product" label="Product Text">
       <ProductDetail product={product} />
       <RelatedProducts products={related} />
-    </>
+    </EditableSection>
   );
 }

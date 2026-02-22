@@ -17,7 +17,7 @@ import { adminMedusa, type MedusaOrder } from '@/lib/admin-supabase'
 function formatCurrency(cents: number, currency = 'eur'): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency', currency: currency.toUpperCase(),
-    minimumFractionDigits: 0, maximumFractionDigits: 2,
+    minimumFractionDigits: 2, maximumFractionDigits: 2,
   }).format(cents / 100)
 }
 
@@ -147,24 +147,19 @@ export default function OrderDetailPage() {
     if (!order) return
     setFulfilling(true)
     try {
-      // Step 1: Create fulfillment for all items
+      // Step 1: Create fulfillment (sets status to 'fulfilled')
       const items = order.items.map(i => ({ id: i.id, quantity: i.quantity }))
-      const fulfillRes = await adminMedusa.createFulfillment(orderId, { items })
+      await adminMedusa.createFulfillment(orderId, { items })
 
-      // Step 2: Get the fulfillment ID and create shipment with tracking
-      const fulfillments = fulfillRes.order.fulfillments || []
-      const latestFulfillment = fulfillments[fulfillments.length - 1]
-
-      if (latestFulfillment) {
-        const shipmentData: { items: { id: string; quantity: number }[]; labels?: { tracking_number: string; tracking_url?: string }[] } = { items }
-        if (trackingNumber.trim()) {
-          shipmentData.labels = [{
-            tracking_number: trackingNumber.trim(),
-            tracking_url: trackingUrl.trim() || undefined,
-          } as { tracking_number: string; tracking_url?: string }]
-        }
-        await adminMedusa.createShipment(orderId, latestFulfillment.id, shipmentData)
+      // Step 2: Create shipment (sets status to 'shipped') with optional tracking
+      const shipmentData: Record<string, unknown> = { items }
+      if (trackingNumber.trim()) {
+        shipmentData.labels = [{
+          tracking_number: trackingNumber.trim(),
+          tracking_url: trackingUrl.trim() || undefined,
+        }]
       }
+      await adminMedusa.createShipment(orderId, orderId, shipmentData)
 
       setFulfillModalOpen(false)
       setTrackingNumber('')
@@ -178,11 +173,10 @@ export default function OrderDetailPage() {
   }
 
   async function handleMarkDelivered() {
-    if (!order?.fulfillments?.length) return
+    if (!order) return
     setDelivering(true)
     try {
-      const latestFulfillment = order.fulfillments[order.fulfillments.length - 1]
-      await adminMedusa.markDelivered(orderId, latestFulfillment.id)
+      await adminMedusa.markDelivered(orderId, orderId)
       await loadOrder()
     } catch (err) {
       alert('Failed to mark delivered: ' + (err instanceof Error ? err.message : 'Unknown error'))
