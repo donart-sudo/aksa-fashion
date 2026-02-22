@@ -2,34 +2,41 @@
 
 import { useState, useEffect, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, ChevronDown, Truck, CheckCircle, XCircle, Eye, Package, Clock, DollarSign, ShoppingCart, ArrowUpRight } from 'lucide-react'
+import { Search, ChevronDown, Truck, CheckCircle, XCircle, Eye, Package, Clock, DollarSign, ShoppingCart, ArrowUpRight, CreditCard } from 'lucide-react'
 import Badge from '@/components/admin/Badge'
 import TopBar from '@/components/admin/TopBar'
 import { useAdminAuth } from '@/lib/admin-auth'
 import { adminMedusa } from '@/lib/admin-supabase'
 import { formatCurrency, formatDate, type Order, type OrderStatus } from '@/data/adminSampleData'
 
-const tabs: { label: string; value: OrderStatus | 'all' }[] = [
+type TabValue = OrderStatus | 'all' | 'open'
+
+const tabs: { label: string; value: TabValue }[] = [
   { label: 'All', value: 'all' },
-  { label: 'Pending', value: 'pending' },
-  { label: 'Processing', value: 'processing' },
+  { label: 'Open', value: 'open' },
   { label: 'Shipped', value: 'shipped' },
-  { label: 'Delivered', value: 'delivered' },
+  { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
 ]
 
-const sBadge: Record<OrderStatus, 'success' | 'warning' | 'info' | 'critical' | 'default'> = {
-  pending: 'default', processing: 'warning', shipped: 'info', delivered: 'success', cancelled: 'critical',
+const sBadge: Record<string, 'success' | 'warning' | 'info' | 'critical' | 'default'> = {
+  pending: 'default', processing: 'warning', shipped: 'info', delivered: 'success', completed: 'success', cancelled: 'critical',
 }
 const fBadge: Record<string, 'success' | 'warning' | 'critical' | 'default'> = {
-  fulfilled: 'success', partially_fulfilled: 'warning', unfulfilled: 'default', returned: 'critical',
+  fulfilled: 'success', partially_fulfilled: 'warning', unfulfilled: 'default', shipped: 'info' as 'default', delivered: 'success', returned: 'critical',
+}
+const pBadge: Record<string, 'success' | 'warning' | 'critical' | 'default'> = {
+  captured: 'success', awaiting: 'warning', not_paid: 'warning', refunded: 'critical', partially_refunded: 'warning',
+}
+const pLabel: Record<string, string> = {
+  captured: 'Paid', awaiting: 'Unpaid', not_paid: 'Unpaid', refunded: 'Refunded', partially_refunded: 'Partial refund',
 }
 
 export default function AdminOrdersPage() {
   const router = useRouter()
   const { demo } = useAdminAuth()
   const [list, setList] = useState<Order[]>([])
-  const [filter, setFilter] = useState<OrderStatus | 'all'>('all')
+  const [filter, setFilter] = useState<TabValue>('all')
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkOpen, setBulkOpen] = useState(false)
@@ -39,10 +46,9 @@ export default function AdminOrdersPage() {
     let cancel = false
 
     async function load() {
-      // Try admin API for orders (requires auth)
       if (!demo) {
         try {
-          const res = await adminMedusa.getOrders({ limit: '50', order: '-created_at' })
+          const res = await adminMedusa.getOrders({ limit: '100', order: '-created_at' })
           if (cancel) return
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setList(res.orders.map((o: any) => ({
@@ -69,22 +75,27 @@ export default function AdminOrdersPage() {
   }, [demo])
 
   const filtered = useMemo(() => list.filter(o => {
-    const ms = filter === 'all' || o.status === filter
+    let ms = false
+    if (filter === 'all') ms = true
+    else if (filter === 'open') ms = o.status === 'pending' || o.status === 'processing'
+    else if (filter === 'completed') ms = o.status === 'completed' || o.status === 'delivered'
+    else ms = o.status === filter
     const mq = !search || o.orderNumber.toLowerCase().includes(search.toLowerCase()) || o.customer.toLowerCase().includes(search.toLowerCase())
     return ms && mq
   }), [list, filter, search])
 
   const counts = useMemo(() => ({
     all: list.length,
-    pending: list.filter(o => o.status === 'pending').length,
-    processing: list.filter(o => o.status === 'processing').length,
+    open: list.filter(o => o.status === 'pending' || o.status === 'processing').length,
     shipped: list.filter(o => o.status === 'shipped').length,
-    delivered: list.filter(o => o.status === 'delivered').length,
+    completed: list.filter(o => o.status === 'completed' || o.status === 'delivered').length,
     cancelled: list.filter(o => o.status === 'cancelled').length,
   }), [list])
 
   const totalRevenue = list.reduce((s, o) => s + (o.status !== 'cancelled' ? o.total : 0), 0)
   const avgOrder = counts.all - counts.cancelled > 0 ? totalRevenue / (counts.all - counts.cancelled) : 0
+  const awaitingPayment = list.filter(o => o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid' || !o.paymentMethod).length
+  const needsFulfillment = list.filter(o => o.fulfillment === 'unfulfilled' && o.status !== 'cancelled').length
 
   function toggleSel(id: string) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n }) }
   function toggleAll() { setSelected(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(o => o.id))) }
@@ -115,7 +126,7 @@ export default function AdminOrdersPage() {
             { label: 'Total orders', value: counts.all.toString(), icon: ShoppingCart, color: '#005bd3', bg: '#eaf4ff' },
             { label: 'Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: '#047b5d', bg: '#cdfed4' },
             { label: 'Avg order value', value: formatCurrency(avgOrder), icon: ArrowUpRight, color: '#7c3aed', bg: '#f0ebff' },
-            { label: 'Pending', value: counts.pending.toString(), icon: Clock, color: '#b28400', bg: '#fff8db' },
+            { label: 'Needs action', value: (awaitingPayment + needsFulfillment).toString(), icon: Clock, color: '#b28400', bg: '#fff8db', sub: `${awaitingPayment} unpaid \u00b7 ${needsFulfillment} unfulfilled` },
           ].map(kpi => (
             <div key={kpi.label} className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.03)]">
               <div className="flex items-center justify-between mb-4">
@@ -125,6 +136,9 @@ export default function AdminOrdersPage() {
                 </div>
               </div>
               <p className="text-[26px] font-bold text-[#1a1a1a] tracking-[-0.02em] leading-none">{kpi.value}</p>
+              {'sub' in kpi && kpi.sub && (
+                <p className="text-[11px] text-[#8a8a8a] mt-1.5">{kpi.sub}</p>
+              )}
             </div>
           ))}
         </div>
@@ -147,6 +161,7 @@ export default function AdminOrdersPage() {
                   <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-[12px] shadow-[0_4px_16px_rgba(0,0,0,0.1),0_0_0_1px_rgba(0,0,0,0.04)] z-20 py-1.5">
                     <button onClick={() => bulkUpdate('shipped')} className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#616161] hover:bg-[#f6f6f6] transition-colors"><Truck className="w-3.5 h-3.5" />Mark shipped</button>
                     <button onClick={() => bulkUpdate('delivered')} className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#616161] hover:bg-[#f6f6f6] transition-colors"><CheckCircle className="w-3.5 h-3.5" />Mark delivered</button>
+                    <button onClick={() => bulkUpdate('completed')} className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#616161] hover:bg-[#f6f6f6] transition-colors"><CheckCircle className="w-3.5 h-3.5" />Complete</button>
                     <div className="h-px bg-[#f0f0f0] my-1" />
                     <button onClick={() => bulkUpdate('cancelled')} className="w-full flex items-center gap-2.5 px-4 py-2 text-[13px] text-[#e22c38] hover:bg-[#fef1f1] transition-colors"><XCircle className="w-3.5 h-3.5" />Cancel</button>
                   </div>
@@ -165,7 +180,7 @@ export default function AdminOrdersPage() {
                 }`}>
                 {t.label}
                 <span className={`ml-1.5 text-[11px] px-[6px] py-[1px] rounded-[5px] font-semibold ${filter === t.value ? 'bg-[#1a1a1a] text-white' : 'bg-[#f1f1f1] text-[#8a8a8a]'}`}>
-                  {counts[t.value as keyof typeof counts]}
+                  {counts[t.value as keyof typeof counts] ?? 0}
                 </span>
               </button>
             ))}
@@ -184,6 +199,7 @@ export default function AdminOrdersPage() {
                 <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-3">Date</th>
                 <th className="text-right text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-3">Total</th>
                 <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-3">Status</th>
+                <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-3">Payment</th>
                 <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-3">Fulfillment</th>
                 <th className="w-[48px]"></th>
               </tr>
@@ -206,7 +222,8 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-4 py-3.5 text-[13px] text-[#616161]">{formatDate(o.createdAt)}</td>
                   <td className="px-4 py-3.5 text-right text-[13px] font-semibold text-[#1a1a1a] tabular-nums">{formatCurrency(o.total)}</td>
-                  <td className="px-4 py-3.5"><Badge variant={sBadge[o.status]} dot>{o.status}</Badge></td>
+                  <td className="px-4 py-3.5"><Badge variant={sBadge[o.status] || 'default'} dot>{o.status}</Badge></td>
+                  <td className="px-4 py-3.5"><Badge variant={pBadge[o.paymentMethod] || 'warning'}>{pLabel[o.paymentMethod] || 'Unpaid'}</Badge></td>
                   <td className="px-4 py-3.5"><Badge variant={fBadge[o.fulfillment] || 'default'}>{o.fulfillment.replace('_', ' ')}</Badge></td>
                   <td className="px-3 py-3.5" onClick={e => e.stopPropagation()}>
                     <button onClick={() => router.push(`/admin/orders/${o.id}`)} className="w-[30px] h-[30px] rounded-[8px] flex items-center justify-center text-[#b5b5b5] hover:text-[#303030] hover:bg-[#f1f1f1] transition-colors">
@@ -217,7 +234,7 @@ export default function AdminOrdersPage() {
               ))}
               {!filtered.length && (
                 <tr>
-                  <td colSpan={8} className="py-16 text-center">
+                  <td colSpan={9} className="py-16 text-center">
                     <Package className="w-10 h-10 text-[#d1d1d1] mx-auto mb-3" strokeWidth={1.5} />
                     <p className="text-[14px] font-medium text-[#8a8a8a]">No orders found</p>
                     <p className="text-[12px] text-[#b5b5b5] mt-1">Try adjusting your search or filters</p>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   ShoppingCart, Package, Plus, AlertTriangle, Archive, Eye,
+  DollarSign, Clock, CreditCard, Truck, CheckCircle,
 } from 'lucide-react'
 import Badge from '@/components/admin/Badge'
 import TopBar from '@/components/admin/TopBar'
@@ -13,7 +14,13 @@ import { adminMedusa } from '@/lib/admin-supabase'
 import { formatCurrency, formatDate, type Order, type Product } from '@/data/adminSampleData'
 
 const sBadge: Record<string, 'success' | 'warning' | 'info' | 'critical' | 'default'> = {
-  pending: 'default', processing: 'warning', shipped: 'info', delivered: 'success', cancelled: 'critical',
+  pending: 'default', processing: 'warning', shipped: 'info', delivered: 'success', completed: 'success', cancelled: 'critical',
+}
+const pBadge: Record<string, 'success' | 'warning' | 'critical' | 'default'> = {
+  captured: 'success', awaiting: 'warning', not_paid: 'warning',
+}
+const pLabel: Record<string, string> = {
+  captured: 'Paid', awaiting: 'Unpaid', not_paid: 'Unpaid',
 }
 
 export default function AdminDashboard() {
@@ -44,7 +51,7 @@ export default function AdminDashboard() {
 
       if (!demo) {
         try {
-          const ordersRes = await adminMedusa.getOrders({ limit: '10', order: '-created_at' })
+          const ordersRes = await adminMedusa.getOrders({ limit: '100', order: '-created_at' })
           if (cancel) return
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setOrders(ordersRes.orders.map((o: any) => ({
@@ -71,6 +78,7 @@ export default function AdminDashboard() {
       <>
         <TopBar title="Home" />
         <div className="p-8">
+          <div className="grid grid-cols-4 gap-5 mb-5">{[...Array(4)].map((_, i) => <div key={i} className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.03)]"><div className="skeleton h-[68px]" /></div>)}</div>
           <div className="bg-white rounded-[12px] p-5 border border-[#e3e3e3]"><div className="skeleton h-[120px]" /></div>
         </div>
       </>
@@ -82,7 +90,13 @@ export default function AdminDashboard() {
   const totalStock = activeProducts.reduce((s, p) => s + p.inventory, 0)
   const lowStockProducts = activeProducts.filter(p => p.inventory > 0 && p.inventory <= 3)
   const outOfStockProducts = activeProducts.filter(p => p.inventory === 0)
-  const recentOrders = orders.slice(0, 5)
+  const recentOrders = orders.slice(0, 8)
+
+  // Order metrics
+  const totalRevenue = orders.reduce((s, o) => s + (o.status !== 'cancelled' ? o.total : 0), 0)
+  const awaitingPayment = orders.filter(o => (o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid' || !o.paymentMethod) && o.status !== 'cancelled').length
+  const needsFulfillment = orders.filter(o => o.fulfillment === 'unfulfilled' && o.status !== 'cancelled').length
+  const completedOrders = orders.filter(o => o.status === 'completed' || o.status === 'delivered').length
 
   return (
     <>
@@ -92,6 +106,50 @@ export default function AdminDashboard() {
         </button>
       } />
       <div className="p-8 space-y-5">
+        {/* Revenue KPIs */}
+        <div className="grid grid-cols-4 gap-5">
+          {[
+            { label: 'Total revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: '#047b5d', bg: '#cdfed4' },
+            { label: 'Total orders', value: orders.length.toString(), icon: ShoppingCart, color: '#005bd3', bg: '#eaf4ff' },
+            { label: 'Awaiting payment', value: awaitingPayment.toString(), icon: CreditCard, color: '#b28400', bg: '#fff8db' },
+            { label: 'To fulfill', value: needsFulfillment.toString(), icon: Truck, color: '#7c3aed', bg: '#f0ebff' },
+          ].map(kpi => (
+            <div key={kpi.label} className="bg-white rounded-[14px] p-5 shadow-[0_1px_3px_rgba(0,0,0,0.04),0_0_0_1px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-[12px] font-medium text-[#8a8a8a] uppercase tracking-[0.04em]">{kpi.label}</p>
+                <div className="w-[34px] h-[34px] rounded-[10px] flex items-center justify-center" style={{ background: kpi.bg }}>
+                  <kpi.icon size={16} style={{ color: kpi.color }} strokeWidth={2} />
+                </div>
+              </div>
+              <p className="text-[26px] font-bold text-[#1a1a1a] tracking-[-0.02em] leading-none">{kpi.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Order status summary */}
+        <div className="bg-white rounded-[12px] border border-[#e3e3e3] overflow-hidden">
+          <div className="px-5 py-3.5 border-b border-[#f0f0f0]">
+            <h3 className="text-[14px] font-semibold text-[#1a1a1a]">Order overview</h3>
+          </div>
+          <div className="grid grid-cols-5 divide-x divide-[#f0f0f0]">
+            {[
+              { label: 'Open', count: orders.filter(o => o.status === 'pending' || o.status === 'processing').length, icon: Clock, color: '#8a8a8a' },
+              { label: 'Shipped', count: orders.filter(o => o.status === 'shipped').length, icon: Truck, color: '#005bd3' },
+              { label: 'Completed', count: completedOrders, icon: CheckCircle, color: '#047b5d' },
+              { label: 'Cancelled', count: orders.filter(o => o.status === 'cancelled').length, icon: AlertTriangle, color: '#e22c38' },
+              { label: 'Paid', count: orders.filter(o => o.paymentMethod === 'captured').length, icon: CreditCard, color: '#047b5d' },
+            ].map(s => (
+              <Link key={s.label} href="/admin/orders" className="px-5 py-4 no-underline hover:bg-[#fafafa] transition-colors">
+                <div className="flex items-center gap-2 mb-2">
+                  <s.icon size={14} style={{ color: s.color }} />
+                  <span className="text-[12px] font-medium text-[#8a8a8a]">{s.label}</span>
+                </div>
+                <p className="text-[22px] font-bold text-[#1a1a1a] leading-none">{s.count}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         {/* Inventory snapshot */}
         <div className="bg-white rounded-[12px] border border-[#e3e3e3] overflow-hidden">
           <div className="px-5 py-3.5 border-b border-[#f0f0f0]">
@@ -190,25 +248,48 @@ export default function AdminDashboard() {
               <p className="text-[13px] text-[#8a8a8a]">No orders yet</p>
               <p className="text-[12px] text-[#b5b5b5] mt-0.5">Orders will appear here when customers purchase</p>
             </div>
-          ) : recentOrders.map(o => (
-            <div
-              key={o.id}
-              onClick={() => router.push(`/admin/orders/${o.id}`)}
-              className="flex items-center gap-3 px-5 py-3 border-b border-[#f6f6f6] last:border-0 hover:bg-[#fafafa] transition-colors cursor-pointer"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="text-[13px] font-semibold text-[#005bd3]">{o.orderNumber}</p>
-                  <Badge variant={sBadge[o.status]} dot>{o.status}</Badge>
-                </div>
-                <p className="text-[12px] text-[#8a8a8a] mt-0.5">{o.customer}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-[13px] font-semibold text-[#1a1a1a] tabular-nums">{formatCurrency(o.total)}</p>
-                <p className="text-[11px] text-[#b5b5b5]">{formatDate(o.createdAt)}</p>
-              </div>
-            </div>
-          ))}
+          ) : (
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-[#f0f0f0]">
+                  <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-5 py-2.5">Order</th>
+                  <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-2.5">Customer</th>
+                  <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-2.5">Status</th>
+                  <th className="text-left text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-4 py-2.5">Payment</th>
+                  <th className="text-right text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-5 py-2.5">Total</th>
+                  <th className="text-right text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-[0.05em] px-5 py-2.5">Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map(o => (
+                  <tr
+                    key={o.id}
+                    onClick={() => router.push(`/admin/orders/${o.id}`)}
+                    className="border-b border-[#f6f6f6] last:border-0 hover:bg-[#fafafa] transition-colors cursor-pointer"
+                  >
+                    <td className="px-5 py-3">
+                      <span className="text-[13px] font-semibold text-[#005bd3]">{o.orderNumber}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <p className="text-[13px] font-medium text-[#1a1a1a]">{o.customer}</p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={sBadge[o.status] || 'default'} dot>{o.status}</Badge>
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={pBadge[o.paymentMethod] || 'warning'}>{pLabel[o.paymentMethod] || 'Unpaid'}</Badge>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <span className="text-[13px] font-semibold text-[#1a1a1a] tabular-nums">{formatCurrency(o.total)}</span>
+                    </td>
+                    <td className="px-5 py-3 text-right">
+                      <span className="text-[11px] text-[#b5b5b5]">{formatDate(o.createdAt)}</span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </>
