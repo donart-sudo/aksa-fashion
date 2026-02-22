@@ -101,6 +101,9 @@ export default function OrderDetailPage() {
   const [fulfilling, setFulfilling] = useState(false)
   const [delivering, setDelivering] = useState(false)
 
+  // Payment state
+  const [markingPaid, setMarkingPaid] = useState(false)
+
   // Cancel state
   const [cancelOpen, setCancelOpen] = useState(false)
   const [cancelling, setCancelling] = useState(false)
@@ -182,6 +185,19 @@ export default function OrderDetailPage() {
       alert('Failed to mark delivered: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setDelivering(false)
+    }
+  }
+
+  async function handleMarkPaid() {
+    if (!order) return
+    setMarkingPaid(true)
+    try {
+      await adminMedusa.updateOrder(orderId, { payment_status: 'captured' })
+      await loadOrder()
+    } catch (err) {
+      alert('Failed to mark as paid: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setMarkingPaid(false)
     }
   }
 
@@ -525,6 +541,15 @@ export default function OrderDetailPage() {
                   <span className="text-[12px] text-[#8a8a8a]">Total</span>
                   <span className="text-[13px] font-bold text-[#1a1a1a]">{formatCurrency(order.total, currency)}</span>
                 </div>
+                {(order.payment_status === 'awaiting' || order.payment_status === 'not_paid' || !order.payment_status) && !isCancelled && (
+                  <button
+                    onClick={handleMarkPaid}
+                    disabled={markingPaid}
+                    className="btn btn-primary w-full justify-center mt-1"
+                  >
+                    {markingPaid ? <><Loader2 className="w-4 h-4 animate-spin" />Processing...</> : <><CreditCard className="w-4 h-4" />Mark as paid</>}
+                  </button>
+                )}
               </div>
             </div>
 
