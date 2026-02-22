@@ -88,8 +88,8 @@ export async function POST(request: Request) {
       const itemTotal = verifiedPrice * quantity
       subtotal += itemTotal
 
-      // Only set product_id if it's a valid UUID (from Supabase)
-      const productId = isUUID ? item.productId : null
+      // Only set product_id if it's a valid UUID AND exists in the products table
+      const productId = isUUID && productPriceMap[item.productId] ? item.productId : null
 
       return {
         product_id: productId,
