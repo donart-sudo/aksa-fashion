@@ -181,7 +181,7 @@ export async function POST(request: Request) {
 
     if (orderError) {
       console.error('Order creation error:', orderError)
-      return NextResponse.json({ error: 'Failed to create order' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to create order: ${orderError.message}` }, { status: 500 })
     }
 
     // Create order items
@@ -198,7 +198,7 @@ export async function POST(request: Request) {
       console.error('Order items error:', itemsError)
       // Rollback: delete the order since it has no items
       await supabase.from('orders').delete().eq('id', order.id)
-      return NextResponse.json({ error: 'Failed to create order items' }, { status: 500 })
+      return NextResponse.json({ error: `Failed to create order items: ${itemsError.message}` }, { status: 500 })
     }
 
     // Send confirmation email — must await to prevent serverless function from

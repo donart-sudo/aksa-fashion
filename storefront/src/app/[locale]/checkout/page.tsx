@@ -12,7 +12,7 @@ import { useCart } from "@/lib/cart";
 import { useAuth } from "@/lib/auth";
 import { getAddresses, createAddress, type CustomerAddress } from "@/lib/data/supabase-customer";
 import { formatPrice } from "@/lib/utils";
-import { SOCIAL_LINKS } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 import {
   getShippingOptions,
   placeOrder,
@@ -389,6 +389,7 @@ export default function CheckoutPage() {
   const locale = useLocale();
   const router = useRouter();
   const { items, subtotal, itemCount, clearCart } = useCart();
+  const { whatsapp: whatsappUrl } = useSiteConstants();
   const { customer } = useAuth();
 
   /* Form state */
@@ -694,8 +695,6 @@ export default function CheckoutPage() {
         orderNote: orderNote || undefined,
       });
 
-      if (!order) throw new Error("Failed to place order");
-
       clearCart();
       try {
         localStorage.setItem("aksa_last_order_id", order.id);
@@ -705,7 +704,8 @@ export default function CheckoutPage() {
       router.push(`/${locale}/checkout/confirmation?order_id=${order.id}`);
     } catch (err) {
       console.error("Place order error:", err);
-      setError(tCo("orderError"));
+      const msg = err instanceof Error ? err.message : "";
+      setError(msg || tCo("orderError"));
       setProcessing(false);
     }
   };
@@ -1287,7 +1287,7 @@ export default function CheckoutPage() {
 
                       {/* WhatsApp CTA */}
                       <a
-                        href={`${SOCIAL_LINKS.whatsapp}?text=${encodeURIComponent(tCo("whatsappMessage"))}`}
+                        href={`${whatsappUrl}?text=${encodeURIComponent(tCo("whatsappMessage"))}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 w-full py-3 bg-[#25D366]/10 text-[#25D366] text-sm font-medium rounded-lg hover:bg-[#25D366]/20 transition-colors"
