@@ -147,8 +147,8 @@ export default function OrderDetailPage() {
                 if (reordered) return;
                 for (const item of order.items) {
                   addToCart({
-                    productId: item.metadata?.product_id || item.id,
-                    variantId: item.id,
+                    productId: item.metadata?.product_id_raw || item.metadata?.product_id || "",
+                    variantId: item.metadata?.product_id_raw || "",
                     handle: item.metadata?.handle || "",
                     title: item.title,
                     thumbnail: item.thumbnail || "",

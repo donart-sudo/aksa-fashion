@@ -54,6 +54,7 @@ export interface CustomerOrder {
       size?: string
       color?: string
       product_id?: string
+      product_id_raw?: string
     }
   }[]
   shipping_address?: {
