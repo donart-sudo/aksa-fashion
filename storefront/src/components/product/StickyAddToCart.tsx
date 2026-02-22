@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
 
 interface StickyAddToCartProps {
@@ -27,7 +26,6 @@ export default function StickyAddToCart({
   targetRef,
 }: StickyAddToCartProps) {
   const t = useTranslations("common");
-  const { addItem } = useCart();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -45,16 +43,9 @@ export default function StickyAddToCart({
 
   if (!inStock) return null;
 
-  const handleAdd = () => {
-    addItem({
-      productId,
-      variantId: productId,
-      handle,
-      title,
-      thumbnail,
-      price,
-      quantity: 1,
-    });
+  const handleClick = () => {
+    // Scroll to the main add-to-cart button so the user picks size/color first
+    targetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
@@ -86,7 +77,7 @@ export default function StickyAddToCart({
               </p>
             </div>
             <button
-              onClick={handleAdd}
+              onClick={handleClick}
               className="bg-charcoal text-white px-4 sm:px-5 py-2.5 sm:py-3 text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium hover:bg-gold transition-colors min-h-[44px] flex-shrink-0"
             >
               {t("addToCart")}

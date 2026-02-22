@@ -712,12 +712,14 @@ function toAdminOrder(row: any): MedusaOrder {
     subtotal: row.subtotal || 0,
     tax_total: 0,
     currency_code: row.currency_code || 'eur',
-    items: (row.order_items || []).map((item: { id: string; title: string; quantity: number; unit_price: number; thumbnail: string | null }) => ({
+    items: (row.order_items || []).map((item: { id: string; title: string; subtitle?: string | null; quantity: number; unit_price: number; thumbnail: string | null; metadata?: Record<string, string> }) => ({
       id: item.id,
       title: item.title,
+      subtitle: item.subtitle || null,
       quantity: item.quantity,
       unit_price: item.unit_price || 0,
       thumbnail: item.thumbnail,
+      metadata: item.metadata,
     })),
     customer: row.customers
       ? {
@@ -763,7 +765,7 @@ export interface MedusaOrder {
   subtotal: number
   tax_total: number
   currency_code: string
-  items: { id: string; title: string; quantity: number; unit_price: number; thumbnail: string | null }[]
+  items: { id: string; title: string; subtitle?: string | null; quantity: number; unit_price: number; thumbnail: string | null; metadata?: Record<string, string> }[]
   customer: { id: string; first_name: string; last_name: string; email: string } | null
   shipping_address: { address_1: string; city: string; country_code: string } | null
   fulfillments?: { id: string; packed_at: string | null; shipped_at: string | null; delivered_at: string | null; canceled_at: string | null; labels?: { tracking_number: string; tracking_url: string }[] }[]

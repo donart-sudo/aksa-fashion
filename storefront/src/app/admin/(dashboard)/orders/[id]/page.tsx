@@ -424,6 +424,9 @@ export default function OrderDetailPage() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="text-[13px] font-medium text-[#1a1a1a] truncate">{item.title}</p>
+                      {item.subtitle && (
+                        <p className="text-[12px] text-[#005bd3] mt-0.5">{item.subtitle}</p>
+                      )}
                       <p className="text-[12px] text-[#8a8a8a] mt-0.5">{formatCurrency(item.unit_price, currency)} x {item.quantity}</p>
                     </div>
                     <p className="text-[13px] font-semibold text-[#1a1a1a] tabular-nums shrink-0">
