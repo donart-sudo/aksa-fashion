@@ -90,6 +90,44 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [tableMissing, setTableMissing] = useState(false);
+  const [settingUp, setSettingUp] = useState(false);
+
+  // Check if content_blocks table exists on mount
+  useEffect(() => {
+    if (!token) return;
+    fetch("/api/admin/setup-editor", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.exists === false) setTableMissing(true);
+      })
+      .catch(() => {});
+  }, [token]);
+
+  const handleSetupTable = async () => {
+    if (!token) return;
+    setSettingUp(true);
+    try {
+      const res = await fetch("/api/admin/setup-editor", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success) {
+        setTableMissing(false);
+        setError(null);
+        // Re-fetch content now that the table exists
+        fetchContent(locale);
+      } else {
+        setError(json.error || "Setup failed");
+      }
+    } catch {
+      setError("Failed to connect to setup endpoint");
+    }
+    setSettingUp(false);
+  };
 
   const fetchContent = useCallback(async (loc: string) => {
     setLoading(true);
@@ -99,13 +137,17 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       );
-      const { data } = await supabase
+      const { data, error: fetchError } = await supabase
         .from("content_blocks")
         .select("content")
         .eq("section_key", sectionKey)
         .eq("locale", loc)
         .eq("published", true)
         .single();
+
+      if (fetchError && (fetchError.message?.includes("schema cache") || fetchError.message?.includes("does not exist"))) {
+        setTableMissing(true);
+      }
 
       setContent(data?.content || getDefaultContent(sectionKey));
     } catch {
@@ -146,6 +188,9 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
         }).catch(() => {});
       }
     } else {
+      if (result.tableMissing) {
+        setTableMissing(true);
+      }
       setError(result.error || "Failed to save");
     }
   };
@@ -243,6 +288,26 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
             </p>
           )}
         </div>
+
+        {/* Setup banner */}
+        {tableMissing && (
+          <div className="flex-shrink-0 mx-6 mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <p className="text-sm font-medium text-amber-800 mb-1">Editor database table missing</p>
+            <p className="text-xs text-amber-700 mb-3">
+              The <code className="bg-amber-100 px-1 rounded">content_blocks</code> table hasn&apos;t been created yet. You can view defaults below, but saving is disabled until the table is set up.
+            </p>
+            <button
+              onClick={handleSetupTable}
+              disabled={settingUp}
+              className="px-3 py-1.5 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {settingUp ? "Setting up..." : "Set Up Now"}
+            </button>
+            <p className="text-[10px] text-amber-600 mt-2">
+              Or run manually: <code className="bg-amber-100 px-1 rounded">npx tsx scripts/setup-content-blocks.ts</code>
+            </p>
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-5">

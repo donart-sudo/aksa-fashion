@@ -20,7 +20,13 @@ export async function getContentBlock<K extends SectionKey>(
       .eq("published", true)
       .single();
 
-    if (error || !data) return null;
+    if (error) {
+      if (error.message?.includes("schema cache") || error.message?.includes("does not exist")) {
+        console.warn(`[content-blocks] Table not found — run: npx tsx scripts/setup-content-blocks.ts (section: ${sectionKey}, locale: ${locale})`);
+      }
+      return null;
+    }
+    if (!data) return null;
     return data.content as SectionContentMap[K];
   } catch {
     return null;
@@ -43,7 +49,13 @@ export async function getContentBlocks(
       .eq("locale", locale)
       .eq("published", true);
 
-    if (error || !data) return {};
+    if (error) {
+      if (error.message?.includes("schema cache") || error.message?.includes("does not exist")) {
+        console.warn(`[content-blocks] Table not found — run: npx tsx scripts/setup-content-blocks.ts (keys: ${sectionKeys.join(", ")})`);
+      }
+      return {};
+    }
+    if (!data) return {};
 
     const result: Partial<Record<SectionKey, unknown>> = {};
     for (const row of data as Pick<ContentBlockRow, "section_key" | "content">[]) {
@@ -72,7 +84,13 @@ export async function getI18nOverrides(
       .eq("locale", locale)
       .eq("published", true);
 
-    if (error || !data || data.length === 0) return {};
+    if (error) {
+      if (error.message?.includes("schema cache") || error.message?.includes("does not exist")) {
+        console.warn(`[content-blocks] Table not found — run: npx tsx scripts/setup-content-blocks.ts (i18n overrides, locale: ${locale})`);
+      }
+      return {};
+    }
+    if (!data || data.length === 0) return {};
 
     const result: Record<string, Record<string, string>> = {};
     for (const row of data as Pick<ContentBlockRow, "section_key" | "content">[]) {

@@ -82,6 +82,7 @@ async function verifySchema() {
     "shipping_options",
     "promotions",
     "product_tags",
+    "content_blocks",
   ];
 
   const missing: string[] = [];
@@ -102,7 +103,7 @@ async function verifySchema() {
     process.exit(1);
   }
 
-  console.log("  All 18 tables verified.\n");
+  console.log("  All 19 tables verified.\n");
 }
 
 // ── Step 2: Create storage bucket ──────────────────────────────────────────
