@@ -37,31 +37,46 @@ export const DEFAULT_HERO: HeroContent = {
     alt: s.alt,
     ctaLink: s.ctaLink,
     key: s.key,
+    subtitle: "",
+    title1: "",
+    title2: "",
+    description: "",
+    ctaText: "",
+    buttonText: "Shop Collection",
+    buttonSecondaryText: "View Bridal",
+    buttonSecondaryLink: "collections/bridal",
   })),
 };
 
 export const DEFAULT_TRUSTBAR: TrustBarContent = {
   items: [
-    { iconKey: "sparkles", textKey: "trustHandcrafted" },
-    { iconKey: "measure", textKey: "trustMeasure" },
-    { iconKey: "globe", textKey: "trustShipping" },
-    { iconKey: "chat", textKey: "trustStyling" },
+    { iconKey: "sparkles", textKey: "trustHandcrafted", text: "Handcrafted Quality" },
+    { iconKey: "measure", textKey: "trustMeasure", text: "Made to Measure" },
+    { iconKey: "globe", textKey: "trustShipping", text: "Worldwide Shipping" },
+    { iconKey: "chat", textKey: "trustStyling", text: "Personal Styling" },
   ],
 };
 
 export const DEFAULT_EDITORIAL_BAND: EditorialBandContent = {
   image: EDITORIAL_BAND_IMAGE,
   alt: "Aksa Fashion cape and train bridal gown handcrafted in Prishtina atelier",
+  topLabel: "",
+  heading: "",
+  tagline: "",
+  buttonText: "",
+  buttonLink: "",
 };
 
 export const DEFAULT_FEATURED_COLLECTIONS: FeaturedCollectionsContent = {
+  heading: "",
+  label: "",
   collections: [
-    { key: "bridal", image: COLLECTION_COVERS.bridal, href: "/collections/bridal" },
-    { key: "evening", image: COLLECTION_COVERS.evening, href: "/collections/evening-dress" },
-    { key: "cape-and-train", image: COLLECTION_COVERS["cape-and-train"], href: "/collections/cape-and-train-elegance" },
-    { key: "ball-gown", image: COLLECTION_COVERS["ball-gown"], href: "/collections/ball-gown" },
-    { key: "silhouette", image: COLLECTION_COVERS.silhouette, href: "/collections/silhouette-whisper" },
-    { key: "ruffled-dream", image: COLLECTION_COVERS["ruffled-dream"], href: "/collections/ruffled-dream" },
+    { key: "bridal", title: "Bridal Gowns", image: COLLECTION_COVERS.bridal, href: "/collections/bridal" },
+    { key: "evening", title: "Evening Wear", image: COLLECTION_COVERS.evening, href: "/collections/evening-dress" },
+    { key: "cape-and-train", title: "Cape & Train", image: COLLECTION_COVERS["cape-and-train"], href: "/collections/cape-and-train-elegance" },
+    { key: "ball-gown", title: "Ball Gown", image: COLLECTION_COVERS["ball-gown"], href: "/collections/ball-gown" },
+    { key: "silhouette", title: "Silhouette Whisper", image: COLLECTION_COVERS.silhouette, href: "/collections/silhouette-whisper" },
+    { key: "ruffled-dream", title: "Ruffled Dream", image: COLLECTION_COVERS["ruffled-dream"], href: "/collections/ruffled-dream" },
   ],
 };
 
@@ -69,9 +84,14 @@ export const DEFAULT_APPOINTMENT: AppointmentContent = {
   image: APPOINTMENT_IMAGE,
   location: "Prishtina, Kosovo",
   whatsappUrl: SOCIAL_LINKS.whatsapp,
+  heading: "",
+  subtitle: "",
+  buttonText: "",
 };
 
 export const DEFAULT_TESTIMONIALS: TestimonialsContent = {
+  heading: "",
+  subtitle: "",
   stories: [
     {
       id: "1",
@@ -122,6 +142,7 @@ export const DEFAULT_TESTIMONIALS: TestimonialsContent = {
 };
 
 export const DEFAULT_AS_SEEN_IN: AsSeenInContent = {
+  heading: "",
   names: [
     "Vogue Sposa",
     "Brides Magazine",
@@ -133,6 +154,10 @@ export const DEFAULT_AS_SEEN_IN: AsSeenInContent = {
 
 export const DEFAULT_NEWSLETTER: NewsletterContent = {
   marqueeImages: NEWSLETTER_IMAGES.map((img) => ({ src: img.src, alt: img.alt })),
+  heading: "",
+  subtitle: "",
+  buttonText: "",
+  placeholder: "",
 };
 
 /* ── Static pages ──────────────────────────────────────────────────────── */

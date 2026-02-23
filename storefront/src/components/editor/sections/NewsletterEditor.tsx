@@ -12,6 +12,38 @@ interface Props {
 
 export default function NewsletterEditor({ content, onChange }: Props) {
   return (
+    <div className="space-y-4">
+      {/* Section Text */}
+      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
+        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+        <EditorField
+          label="Heading"
+          value={content.heading || ""}
+          onChange={(heading) => onChange({ ...content, heading })}
+          placeholder="e.g. Stay in the World of Aksa"
+        />
+        <EditorField
+          label="Subtitle"
+          value={content.subtitle || ""}
+          onChange={(subtitle) => onChange({ ...content, subtitle })}
+          placeholder="e.g. Be the first to know..."
+          type="textarea"
+          rows={2}
+        />
+        <EditorField
+          label="Button Text"
+          value={content.buttonText || ""}
+          onChange={(buttonText) => onChange({ ...content, buttonText })}
+          placeholder="e.g. Subscribe"
+        />
+        <EditorField
+          label="Placeholder"
+          value={content.placeholder || ""}
+          onChange={(placeholder) => onChange({ ...content, placeholder })}
+          placeholder="e.g. Enter your email"
+        />
+      </div>
+
     <ArrayField<NewsletterImage>
       label="Marquee Images"
       items={content.marqueeImages}
@@ -26,5 +58,6 @@ export default function NewsletterEditor({ content, onChange }: Props) {
         </div>
       )}
     />
+    </div>
   );
 }

@@ -2,9 +2,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { getTranslations } from "next-intl/server";
 import { COLLECTION_COVERS } from "@/lib/cdn-image-urls";
-import type { FeaturedCollectionsContent } from "@/types/content-blocks";
+import type { FeaturedCollectionsContent, FeaturedCollectionItem } from "@/types/content-blocks";
 
-const defaultCollections = [
+const defaultCollections: FeaturedCollectionItem[] = [
   { key: "bridal", image: COLLECTION_COVERS.bridal, href: "/collections/bridal" },
   { key: "evening", image: COLLECTION_COVERS.evening, href: "/collections/evening-dress" },
   { key: "cape-and-train", image: COLLECTION_COVERS["cape-and-train"], href: "/collections/cape-and-train-elegance" },
@@ -40,13 +40,13 @@ export default async function FeaturedCollections({
           <div className="flex items-center gap-4 mb-6">
             <span className="block h-[1.5px] w-10 bg-gold" />
             <span className="text-[11px] tracking-[0.35em] uppercase text-gold font-medium">
-              {t("home.collectionsLabel")}
+              {content?.label || t("home.collectionsLabel")}
             </span>
           </div>
 
           <div className="flex items-end justify-between">
             <h2 className="font-serif text-[2rem] sm:text-[2.5rem] lg:text-[3.25rem] font-bold text-charcoal leading-[0.95]">
-              {t("home.shopByCategory")}
+              {content?.heading || t("home.shopByCategory")}
             </h2>
             <Link
               href={`/${locale}/collections`}
@@ -78,7 +78,7 @@ export default async function FeaturedCollections({
             <CollectionCard
               key={col.key}
               collection={col}
-              label={collectionLabels[col.key]}
+              label={col.title || collectionLabels[col.key] || col.key}
               locale={locale}
               index={i}
             />
@@ -91,7 +91,7 @@ export default async function FeaturedCollections({
             <CollectionCard
               key={col.key}
               collection={col}
-              label={collectionLabels[col.key]}
+              label={col.title || collectionLabels[col.key] || col.key}
               locale={locale}
               index={i}
             />
@@ -108,7 +108,7 @@ export default async function FeaturedCollections({
               >
                 <CollectionCard
                   collection={col}
-                  label={collectionLabels[col.key]}
+                  label={col.title || collectionLabels[col.key] || col.key}
                   locale={locale}
                   index={i}
                 />
@@ -152,7 +152,7 @@ function CollectionCard({
   locale,
   index,
 }: {
-  collection: (typeof defaultCollections)[number];
+  collection: FeaturedCollectionItem;
   label: string;
   locale: string;
   index: number;

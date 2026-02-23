@@ -100,7 +100,7 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           }}
         >
           <span className="text-[10px] sm:text-[11px] tracking-[0.4em] uppercase text-gold/70 block mb-6">
-            {t("estLine")}
+            {content?.topLabel || t("estLine")}
           </span>
         </div>
 
@@ -127,7 +127,7 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           }}
         >
           <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.05] mb-4">
-            {t("editorialLine")}
+            {content?.heading || t("editorialLine")}
           </h2>
         </div>
 
@@ -141,7 +141,7 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           }}
         >
           <p className="text-[13px] sm:text-[15px] tracking-[0.1em] text-white/60 mb-10 max-w-md mx-auto">
-            {t("brandTagline")}
+            {content?.tagline || t("brandTagline")}
           </p>
         </div>
 
@@ -155,10 +155,10 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           }}
         >
           <Link
-            href={`/${locale}/collections`}
+            href={content?.buttonLink || `/${locale}/collections`}
             className="inline-flex items-center gap-3 px-8 py-3.5 border border-white/40 text-[11px] font-bold tracking-[0.2em] uppercase text-white hover:bg-white hover:text-charcoal transition-all duration-400"
           >
-            {t("discoverStory")}
+            {content?.buttonText || t("discoverStory")}
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
             </svg>

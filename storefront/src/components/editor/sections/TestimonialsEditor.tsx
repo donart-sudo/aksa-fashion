@@ -12,6 +12,24 @@ interface Props {
 
 export default function TestimonialsEditor({ content, onChange }: Props) {
   return (
+    <div className="space-y-4">
+      {/* Section Text */}
+      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
+        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+        <EditorField
+          label="Section Heading"
+          value={content.heading || ""}
+          onChange={(heading) => onChange({ ...content, heading })}
+          placeholder="e.g. Real Brides, Real Stories"
+        />
+        <EditorField
+          label="Subtitle"
+          value={content.subtitle || ""}
+          onChange={(subtitle) => onChange({ ...content, subtitle })}
+          placeholder="e.g. Bride Stories"
+        />
+      </div>
+
     <ArrayField<TestimonialStory>
       label="Testimonials"
       items={content.stories}
@@ -56,5 +74,6 @@ export default function TestimonialsEditor({ content, onChange }: Props) {
         </div>
       )}
     />
+    </div>
   );
 }

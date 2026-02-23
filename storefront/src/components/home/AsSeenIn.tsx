@@ -22,7 +22,7 @@ export default function AsSeenIn({ content }: { content?: AsSeenInContent }) {
         <div className="flex items-center gap-4 mb-10 sm:mb-12">
           <span className="block h-px flex-1 bg-white/[0.06]" />
           <span className="text-[10px] tracking-[0.35em] uppercase text-white/25 flex-shrink-0">
-            {t("asSeenIn")}
+            {content?.heading || t("asSeenIn")}
           </span>
           <span className="block h-px flex-1 bg-white/[0.06]" />
         </div>

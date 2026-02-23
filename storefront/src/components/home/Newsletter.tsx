@@ -142,12 +142,12 @@ export default function Newsletter({ content }: { content?: NewsletterContent })
 
         {/* Heading */}
         <h2 className="font-serif text-3xl sm:text-4xl lg:text-[3rem] font-bold text-white leading-[1.1] mb-4">
-          {t("newsletterTitle")}
+          {content?.heading || t("newsletterTitle")}
         </h2>
 
         {/* Subtitle */}
         <p className="text-[15px] sm:text-base text-white/45 leading-relaxed max-w-md mx-auto mb-8">
-          {t("newsletterSubtitle")}
+          {content?.subtitle || t("newsletterSubtitle")}
         </p>
 
         {/* Benefits */}
@@ -185,7 +185,7 @@ export default function Newsletter({ content }: { content?: NewsletterContent })
               <div className="flex-1 min-w-0">
                 <input
                   type="email"
-                  placeholder={t("newsletterPlaceholder")}
+                  placeholder={content?.placeholder || t("newsletterPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocused(true)}
@@ -202,7 +202,7 @@ export default function Newsletter({ content }: { content?: NewsletterContent })
                 type="submit"
                 className="flex-shrink-0 px-8 py-3.5 bg-gold hover:bg-gold/90 text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-all duration-300 min-h-[48px]"
               >
-                {t("newsletterButton")}
+                {content?.buttonText || t("newsletterButton")}
               </button>
             </div>
             <p className="text-[11px] text-white/20 mt-4 tracking-wide leading-relaxed">

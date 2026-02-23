@@ -6,11 +6,11 @@ import Image from "next/image";
 import { useLocale, useTranslations } from "next-intl";
 import { isRtl } from "@/i18n/config";
 import { HERO_IMAGES } from "@/lib/cdn-image-urls";
-import type { HeroContent } from "@/types/content-blocks";
+import type { HeroContent, HeroSlide } from "@/types/content-blocks";
 
 const SLIDE_DURATION = 6000;
 
-const HERO_SLIDES_DEFAULT = HERO_IMAGES;
+const HERO_SLIDES_DEFAULT: HeroSlide[] = HERO_IMAGES;
 
 export default function EditorialBanner({ content }: { content?: HeroContent }) {
   const HERO_SLIDES = content?.slides ?? HERO_SLIDES_DEFAULT;
@@ -119,7 +119,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
             key={`sub-${animKey}`}
             className="text-gold text-[11px] sm:text-[12px] tracking-[0.3em] uppercase font-medium mb-5 animate-hero-fade-up"
           >
-            {t(`${slide.key}Subtitle`)}
+            {slide.subtitle || t(`${slide.key}Subtitle`)}
           </p>
 
           {/* Heading — two-line split reveal */}
@@ -130,7 +130,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
                 className="block animate-hero-line-up"
                 style={{ animationDelay: "100ms" }}
               >
-                {t(`${slide.key}Title1`)}
+                {slide.title1 || t(`${slide.key}Title1`)}
               </span>
             </span>
             <span className="block overflow-hidden">
@@ -139,7 +139,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
                 className="block animate-hero-line-up"
                 style={{ animationDelay: "220ms" }}
               >
-                {t(`${slide.key}Title2`)}
+                {slide.title2 || t(`${slide.key}Title2`)}
               </span>
             </span>
           </h1>
@@ -150,7 +150,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
             className="text-white/50 text-sm sm:text-base leading-relaxed max-w-md mb-8 animate-hero-fade-up"
             style={{ animationDelay: "350ms" }}
           >
-            {t(`${slide.key}Desc`)}
+            {slide.description || t(`${slide.key}Desc`)}
           </p>
 
           {/* CTA button */}
@@ -163,7 +163,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
               href={`/${locale}/${slide.ctaLink}`}
               className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
             >
-              {t(`${slide.key}Cta`)}
+              {slide.ctaText || t(`${slide.key}Cta`)}
               <svg
                 className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
                 fill="none"

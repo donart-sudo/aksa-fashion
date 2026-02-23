@@ -240,11 +240,11 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
               <div className="flex items-center gap-4 mb-5">
                 <span className="block h-[1.5px] w-10 bg-gold/60" />
                 <span className="text-[11px] tracking-[0.35em] uppercase text-gold font-medium">
-                  {t("testimonialsSubtitle")}
+                  {content?.subtitle || t("testimonialsSubtitle")}
                 </span>
               </div>
               <h2 className="font-serif text-[1.75rem] sm:text-[2.25rem] lg:text-[2.75rem] font-bold text-white leading-[1.05]">
-                {t("testimonialsTitle")}
+                {content?.heading || t("testimonialsTitle")}
               </h2>
             </div>
 

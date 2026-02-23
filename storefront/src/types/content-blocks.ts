@@ -20,6 +20,14 @@ export interface HeroSlide {
   alt: string;
   ctaLink: string;
   key: string;
+  subtitle?: string;
+  title1?: string;
+  title2?: string;
+  description?: string;
+  ctaText?: string;
+  buttonText?: string;
+  buttonSecondaryText?: string;
+  buttonSecondaryLink?: string;
 }
 
 export interface HeroContent {
@@ -28,7 +36,8 @@ export interface HeroContent {
 
 export interface TrustBarItem {
   iconKey: string; // 'sparkles' | 'measure' | 'globe' | 'chat'
-  textKey: string; // i18n key for text
+  textKey: string; // i18n key for text (fallback)
+  text?: string;   // direct display text (preferred)
 }
 
 export interface TrustBarContent {
@@ -38,22 +47,33 @@ export interface TrustBarContent {
 export interface EditorialBandContent {
   image: string;
   alt: string;
+  topLabel?: string;
+  heading?: string;
+  tagline?: string;
+  buttonText?: string;
+  buttonLink?: string;
 }
 
 export interface FeaturedCollectionItem {
   key: string;
   image: string;
   href: string;
+  title?: string; // direct display title (preferred over key lookup)
 }
 
 export interface FeaturedCollectionsContent {
   collections: FeaturedCollectionItem[];
+  heading?: string;
+  label?: string;
 }
 
 export interface AppointmentContent {
   image: string;
   location: string;
   whatsappUrl: string;
+  heading?: string;
+  subtitle?: string;
+  buttonText?: string;
 }
 
 export interface TestimonialStory {
@@ -73,10 +93,13 @@ export interface TestimonialStory {
 
 export interface TestimonialsContent {
   stories: TestimonialStory[];
+  heading?: string;
+  subtitle?: string;
 }
 
 export interface AsSeenInContent {
   names: string[];
+  heading?: string;
 }
 
 export interface NewsletterImage {
@@ -86,6 +109,10 @@ export interface NewsletterImage {
 
 export interface NewsletterContent {
   marqueeImages: NewsletterImage[];
+  heading?: string;
+  subtitle?: string;
+  buttonText?: string;
+  placeholder?: string;
 }
 
 /* ── Static pages ──────────────────────────────────────────────────────── */

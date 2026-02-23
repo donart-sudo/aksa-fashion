@@ -28,6 +28,31 @@ export default function AppointmentEditor({ content, onChange }: Props) {
         onChange={(whatsappUrl) => onChange({ ...content, whatsappUrl })}
         type="url"
       />
+
+      {/* Section Text */}
+      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
+        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+        <EditorField
+          label="Heading"
+          value={content.heading || ""}
+          onChange={(heading) => onChange({ ...content, heading })}
+          placeholder="e.g. Book Your Private Appointment"
+        />
+        <EditorField
+          label="Subtitle"
+          value={content.subtitle || ""}
+          onChange={(subtitle) => onChange({ ...content, subtitle })}
+          placeholder="e.g. Visit our atelier..."
+          type="textarea"
+          rows={2}
+        />
+        <EditorField
+          label="Button Text"
+          value={content.buttonText || ""}
+          onChange={(buttonText) => onChange({ ...content, buttonText })}
+          placeholder="e.g. Book Appointment"
+        />
+      </div>
     </div>
   );
 }

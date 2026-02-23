@@ -115,7 +115,7 @@ export default function Appointment({ content }: { content?: AppointmentContent 
                 }}
               >
                 <h2 className="font-serif text-[2rem] sm:text-[2.5rem] lg:text-[2.75rem] font-bold text-white leading-[1.1] mb-4">
-                  {t("appointmentTitle")}
+                  {content?.heading || t("appointmentTitle")}
                 </h2>
               </div>
 
@@ -129,7 +129,7 @@ export default function Appointment({ content }: { content?: AppointmentContent 
                     "opacity 700ms cubic-bezier(0.16, 1, 0.3, 1) 400ms, transform 700ms cubic-bezier(0.16, 1, 0.3, 1) 400ms",
                 }}
               >
-                {t("appointmentSubtitle")}
+                {content?.subtitle || t("appointmentSubtitle")}
               </p>
 
               {/* Contact details */}
@@ -170,7 +170,7 @@ export default function Appointment({ content }: { content?: AppointmentContent 
                   href={`/${locale}/contact`}
                   className="inline-flex items-center justify-center gap-3 w-full sm:w-auto px-8 py-3.5 bg-gold sm:bg-white sm:hover:bg-gold text-[11px] font-bold tracking-[0.2em] uppercase text-white sm:text-charcoal sm:hover:text-white transition-all duration-300"
                 >
-                  {t("appointmentCta")}
+                  {content?.buttonText || t("appointmentCta")}
                   <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
                   </svg>
