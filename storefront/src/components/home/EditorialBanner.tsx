@@ -159,21 +159,29 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
             className="animate-hero-fade-up mb-10 lg:mb-12"
             style={{ animationDelay: "500ms" }}
           >
-            <Link
-              href={`/${locale}/${slide.ctaLink}`}
-              className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
-            >
-              {slide.ctaText || t(`${slide.key}Cta`)}
-              <svg
-                className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
+            {/^https?:\/\//.test(slide.ctaLink) ? (
+              <a
+                href={slide.ctaLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-              </svg>
-            </Link>
+                {slide.ctaText || t(`${slide.key}Cta`)}
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </a>
+            ) : (
+              <Link
+                href={`/${locale}/${slide.ctaLink.replace(/^\//, "")}`}
+                className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
+              >
+                {slide.ctaText || t(`${slide.key}Cta`)}
+                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </Link>
+            )}
           </div>
 
           {/* Slide indicators */}

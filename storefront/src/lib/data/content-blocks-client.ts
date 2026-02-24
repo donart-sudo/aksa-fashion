@@ -1,7 +1,7 @@
 import type { SectionKey, SectionContentMap } from "@/types/content-blocks";
 
 function isTableMissingError(msg: string): boolean {
-  return msg.includes("schema cache") || msg.includes("does not exist") || msg.includes("content_blocks");
+  return msg.includes("schema cache") || msg.includes("relation") && msg.includes("does not exist");
 }
 
 /**
@@ -31,6 +31,7 @@ export async function saveContentBlock<K extends SectionKey>(
           published: true,
           updated_at: new Date().toISOString(),
         },
+        onConflict: "section_key,locale",
       }),
     });
 

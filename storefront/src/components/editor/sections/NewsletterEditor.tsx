@@ -46,7 +46,7 @@ export default function NewsletterEditor({ content, onChange }: Props) {
 
     <ArrayField<NewsletterImage>
       label="Marquee Images"
-      items={content.marqueeImages}
+      items={content.marqueeImages ?? []}
       onChange={(marqueeImages) => onChange({ ...content, marqueeImages })}
       addLabel="Add image"
       maxItems={16}

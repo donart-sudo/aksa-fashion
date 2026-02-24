@@ -25,7 +25,7 @@ export default function AsSeenInEditor({ content, onChange }: Props) {
 
     <ArrayField<string>
       label="Press Names"
-      items={content.names}
+      items={content.names ?? []}
       onChange={(names) => onChange({ ...content, names })}
       addLabel="Add press name"
       maxItems={10}

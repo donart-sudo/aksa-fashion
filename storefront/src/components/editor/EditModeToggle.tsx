@@ -28,6 +28,13 @@ const VISUAL_SECTIONS: SectionItem[] = [
   { key: "page.faq", label: "FAQ" },
   { key: "page.terms", label: "Terms" },
   { key: "page.privacy", label: "Privacy" },
+  { key: "page.about.hero", label: "About Hero" },
+  { key: "page.about.craft", label: "About Craft & Values" },
+  { key: "page.about.cta", label: "About Atelier & CTA" },
+  { key: "page.contact.hero", label: "Contact Hero" },
+  { key: "page.contact.form", label: "Contact Form" },
+  { key: "page.contact.sidebar", label: "Contact Sidebar" },
+  { key: "page.contact.cta", label: "Contact CTAs" },
 ];
 
 const GLOBAL_TEXT: SectionItem[] = [
@@ -55,7 +62,7 @@ const ALL_CATEGORIES = [
 ] as const;
 
 export default function EditModeToggle() {
-  const { isAdmin, editMode, setEditMode } = useStorefrontAdmin();
+  const { isAdmin, editMode, setEditMode, setHighlightedSection } = useStorefrontAdmin();
   const [panelOpen, setPanelOpen] = useState(false);
   const [activeSection, setActiveSection] = useState<SectionItem | null>(null);
   const [search, setSearch] = useState("");
@@ -76,6 +83,12 @@ export default function EditModeToggle() {
   if (!isAdmin) return null;
 
   const handleSectionClick = (item: SectionItem) => {
+    // Scroll to + highlight the section on the page
+    const el = document.querySelector(`[data-section-key="${item.key}"]`);
+    if (el) {
+      setHighlightedSection(item.key);
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
     setActiveSection(item);
     setPanelOpen(false);
     setSearch("");

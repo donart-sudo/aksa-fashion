@@ -12,7 +12,7 @@ export default function AnnouncementsEditor({ content, onChange }: Props) {
   return (
     <ArrayField<string>
       label="Announcement Messages"
-      items={content.messages}
+      items={content.messages ?? []}
       onChange={(messages) => onChange({ ...content, messages })}
       addLabel="Add message"
       maxItems={8}

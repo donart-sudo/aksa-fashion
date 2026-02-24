@@ -9,17 +9,22 @@ interface Props {
   onChange: (c: TrustBarContent) => void;
 }
 
-const ICON_OPTIONS = ["sparkles", "measure", "globe", "chat"];
+const ICON_OPTIONS = [
+  { value: "sparkles", label: "Sparkles" },
+  { value: "measure", label: "Ruler / Measure" },
+  { value: "globe", label: "Globe / Worldwide" },
+  { value: "chat", label: "Chat / Support" },
+];
 
 export default function TrustBarEditor({ content, onChange }: Props) {
   return (
     <ArrayField<TrustBarItem>
       label="Trust Bar Items"
-      items={content.items}
+      items={content.items ?? []}
       onChange={(items) => onChange({ ...content, items })}
       addLabel="Add trust item"
       maxItems={6}
-      createItem={() => ({ iconKey: "sparkles", textKey: "" })}
+      createItem={() => ({ iconKey: "sparkles", textKey: "", text: "" })}
       renderItem={(item, _i, update) => (
         <div className="space-y-2">
           <div>
@@ -32,15 +37,15 @@ export default function TrustBarEditor({ content, onChange }: Props) {
               className="w-full px-3 py-2 text-[13px] border border-soft-gray/50 rounded bg-white focus:outline-none focus:border-gold/50"
             >
               {ICON_OPTIONS.map((opt) => (
-                <option key={opt} value={opt}>{opt}</option>
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
               ))}
             </select>
           </div>
           <EditorField
-            label="Text Key (i18n)"
-            value={item.textKey}
-            onChange={(textKey) => update({ ...item, textKey })}
-            placeholder="trustHandcrafted"
+            label="Text"
+            value={item.text || ""}
+            onChange={(text) => update({ ...item, text, textKey: item.textKey || `trust${_i}` })}
+            placeholder="e.g. Handcrafted Quality"
           />
         </div>
       )}

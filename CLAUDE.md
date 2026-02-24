@@ -207,12 +207,85 @@ cd storefront && vercel --prod --yes   # Deploy to Vercel
 cd storefront && npx tsx scripts/seed-supabase.ts
 ```
 
+## Visual Editor (Content Blocks System)
+
+The visual editor allows admins to edit all static content on the storefront without touching code. Content is stored in the `content_blocks` Supabase table per section_key + locale.
+
+### Architecture
+1. **Server component** (page.tsx) calls `getContentBlocks()` to fetch content from Supabase
+2. **Client sub-component** receives content via props, falls back to `DEFAULT_*` constants
+3. **EditableSection** wrapper shows edit badge on hover when admin is in edit mode
+4. **EditDrawer** opens with the section-specific editor, saves back to Supabase
+5. **Revalidation** triggers on save to refresh server-rendered content
+
+### All Section Keys (29 total)
+
+| # | Section Key | Editor | Page |
+|---|---|---|---|
+| 1 | `homepage.hero` | HeroEditor | Homepage |
+| 2 | `homepage.trustbar` | TrustBarEditor | Homepage |
+| 3 | `homepage.editorial-band` | EditorialBandEditor | Homepage |
+| 4 | `homepage.featured-collections` | FeaturedCollectionsEditor | Homepage |
+| 5 | `homepage.appointment` | AppointmentEditor | Homepage |
+| 6 | `homepage.testimonials` | TestimonialsEditor | Homepage |
+| 7 | `homepage.as-seen-in` | AsSeenInEditor | Homepage |
+| 8 | `homepage.newsletter` | NewsletterEditor | Homepage |
+| 9 | `page.faq` | FAQEditor | FAQ |
+| 10 | `page.terms` | LegalEditor | Terms |
+| 11 | `page.privacy` | LegalEditor | Privacy |
+| 12 | `page.about.hero` | AboutHeroEditor | About |
+| 13 | `page.about.craft` | AboutCraftEditor | About |
+| 14 | `page.about.cta` | AboutCtaEditor | About |
+| 15 | `page.contact.hero` | ContactHeroEditor | Contact |
+| 16 | `page.contact.form` | ContactFormEditor | Contact |
+| 17 | `page.contact.sidebar` | ContactSidebarEditor | Contact |
+| 18 | `page.contact.cta` | ContactCtaEditor | Contact |
+| 19 | `layout.announcements` | AnnouncementsEditor | Layout |
+| 20 | `layout.footer` | FooterEditor | Layout |
+| 21 | `site.constants` | SiteConstantsEditor | Global |
+| 22-29 | `i18n.*` | TranslationGroupEditor | i18n |
+
+### Adding a New Editable Section
+1. **Type:** Add interface to `types/content-blocks.ts`, add to `SectionKey` union + `SectionContentMap`
+2. **Default:** Add `DEFAULT_*` constant to `lib/data/content-defaults.ts`
+3. **Editor:** Create `components/editor/sections/*Editor.tsx` using EditorField + ArrayField
+4. **Register:** Import editor in `EditDrawer.tsx`, add to imports, `getDefaultContent()`, and `renderEditor()` switch
+5. **Panel:** Add entry to `VISUAL_SECTIONS` in `EditModeToggle.tsx`
+6. **Page:** Refactor page to server component, create client sub-component with `content` prop, wrap in `EditableSection`
+
+### Design Rules
+- **Editable:** text, headings, paragraphs, links/URLs, images, contact info
+- **NOT editable:** colors, sizes, layout, design elements, products (managed via dashboard)
+- **Split headings:** Store as `heading` + `headingAccent` (not rich text)
+- **Icons:** Not editable — use `iconKey` dropdown mapped to fixed icon set
+- **Contact info:** Address/phone/hours come from `site.constants`
+
 ## Agent Behavior
 - **Never ask the user to run commands** — always run them yourself (dev server, builds, deploys, installs, migrations, etc.)
 - **Never ask the user to restart anything** — kill and restart processes yourself
 - **Never tell the user to do manual steps** if you can do it programmatically (updating env vars, DNS, config, etc.)
 - **Only ask the user for help** when something is truly impossible for you (e.g., logging into a third-party dashboard with their credentials, physical access, billing decisions)
 - **Be autonomous** — figure it out, fix it, run it, verify it
+
+### Workflow Orchestration
+- **Plan Mode Default:** Enter plan mode for any task requiring 3+ steps
+- **Subagent Strategy:** Offload research/exploration to subagents to protect main context
+- **Verification Before Done:** Never mark a task complete without proving it works (build, test, visual check)
+- **Demand Elegance:** For non-trivial changes, pause and ask "is there a more elegant way?"
+- **Autonomous Bug Fixing:** If something breaks, just fix it — don't ask for hand-holding
+
+### Task Management Protocol
+1. **Plan First** — Understand the full scope before writing code
+2. **Verify Plan** — Ensure the approach is correct before implementing
+3. **Track Progress** — Use task lists for multi-step work
+4. **Explain Changes** — Summarize what changed and why
+5. **Document Results** — Confirm build/test pass
+6. **Capture Lessons** — After any correction, note the pattern to avoid repeating it
+
+### Core Principles
+- **Simplicity First** — The simplest correct solution wins
+- **No Laziness** — Don't skip steps, don't leave TODOs
+- **Minimal Impact** — Change only what's necessary, nothing more
 
 ## Code Conventions
 - Use TypeScript strict mode

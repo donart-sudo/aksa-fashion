@@ -11,6 +11,8 @@ import {
   TESTIMONIAL_IMAGES,
   APPOINTMENT_IMAGE,
   NEWSLETTER_IMAGES,
+  ABOUT_IMAGES,
+  cdnUrl,
 } from "@/lib/cdn-image-urls";
 import { SOCIAL_LINKS } from "@/lib/constants";
 import type {
@@ -27,6 +29,13 @@ import type {
   AnnouncementsContent,
   FooterContent,
   SiteConstantsContent,
+  AboutHeroContent,
+  AboutCraftContent,
+  AboutCtaContent,
+  ContactHeroContent,
+  ContactFormContent,
+  ContactSidebarContent,
+  ContactCtaContent,
 } from "@/types/content-blocks";
 
 /* ── Homepage ──────────────────────────────────────────────────────────── */
@@ -217,6 +226,132 @@ export const DEFAULT_FOOTER: FooterContent = {
     { label: "Terms", href: "/terms" },
     { label: "Privacy", href: "/privacy" },
   ],
+};
+
+/* ── About page ───────────────────────────────────────────────────────── */
+
+export const DEFAULT_ABOUT_HERO: AboutHeroContent = {
+  heroImage: ABOUT_IMAGES.aboutHero,
+  heroAlt: "Aksa Fashion — Elegant bridal gown",
+  tagline: "Our Story",
+  heading: "Born in Prishtina,",
+  headingAccent: "Worn Around the World",
+  introParagraph: "Aksa Fashion crafts gowns for women who refuse to blend in — each piece made with intention, artistry, and a deep love for the craft.",
+  brandLabel: "The Beginning",
+  brandHeading: "Where Tradition Meets",
+  brandHeadingAccent: "Haute Couture",
+  brandParagraphs: [
+    "Founded in the heart of Prishtina, Kosovo, Aksa Fashion was born from a simple belief: every woman deserves to feel extraordinary. What began as a small atelier with a handful of gowns has grown into a destination for brides and fashion-forward women across the Balkans, Europe, and beyond.",
+    "Our designs bridge the gap between timeless European elegance and the bold, warm spirit of Kosovar craftsmanship. Each gown is more than fabric and thread — it's a piece of art that carries a story, your story.",
+    "We don't follow trends. We create gowns that make you feel something — the moment you see it, you know it's the one.",
+  ],
+  brandImage: ABOUT_IMAGES.aboutBride,
+  brandImageAlt: "Bride in handcrafted gown",
+  yearBadge: "2024",
+  yearBadgeLabel: "Est. in Prishtina",
+  stats: [
+    { number: "2,000+", label: "Gowns Crafted" },
+    { number: "35+", label: "Countries Shipped" },
+    { number: "2024", label: "Founded in Prishtina" },
+    { number: "100%", label: "Made to Order" },
+  ],
+};
+
+export const DEFAULT_ABOUT_CRAFT: AboutCraftContent = {
+  craftLabel: "The Craft",
+  craftHeading: "Every Detail,",
+  craftHeadingAccent: "By Hand",
+  craftDescription: "A gown is not sewn — it is composed. Four stages, one promise: perfection.",
+  craftSteps: [
+    { num: "01", title: "Select", desc: "European silks, satins & laces — chosen for drape and light" },
+    { num: "02", title: "Measure", desc: "Cut from your exact body measurements — no standard sizes" },
+    { num: "03", title: "Stitch", desc: "40+ hours of handwork — beading, embroidery, appliqué" },
+    { num: "04", title: "Perfect", desc: "Final pressing, inspection & packaging — ready to wear" },
+  ],
+  valuesLabel: "What We Stand For",
+  valuesHeading: "The Aksa Difference",
+  values: [
+    { number: "01", title: "Handcrafted with Intention", description: "Every stitch, every bead, every fold is placed by hand in our Prishtina atelier. We don't mass-produce — we create.", iconKey: "sparkles" },
+    { number: "02", title: "Made to Your Measure", description: "No two women are the same, and neither are our gowns. Every dress is built from your exact measurements for a flawless fit.", iconKey: "person" },
+    { number: "03", title: "European Fabrics", description: "We source only the finest silks, satins, tulles, and laces from trusted European mills — materials that drape, shimmer, and last.", iconKey: "heart" },
+    { number: "04", title: "Personal Styling", description: "From first WhatsApp message to final fitting, our stylists guide you through every detail. This is your dress, your way.", iconKey: "chat" },
+  ],
+};
+
+export const DEFAULT_ABOUT_CTA: AboutCtaContent = {
+  atelierLabel: "The Atelier",
+  atelierHeading: "Where Every Gown",
+  atelierHeadingAccent: "Comes to Life",
+  atelierParagraphs: [
+    "Our Prishtina atelier is where fabric meets imagination. It's a space of quiet focus — where our seamstresses bring decades of expertise to every garment, and where you're invited to see your dress take shape.",
+    "Book a private appointment to visit, try on samples, and work with our team to design something truly yours.",
+  ],
+  atelierImage: cdnUrl("allure-women-w550-01.jpg"),
+  atelierImageAlt: "Inside our Prishtina atelier — Maison gown",
+  promiseLabel: "Our Promise",
+  promiseHeading: "You Deserve to Feel",
+  promiseHeadingAccent: "Extraordinary",
+  promiseParagraph: "Whether it's your wedding day, a gala, or a moment you want to remember forever — we're here to make sure you feel like the most beautiful woman in the room.",
+  ctaPrimaryText: "Explore Collections",
+  ctaPrimaryLink: "/collections",
+  ctaSecondaryText: "Book Appointment",
+  ctaSecondaryLink: "",
+};
+
+/* ── Contact page ─────────────────────────────────────────────────────── */
+
+export const DEFAULT_CONTACT_HERO: ContactHeroContent = {
+  heroImage: cdnUrl("abella-e552-browne-01.jpg"),
+  heroAlt: "Aksa Fashion — Contact us",
+  tagline: "Get in Touch",
+  heading: "Let's Create Something",
+  headingAccent: "Beautiful Together",
+  introParagraph: "Whether you have a vision or need guidance, our team is here to help you find the perfect gown.",
+};
+
+export const DEFAULT_CONTACT_FORM: ContactFormContent = {
+  formLabel: "Send a Message",
+  formHeading: "Tell Us About Your",
+  formHeadingAccent: "Vision",
+  formSubtitle: "Share your ideas and we'll get back to you within 24 hours with a personalized response.",
+  inquiryTypes: [
+    "Bridal Consultation",
+    "Evening Wear Inquiry",
+    "Custom Design",
+    "Order Status",
+    "Collaboration",
+    "Other",
+  ],
+  submitButtonText: "Send Message",
+  successHeading: "Message Sent",
+  successMessage: "Thank you! We'll be in touch within 24 hours.",
+};
+
+export const DEFAULT_CONTACT_SIDEBAR: ContactSidebarContent = {
+  atelierLabel: "The Atelier",
+  atelierHeading: "Visit Us in",
+  atelierHeadingAccent: "Prishtina",
+  closedDayText: "Sunday: Closed",
+  appointmentLine1: "Private fittings available by appointment.",
+  appointmentLine2: "Walk-ins welcome during business hours.",
+  followUsLabel: "Follow Us",
+  brandQuote: "The dress should wear the occasion, and you should wear the dress.",
+};
+
+export const DEFAULT_CONTACT_CTA: ContactCtaContent = {
+  whatsappBadge: "Preferred by 90% of our clients",
+  whatsappHeading: "Prefer WhatsApp?",
+  whatsappHeadingAccent: "So do we.",
+  whatsappDescription: "Most of our brides start their journey with a simple WhatsApp message. Share your inspiration photos, get instant advice, and book your fitting — all from your phone.",
+  whatsappButtonText: "Start a Chat",
+  exploreLabel: "While You're Here",
+  exploreHeading: "Explore Our",
+  exploreHeadingAccent: "Collections",
+  exploreDescription: "Browse our latest gowns for inspiration before your consultation.",
+  explorePrimaryText: "View Collections",
+  explorePrimaryLink: "/collections",
+  exploreSecondaryText: "Our Story",
+  exploreSecondaryLink: "/about",
 };
 
 export const DEFAULT_SITE_CONSTANTS: SiteConstantsContent = {

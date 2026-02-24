@@ -19,7 +19,7 @@ export default function FAQEditor({ content, onChange }: Props) {
       />
       <ArrayField<FAQItem>
         label="FAQ Items"
-        items={content.items}
+        items={content.items ?? []}
         onChange={(items) => onChange({ ...content, items })}
         addLabel="Add FAQ"
         createItem={() => ({ q: "", a: "" })}

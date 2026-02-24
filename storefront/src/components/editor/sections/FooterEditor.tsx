@@ -22,28 +22,28 @@ export default function FooterEditor({ content, onChange }: Props) {
 
       <ArrayField<FooterLink>
         label="Shop Links"
-        items={content.shopLinks}
+        items={content.shopLinks ?? []}
         onChange={(shopLinks) => onChange({ ...content, shopLinks })}
         addLabel="Add shop link"
         createItem={() => ({ label: "", href: "/" })}
         renderItem={(link, _i, update) => (
           <div className="grid grid-cols-2 gap-2">
             <EditorField label="Label" value={link.label} onChange={(label) => update({ ...link, label })} />
-            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} />
+            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/collections or https://..." />
           </div>
         )}
       />
 
       <ArrayField<FooterLink>
         label="Help Links"
-        items={content.helpLinks}
+        items={content.helpLinks ?? []}
         onChange={(helpLinks) => onChange({ ...content, helpLinks })}
         addLabel="Add help link"
         createItem={() => ({ label: "", href: "/" })}
         renderItem={(link, _i, update) => (
           <div className="grid grid-cols-2 gap-2">
             <EditorField label="Label" value={link.label} onChange={(label) => update({ ...link, label })} />
-            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} />
+            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/faq or https://..." />
           </div>
         )}
       />

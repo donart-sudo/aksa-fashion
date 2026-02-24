@@ -54,7 +54,7 @@ export default function EditorialBandEditor({ content, onChange }: Props) {
           label="Button Link"
           value={content.buttonLink || ""}
           onChange={(buttonLink) => onChange({ ...content, buttonLink })}
-          placeholder="e.g. /collections"
+          placeholder="/collections or https://example.com"
         />
       </div>
     </div>

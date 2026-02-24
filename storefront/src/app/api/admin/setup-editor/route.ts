@@ -89,12 +89,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  // First check if table already exists via service role client
+  const admin = getServiceClient();
+  const { error: checkError } = await admin
+    .from("content_blocks")
+    .select("id", { count: "exact", head: true });
+
+  if (!checkError) {
+    // Table already exists — nothing to do
+    return NextResponse.json({ success: true });
+  }
+
+  // Table doesn't exist — try to create via pg
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
     return NextResponse.json(
       {
         error:
-          "DATABASE_URL not available in this environment. Run manually: npx tsx scripts/setup-content-blocks.ts",
+          "DATABASE_URL not available. Please create the content_blocks table in your Supabase SQL Editor. Copy the SQL from scripts/migration-dynamic-storefront.sql",
       },
       { status: 501 }
     );

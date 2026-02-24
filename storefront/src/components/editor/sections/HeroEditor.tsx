@@ -14,7 +14,7 @@ export default function HeroEditor({ content, onChange }: Props) {
   return (
     <ArrayField<HeroSlide>
       label="Hero Slides"
-      items={content.slides}
+      items={content.slides ?? []}
       onChange={(slides) => onChange({ ...content, slides })}
       addLabel="Add slide"
       maxItems={8}
@@ -86,7 +86,7 @@ export default function HeroEditor({ content, onChange }: Props) {
               label="Button Link"
               value={slide.ctaLink}
               onChange={(ctaLink) => update({ ...slide, ctaLink })}
-              placeholder="collections/bridal"
+              placeholder="/collections/bridal or https://example.com"
             />
           </div>
 
@@ -103,7 +103,7 @@ export default function HeroEditor({ content, onChange }: Props) {
               label="Button Link"
               value={slide.buttonSecondaryLink || ""}
               onChange={(buttonSecondaryLink) => update({ ...slide, buttonSecondaryLink })}
-              placeholder="collections/bridal"
+              placeholder="/collections/bridal or https://example.com"
             />
           </div>
 

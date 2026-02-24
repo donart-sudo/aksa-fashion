@@ -32,7 +32,7 @@ export default function TestimonialsEditor({ content, onChange }: Props) {
 
     <ArrayField<TestimonialStory>
       label="Testimonials"
-      items={content.stories}
+      items={content.stories ?? []}
       onChange={(stories) => onChange({ ...content, stories })}
       addLabel="Add testimonial"
       maxItems={10}

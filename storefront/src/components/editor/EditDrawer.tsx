@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLocale } from "next-intl";
+import { useRouter } from "next/navigation";
 import { useStorefrontAdmin } from "@/lib/storefront-admin";
 import { saveContentBlock } from "@/lib/data/content-blocks-client";
 import type { SectionKey, SectionContentMap } from "@/types/content-blocks";
@@ -22,6 +23,13 @@ import AnnouncementsEditor from "./sections/AnnouncementsEditor";
 import FooterEditor from "./sections/FooterEditor";
 import SiteConstantsEditor from "./sections/SiteConstantsEditor";
 import TranslationGroupEditor from "./sections/TranslationGroupEditor";
+import AboutHeroEditor from "./sections/AboutHeroEditor";
+import AboutCraftEditor from "./sections/AboutCraftEditor";
+import AboutCtaEditor from "./sections/AboutCtaEditor";
+import ContactHeroEditor from "./sections/ContactHeroEditor";
+import ContactFormEditor from "./sections/ContactFormEditor";
+import ContactSidebarEditor from "./sections/ContactSidebarEditor";
+import ContactCtaEditor from "./sections/ContactCtaEditor";
 
 // Default content
 import {
@@ -37,6 +45,13 @@ import {
   DEFAULT_ANNOUNCEMENTS,
   DEFAULT_FOOTER,
   DEFAULT_SITE_CONSTANTS,
+  DEFAULT_ABOUT_HERO,
+  DEFAULT_ABOUT_CRAFT,
+  DEFAULT_ABOUT_CTA,
+  DEFAULT_CONTACT_HERO,
+  DEFAULT_CONTACT_FORM,
+  DEFAULT_CONTACT_SIDEBAR,
+  DEFAULT_CONTACT_CTA,
 } from "@/lib/data/content-defaults";
 
 const LOCALES = [
@@ -69,6 +84,13 @@ function getDefaultContent(sectionKey: SectionKey): unknown {
     "layout.announcements": DEFAULT_ANNOUNCEMENTS,
     "layout.footer": DEFAULT_FOOTER,
     "site.constants": DEFAULT_SITE_CONSTANTS,
+    "page.about.hero": DEFAULT_ABOUT_HERO,
+    "page.about.craft": DEFAULT_ABOUT_CRAFT,
+    "page.about.cta": DEFAULT_ABOUT_CTA,
+    "page.contact.hero": DEFAULT_CONTACT_HERO,
+    "page.contact.form": DEFAULT_CONTACT_FORM,
+    "page.contact.sidebar": DEFAULT_CONTACT_SIDEBAR,
+    "page.contact.cta": DEFAULT_CONTACT_CTA,
   };
   return defaults[sectionKey] || {};
 }
@@ -81,7 +103,8 @@ interface EditDrawerProps {
 
 export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerProps) {
   const currentLocale = useLocale();
-  const { token } = useStorefrontAdmin();
+  const router = useRouter();
+  const { token, setLiveContent } = useStorefrontAdmin();
   const isI18n = isI18nSection(sectionKey);
   // For i18n sections, always use the current locale (override applies per-locale)
   const [locale, setLocale] = useState(isI18n ? currentLocale : currentLocale);
@@ -145,7 +168,7 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
         .eq("published", true)
         .single();
 
-      if (fetchError && (fetchError.message?.includes("schema cache") || fetchError.message?.includes("does not exist"))) {
+      if (fetchError && (fetchError.message?.includes("schema cache") || (fetchError.message?.includes("relation") && fetchError.message?.includes("does not exist")))) {
         setTableMissing(true);
       }
 
@@ -159,6 +182,13 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
   useEffect(() => {
     fetchContent(locale);
   }, [locale, fetchContent]);
+
+  // Push live content to context for real-time preview (only for current locale)
+  useEffect(() => {
+    if (content && !loading && locale === currentLocale && !isI18n) {
+      setLiveContent(sectionKey, content);
+    }
+  }, [content, loading, locale, currentLocale, sectionKey, setLiveContent, isI18n]);
 
   const handleSave = async () => {
     if (!token || !content) return;
@@ -176,17 +206,17 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
     if (result.success) {
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
-      // Trigger ISR revalidation for i18n changes (affects all pages)
-      if (isI18n && token) {
-        fetch("/api/admin/revalidate", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ paths: ["/"] }),
-        }).catch(() => {});
-      }
+      // Revalidate and refresh so server-rendered content updates
+      fetch("/api/admin/revalidate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ paths: ["/", "/about", "/contact"] }),
+      })
+        .then(() => router.refresh())
+        .catch(() => router.refresh());
     } else {
       if (result.tableMissing) {
         setTableMissing(true);
@@ -228,6 +258,13 @@ export default function EditDrawer({ sectionKey, label, onClose }: EditDrawerPro
       case "layout.announcements": return <AnnouncementsEditor {...props} />;
       case "layout.footer": return <FooterEditor {...props} />;
       case "site.constants": return <SiteConstantsEditor {...props} />;
+      case "page.about.hero": return <AboutHeroEditor {...props} />;
+      case "page.about.craft": return <AboutCraftEditor {...props} />;
+      case "page.about.cta": return <AboutCtaEditor {...props} />;
+      case "page.contact.hero": return <ContactHeroEditor {...props} />;
+      case "page.contact.form": return <ContactFormEditor {...props} />;
+      case "page.contact.sidebar": return <ContactSidebarEditor {...props} />;
+      case "page.contact.cta": return <ContactCtaEditor {...props} />;
       default: {
         // Handle i18n.* sections
         if (isI18nSection(sectionKey)) {

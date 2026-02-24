@@ -27,16 +27,17 @@ const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 const defaultTrustItems = [
-  { key: "trustHandcrafted" as const, Icon: SparklesIcon },
-  { key: "trustMeasure" as const, Icon: MeasureIcon },
-  { key: "trustShipping" as const, Icon: GlobeAltIcon },
-  { key: "trustStyling" as const, Icon: ChatBubbleLeftRightIcon },
+  { key: "trustHandcrafted" as const, text: undefined as string | undefined, Icon: SparklesIcon },
+  { key: "trustMeasure" as const, text: undefined as string | undefined, Icon: MeasureIcon },
+  { key: "trustShipping" as const, text: undefined as string | undefined, Icon: GlobeAltIcon },
+  { key: "trustStyling" as const, text: undefined as string | undefined, Icon: ChatBubbleLeftRightIcon },
 ];
 
 export default function TrustBar({ content }: { content?: TrustBarContent }) {
   const trustItems = content
     ? content.items.map((item) => ({
         key: item.textKey as "trustHandcrafted" | "trustMeasure" | "trustShipping" | "trustStyling",
+        text: item.text || undefined,
         Icon: ICON_MAP[item.iconKey] || SparklesIcon,
       }))
     : defaultTrustItems;
@@ -83,7 +84,7 @@ export default function TrustBar({ content }: { content?: TrustBarContent }) {
               >
                 <item.Icon className="w-4 h-4 text-gold/70 flex-shrink-0" />
                 <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/50 whitespace-nowrap">
-                  {t(item.key)}
+                  {item.text || t(item.key)}
                 </span>
               </div>
             </div>
@@ -105,7 +106,7 @@ export default function TrustBar({ content }: { content?: TrustBarContent }) {
               >
                 <item.Icon className="w-3.5 h-3.5 text-gold/70 flex-shrink-0" />
                 <span className="text-[10px] tracking-[0.15em] uppercase text-charcoal/50 whitespace-nowrap">
-                  {t(item.key)}
+                  {item.text || t(item.key)}
                 </span>
               </div>
             ))}

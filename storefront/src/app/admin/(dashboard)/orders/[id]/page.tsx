@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation'
 import {
   ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock, CreditCard,
   MapPin, User, Mail, Copy, Check, Loader2, AlertTriangle,
-  Calendar, FileText, Send, StickyNote, Plus,
+  Calendar, FileText, Send, StickyNote, Plus, Pencil,
 } from 'lucide-react'
 import TopBar from '@/components/admin/TopBar'
 import Modal from '@/components/admin/Modal'
@@ -101,6 +101,12 @@ export default function OrderDetailPage() {
   const [fulfilling, setFulfilling] = useState(false)
   const [delivering, setDelivering] = useState(false)
 
+  // Edit tracking state
+  const [editTrackingOpen, setEditTrackingOpen] = useState(false)
+  const [editTrackingNumber, setEditTrackingNumber] = useState('')
+  const [editTrackingUrl, setEditTrackingUrl] = useState('')
+  const [savingTracking, setSavingTracking] = useState(false)
+
   // Payment state
   const [markingPaid, setMarkingPaid] = useState(false)
 
@@ -188,6 +194,27 @@ export default function OrderDetailPage() {
       alert('Failed to mark delivered: ' + (err instanceof Error ? err.message : 'Unknown error'))
     } finally {
       setDelivering(false)
+    }
+  }
+
+  function openEditTracking() {
+    const existing = order?.fulfillments?.flatMap(f => f.labels || []) || []
+    setEditTrackingNumber(existing[0]?.tracking_number || '')
+    setEditTrackingUrl(existing[0]?.tracking_url || '')
+    setEditTrackingOpen(true)
+  }
+
+  async function handleSaveTracking() {
+    if (!order) return
+    setSavingTracking(true)
+    try {
+      await adminMedusa.updateTracking(orderId, editTrackingNumber.trim(), editTrackingUrl.trim())
+      setEditTrackingOpen(false)
+      await loadOrder()
+    } catch (err) {
+      alert('Failed to update tracking: ' + (err instanceof Error ? err.message : 'Unknown error'))
+    } finally {
+      setSavingTracking(false)
     }
   }
 
@@ -376,6 +403,13 @@ export default function OrderDetailPage() {
                             <p className="text-[12px]" style={{ color: '#005bd3' }}>No tracking number provided</p>
                           )}
                         </div>
+                        <button
+                          onClick={openEditTracking}
+                          className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1.5 rounded-[8px] text-[12px] font-medium border border-[#bfdbfe] bg-white text-[#005bd3] hover:bg-[#f0f7ff] transition-colors cursor-pointer"
+                        >
+                          <Pencil size={12} />
+                          {hasTracking ? 'Edit' : 'Add tracking'}
+                        </button>
                       </div>
                       <button
                         onClick={handleMarkDelivered}
@@ -644,6 +678,38 @@ export default function OrderDetailPage() {
             <button onClick={() => setFulfillModalOpen(false)} className="btn btn-secondary">Cancel</button>
             <button onClick={handleFulfillAndShip} disabled={fulfilling} className="btn btn-primary">
               {fulfilling ? <><Loader2 className="w-4 h-4 animate-spin" />Processing...</> : <><Send className="w-4 h-4" />Fulfill & ship</>}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* ── Edit Tracking Modal ─────────────────────────────────────── */}
+      <Modal open={editTrackingOpen} onClose={() => setEditTrackingOpen(false)} title={hasTracking ? 'Edit tracking info' : 'Add tracking info'} width="max-w-md">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-[13px] font-medium text-[#303030] mb-1.5">Tracking number</label>
+            <input
+              value={editTrackingNumber}
+              onChange={e => setEditTrackingNumber(e.target.value)}
+              placeholder="e.g. 1Z999AA10123456784"
+              className="input w-full"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[13px] font-medium text-[#303030] mb-1.5">Tracking URL (optional)</label>
+            <input
+              value={editTrackingUrl}
+              onChange={e => setEditTrackingUrl(e.target.value)}
+              placeholder="e.g. https://track.dhl.com/..."
+              className="input w-full"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t border-[#f0f0f0]">
+            <button onClick={() => setEditTrackingOpen(false)} className="btn btn-secondary">Cancel</button>
+            <button onClick={handleSaveTracking} disabled={savingTracking} className="btn btn-primary">
+              {savingTracking ? <><Loader2 className="w-4 h-4 animate-spin" />Saving...</> : <><Check className="w-4 h-4" />Save tracking</>}
             </button>
           </div>
         </div>

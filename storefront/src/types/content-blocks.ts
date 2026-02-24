@@ -183,6 +183,121 @@ export interface SiteConstantsContent {
   paymentWhatsapp: boolean;
 }
 
+/* ── About page ───────────────────────────────────────────────────────── */
+
+export interface AboutStat {
+  number: string;
+  label: string;
+}
+
+export interface AboutHeroContent {
+  heroImage: string;
+  heroAlt: string;
+  tagline: string;
+  heading: string;
+  headingAccent: string;
+  introParagraph: string;
+  brandLabel: string;
+  brandHeading: string;
+  brandHeadingAccent: string;
+  brandParagraphs: string[];
+  brandImage: string;
+  brandImageAlt: string;
+  yearBadge: string;
+  yearBadgeLabel: string;
+  stats: AboutStat[];
+}
+
+export interface CraftStep {
+  num: string;
+  title: string;
+  desc: string;
+}
+
+export interface AboutValue {
+  number: string;
+  title: string;
+  description: string;
+  iconKey: string;
+}
+
+export interface AboutCraftContent {
+  craftLabel: string;
+  craftHeading: string;
+  craftHeadingAccent: string;
+  craftDescription: string;
+  craftSteps: CraftStep[];
+  valuesLabel: string;
+  valuesHeading: string;
+  values: AboutValue[];
+}
+
+export interface AboutCtaContent {
+  atelierLabel: string;
+  atelierHeading: string;
+  atelierHeadingAccent: string;
+  atelierParagraphs: string[];
+  atelierImage: string;
+  atelierImageAlt: string;
+  promiseLabel: string;
+  promiseHeading: string;
+  promiseHeadingAccent: string;
+  promiseParagraph: string;
+  ctaPrimaryText: string;
+  ctaPrimaryLink: string;
+  ctaSecondaryText: string;
+  ctaSecondaryLink: string;
+}
+
+/* ── Contact page ─────────────────────────────────────────────────────── */
+
+export interface ContactHeroContent {
+  heroImage: string;
+  heroAlt: string;
+  tagline: string;
+  heading: string;
+  headingAccent: string;
+  introParagraph: string;
+}
+
+export interface ContactFormContent {
+  formLabel: string;
+  formHeading: string;
+  formHeadingAccent: string;
+  formSubtitle: string;
+  inquiryTypes: string[];
+  submitButtonText: string;
+  successHeading: string;
+  successMessage: string;
+}
+
+export interface ContactSidebarContent {
+  atelierLabel: string;
+  atelierHeading: string;
+  atelierHeadingAccent: string;
+  closedDayText: string;
+  appointmentLine1: string;
+  appointmentLine2: string;
+  followUsLabel: string;
+  brandQuote: string;
+}
+
+export interface ContactCtaContent {
+  whatsappBadge: string;
+  whatsappHeading: string;
+  whatsappHeadingAccent: string;
+  whatsappDescription: string;
+  whatsappButtonText: string;
+  exploreLabel: string;
+  exploreHeading: string;
+  exploreHeadingAccent: string;
+  exploreDescription: string;
+  explorePrimaryText: string;
+  explorePrimaryLink: string;
+  exploreSecondaryText: string;
+  exploreSecondaryLink: string;
+}
+
 /* ── Translation overrides ─────────────────────────────────────────────── */
 
 /** Flat key→value map for overriding i18n strings */
@@ -218,7 +333,14 @@ export type SectionKey =
   | "i18n.search"
   | "i18n.account"
   | "i18n.order"
-  | "i18n.orderTracking";
+  | "i18n.orderTracking"
+  | "page.about.hero"
+  | "page.about.craft"
+  | "page.about.cta"
+  | "page.contact.hero"
+  | "page.contact.form"
+  | "page.contact.sidebar"
+  | "page.contact.cta";
 
 /** Map section keys to their content types */
 export interface SectionContentMap {
@@ -248,4 +370,11 @@ export interface SectionContentMap {
   "i18n.account": TranslationOverrideContent;
   "i18n.order": TranslationOverrideContent;
   "i18n.orderTracking": TranslationOverrideContent;
+  "page.about.hero": AboutHeroContent;
+  "page.about.craft": AboutCraftContent;
+  "page.about.cta": AboutCtaContent;
+  "page.contact.hero": ContactHeroContent;
+  "page.contact.form": ContactFormContent;
+  "page.contact.sidebar": ContactSidebarContent;
+  "page.contact.cta": ContactCtaContent;
 }

@@ -46,7 +46,7 @@ export async function POST(req: Request) {
   }
 
   const body = await req.json()
-  const { table, operation, data, match, select: selectFields, order, limit } = body
+  const { table, operation, data, match, select: selectFields, order, limit, onConflict } = body
 
   if (!table || !operation) {
     return NextResponse.json({ error: 'Missing table or operation' }, { status: 400 })
@@ -85,7 +85,8 @@ export async function POST(req: Request) {
         break
       }
       case 'upsert': {
-        result = await admin.from(table).upsert(data).select(selectFields || '*')
+        const upsertOpts = onConflict ? { onConflict } : undefined
+        result = await admin.from(table).upsert(data, upsertOpts).select(selectFields || '*')
         break
       }
       case 'update': {

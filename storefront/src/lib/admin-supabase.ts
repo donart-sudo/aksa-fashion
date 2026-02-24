@@ -239,6 +239,18 @@ class SupabaseAdminClient {
   }
 
   async updateOrder(id: string, updates: Record<string, unknown>) {
+    // If metadata is being updated, merge with existing metadata
+    if (updates.metadata && typeof updates.metadata === 'object') {
+      const { data: existing } = await this.adminQuery({
+        table: 'orders',
+        operation: 'select_single',
+        select: 'metadata',
+        match: { id },
+      })
+      const existingMeta = (existing as { metadata?: Record<string, unknown> })?.metadata || {}
+      updates = { ...updates, metadata: { ...existingMeta, ...(updates.metadata as Record<string, unknown>) } }
+    }
+
     const { data } = await this.adminQuery({
       table: 'orders',
       operation: 'update',
@@ -262,8 +274,24 @@ class SupabaseAdminClient {
     return this.updateOrder(orderId, { fulfillment_status: 'fulfilled' })
   }
 
-  async createShipment(orderId: string, _fulfillmentId: string, _data: Record<string, unknown>) {
-    return this.updateOrder(orderId, { fulfillment_status: 'shipped' })
+  async createShipment(orderId: string, _fulfillmentId: string, data: Record<string, unknown>) {
+    const labels = (data.labels as { tracking_number?: string; tracking_url?: string }[]) || []
+    const tracking = labels.length > 0 ? labels[0] : undefined
+    const metadata: Record<string, unknown> = {}
+    if (tracking?.tracking_number) {
+      metadata.tracking_number = tracking.tracking_number
+      if (tracking.tracking_url) metadata.tracking_url = tracking.tracking_url
+    }
+    return this.updateOrder(orderId, {
+      fulfillment_status: 'shipped',
+      ...(Object.keys(metadata).length > 0 ? { metadata } : {}),
+    })
+  }
+
+  async updateTracking(orderId: string, trackingNumber: string, trackingUrl?: string) {
+    const metadata: Record<string, unknown> = { tracking_number: trackingNumber || null }
+    if (trackingUrl !== undefined) metadata.tracking_url = trackingUrl || null
+    return this.updateOrder(orderId, { metadata })
   }
 
   async markDelivered(orderId: string, _fulfillmentId: string) {
@@ -765,7 +793,9 @@ function toAdminOrder(row: any): MedusaOrder {
         }
       : null,
     shipping_address: row.shipping_address,
-    fulfillments: [],
+    fulfillments: (row.metadata?.tracking_number)
+      ? [{ id: row.id, packed_at: null, shipped_at: row.updated_at, delivered_at: null, canceled_at: null, labels: [{ tracking_number: row.metadata.tracking_number, tracking_url: row.metadata.tracking_url || '' }] }]
+      : [],
     metadata: row.metadata,
     created_at: row.created_at,
     updated_at: row.updated_at,

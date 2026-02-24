@@ -32,7 +32,7 @@ export default function FeaturedCollectionsEditor({ content, onChange }: Props) 
 
     <ArrayField<FeaturedCollectionItem>
       label="Collections"
-      items={content.collections}
+      items={content.collections ?? []}
       onChange={(collections) => onChange({ ...content, collections })}
       addLabel="Add collection"
       maxItems={8}
@@ -46,7 +46,7 @@ export default function FeaturedCollectionsEditor({ content, onChange }: Props) 
             placeholder="e.g. Bridal Gowns"
           />
           <ImageUploader label="Cover Image" value={item.image} onChange={(image) => update({ ...item, image })} />
-          <EditorField label="Link" value={item.href} onChange={(href) => update({ ...item, href })} placeholder="/collections/bridal" />
+          <EditorField label="Link" value={item.href} onChange={(href) => update({ ...item, href })} placeholder="/collections/bridal or https://example.com" />
         </div>
       )}
     />

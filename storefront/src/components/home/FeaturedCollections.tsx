@@ -159,9 +159,15 @@ function CollectionCard({
 }) {
   const num = String(index + 1).padStart(2, "0");
 
+  const isExt = /^https?:\/\//.test(collection.href);
+  const Tag = isExt ? "a" : Link;
+  const linkProps = isExt
+    ? { href: collection.href, target: "_blank" as const, rel: "noopener noreferrer" }
+    : { href: `/${locale}${collection.href}` };
+
   return (
-    <Link
-      href={`/${locale}${collection.href}`}
+    <Tag
+      {...linkProps}
       className="group block relative aspect-[3/4] overflow-hidden"
     >
       <Image
@@ -206,6 +212,6 @@ function CollectionCard({
           </svg>
         </span>
       </div>
-    </Link>
+    </Tag>
   );
 }

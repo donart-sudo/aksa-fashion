@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, type ReactNode } from "react";
+import { useState, useRef, useCallback, useEffect, type ReactNode, isValidElement, cloneElement, type ReactElement } from "react";
 import { createPortal } from "react-dom";
 import { useStorefrontAdmin } from "@/lib/storefront-admin";
 import type { SectionKey } from "@/types/content-blocks";
@@ -13,12 +13,24 @@ interface EditableSectionProps {
 }
 
 export default function EditableSection({ sectionKey, label, children }: EditableSectionProps) {
-  const { editMode } = useStorefrontAdmin();
+  const { editMode, liveContent, highlightedSection, setHighlightedSection } = useStorefrontAdmin();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [badgePos, setBadgePos] = useState({ top: 0, left: 0 });
+
+  const isHighlighted = highlightedSection === sectionKey;
+
+  // Scroll into view when this section becomes highlighted
+  useEffect(() => {
+    if (isHighlighted && wrapperRef.current) {
+      wrapperRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+      // Auto-clear highlight after 2.5s
+      const timer = setTimeout(() => setHighlightedSection(null), 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isHighlighted, setHighlightedSection]);
 
   // Clear timer on unmount
   useEffect(() => () => { if (hideTimer.current) clearTimeout(hideTimer.current); }, []);
@@ -37,21 +49,40 @@ export default function EditableSection({ sectionKey, label, children }: Editabl
     hideTimer.current = setTimeout(() => setHovered(false), 250);
   }, []);
 
-  if (!editMode) return <>{children}</>;
+  // Inject live content into children if available
+  const live = liveContent[sectionKey];
+  let rendered: ReactNode = children;
+  if (live && isValidElement(children)) {
+    rendered = cloneElement(children as ReactElement<{ content?: unknown }>, { content: live });
+  }
+
+  if (!editMode) return <>{rendered}</>;
+
+  const showOutline = hovered || isHighlighted;
 
   return (
     <div
       ref={wrapperRef}
+      data-section-key={sectionKey}
       className="relative"
-      style={{
-        outline: hovered ? "2px dashed rgba(184, 146, 106, 0.55)" : "2px dashed transparent",
-        outlineOffset: "-2px",
-        transition: "outline-color 200ms ease",
-      }}
       onMouseEnter={show}
       onMouseLeave={hide}
     >
-      {children}
+      {rendered}
+
+      {/* Overlay outline — absolutely positioned ON TOP of all content */}
+      {showOutline && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            zIndex: 9990,
+            border: isHighlighted
+              ? "2.5px solid rgba(184, 146, 106, 0.8)"
+              : "2px dashed rgba(184, 146, 106, 0.55)",
+            transition: "border-color 200ms ease, border-width 200ms ease",
+          }}
+        />
+      )}
 
       {/* Floating label — portalled to body so it's never clipped by z-index */}
       {hovered && typeof document !== "undefined" &&

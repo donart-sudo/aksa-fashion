@@ -13,7 +13,7 @@ export default function LegalEditor({ content, onChange }: Props) {
   return (
     <ArrayField<LegalSection>
       label="Sections"
-      items={content.sections}
+      items={content.sections ?? []}
       onChange={(sections) => onChange({ ...content, sections })}
       addLabel="Add section"
       createItem={() => ({ title: "", body: "" })}
