@@ -409,3 +409,134 @@ export async function fetchCategoryCover(
   const products = await fetchProductsByCategory(categoryHandle)
   return products[0]?.images[0] || ''
 }
+
+// --- Store settings from admin dashboard ---
+
+export interface StorefrontSettings {
+  // Brand
+  primaryColor: string
+  accentColor: string
+  logoUrl: string
+  // Store details
+  storeName: string
+  email: string
+  phone: string
+  address: string
+  description: string
+  socialInstagram: string
+  socialFacebook: string
+  socialTiktok: string
+  socialWhatsapp: string
+  // Shipping (in cents)
+  freeShippingThreshold: number
+  standardRate: number
+  standardDays: string
+  expressRate: number
+  expressDays: string
+  processingTime: string
+  // Taxes
+  taxEnabled: boolean
+  taxRate: number
+  taxIncludedInPrices: boolean
+  // Checkout
+  requirePhone: boolean
+  orderNotes: boolean
+  autoConfirm: boolean
+  // Notifications
+  senderName: string
+  senderEmail: string
+  // Payments
+  paymentBankTransfer: boolean
+  paymentCashPickup: boolean
+  paymentWesternUnion: boolean
+  paymentWhatsapp: boolean
+}
+
+const STORE_DEFAULTS: StorefrontSettings = {
+  primaryColor: '#2D2D2D',
+  accentColor: '#B8926A',
+  logoUrl: '',
+  storeName: 'Aksa Fashion',
+  email: 'info@aksafashion.com',
+  phone: '+383 44 000 000',
+  address: 'Prishtina, Kosovo',
+  description: 'Luxury bridal gowns and evening wear from Prishtina, Kosovo.',
+  socialInstagram: '',
+  socialFacebook: '',
+  socialTiktok: '',
+  socialWhatsapp: '',
+  freeShippingThreshold: 15000, // €150 in cents
+  standardRate: 1500, // €15 in cents
+  standardDays: '3-5',
+  expressRate: 3000, // €30 in cents
+  expressDays: '1-2',
+  processingTime: '2-5 business days',
+  taxEnabled: true,
+  taxRate: 18,
+  taxIncludedInPrices: true,
+  requirePhone: true,
+  orderNotes: true,
+  autoConfirm: false,
+  senderName: 'Aksa Fashion',
+  senderEmail: 'orders@aksa-fashion.com',
+  paymentBankTransfer: true,
+  paymentCashPickup: true,
+  paymentWesternUnion: false,
+  paymentWhatsapp: true,
+}
+
+export async function fetchStoreSettings(): Promise<StorefrontSettings> {
+  try {
+    const supabase = getClient()
+    const { data, error } = await supabase
+      .from('store_settings')
+      .select('metadata')
+      .limit(1)
+      .single()
+
+    if (error || !data?.metadata) return STORE_DEFAULTS
+
+    const m = data.metadata as Record<string, unknown>
+    return {
+      primaryColor: (m.primaryColor as string) || STORE_DEFAULTS.primaryColor,
+      accentColor: (m.accentColor as string) || STORE_DEFAULTS.accentColor,
+      logoUrl: (m.logoUrl as string) || STORE_DEFAULTS.logoUrl,
+      storeName: (m.storeName as string) || STORE_DEFAULTS.storeName,
+      email: (m.email as string) || STORE_DEFAULTS.email,
+      phone: (m.phone as string) || STORE_DEFAULTS.phone,
+      address: (m.address as string) || STORE_DEFAULTS.address,
+      description: (m.description as string) || STORE_DEFAULTS.description,
+      socialInstagram: (m.socialInstagram as string) || STORE_DEFAULTS.socialInstagram,
+      socialFacebook: (m.socialFacebook as string) || STORE_DEFAULTS.socialFacebook,
+      socialTiktok: (m.socialTiktok as string) || STORE_DEFAULTS.socialTiktok,
+      socialWhatsapp: (m.socialWhatsapp as string) || STORE_DEFAULTS.socialWhatsapp,
+      // Convert EUR to cents for shipping rates
+      freeShippingThreshold: m.freeShippingThreshold != null ? Number(m.freeShippingThreshold) * 100 : STORE_DEFAULTS.freeShippingThreshold,
+      standardRate: m.standardRate != null ? Number(m.standardRate) * 100 : STORE_DEFAULTS.standardRate,
+      standardDays: (m.standardDays as string) || STORE_DEFAULTS.standardDays,
+      expressRate: m.expressRate != null ? Number(m.expressRate) * 100 : STORE_DEFAULTS.expressRate,
+      expressDays: (m.expressDays as string) || STORE_DEFAULTS.expressDays,
+      processingTime: (m.processingTime as string) || STORE_DEFAULTS.processingTime,
+      taxEnabled: m.taxEnabled != null ? Boolean(m.taxEnabled) : STORE_DEFAULTS.taxEnabled,
+      taxRate: m.taxRate != null ? Number(m.taxRate) : STORE_DEFAULTS.taxRate,
+      taxIncludedInPrices: m.taxIncludedInPrices != null ? Boolean(m.taxIncludedInPrices) : STORE_DEFAULTS.taxIncludedInPrices,
+      requirePhone: m.requirePhone != null ? Boolean(m.requirePhone) : STORE_DEFAULTS.requirePhone,
+      orderNotes: m.orderNotes != null ? Boolean(m.orderNotes) : STORE_DEFAULTS.orderNotes,
+      autoConfirm: m.autoConfirm != null ? Boolean(m.autoConfirm) : STORE_DEFAULTS.autoConfirm,
+      senderName: (m.senderName as string) || STORE_DEFAULTS.senderName,
+      senderEmail: (m.senderEmail as string) || STORE_DEFAULTS.senderEmail,
+      paymentBankTransfer: m.paymentBankTransfer != null ? Boolean(m.paymentBankTransfer) : STORE_DEFAULTS.paymentBankTransfer,
+      paymentCashPickup: m.paymentCashPickup != null ? Boolean(m.paymentCashPickup) : STORE_DEFAULTS.paymentCashPickup,
+      paymentWesternUnion: m.paymentWesternUnion != null ? Boolean(m.paymentWesternUnion) : STORE_DEFAULTS.paymentWesternUnion,
+      paymentWhatsapp: m.paymentWhatsapp != null ? Boolean(m.paymentWhatsapp) : STORE_DEFAULTS.paymentWhatsapp,
+    }
+  } catch {
+    return STORE_DEFAULTS
+  }
+}
+
+/** Backward-compatible alias */
+export async function fetchBrandSettings() {
+  const s = await fetchStoreSettings()
+  return { primaryColor: s.primaryColor, accentColor: s.accentColor, logoUrl: s.logoUrl }
+}

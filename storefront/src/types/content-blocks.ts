@@ -164,6 +164,23 @@ export interface SiteConstantsContent {
   facebook: string;
   tiktok: string;
   whatsapp: string;
+  // Store settings from admin dashboard (shipping, taxes, checkout, etc.)
+  freeShippingThreshold: number;
+  standardShippingRate: number;
+  standardShippingDays: string;
+  expressShippingRate: number;
+  expressShippingDays: string;
+  processingTime: string;
+  taxEnabled: boolean;
+  taxRate: number;
+  taxIncludedInPrices: boolean;
+  requirePhone: boolean;
+  orderNotes: boolean;
+  logoUrl: string;
+  paymentBankTransfer: boolean;
+  paymentCashPickup: boolean;
+  paymentWesternUnion: boolean;
+  paymentWhatsapp: boolean;
 }
 
 /* ── Translation overrides ─────────────────────────────────────────────── */

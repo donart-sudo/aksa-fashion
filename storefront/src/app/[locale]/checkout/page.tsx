@@ -389,7 +389,8 @@ export default function CheckoutPage() {
   const locale = useLocale();
   const router = useRouter();
   const { items, subtotal, itemCount, clearCart } = useCart();
-  const { whatsapp: whatsappUrl } = useSiteConstants();
+  const sc = useSiteConstants();
+  const whatsappUrl = sc.whatsapp;
   const { customer } = useAuth();
 
   /* Form state */
@@ -528,7 +529,7 @@ export default function CheckoutPage() {
   const [selectedShippingOption, setSelectedShippingOption] = useState<string | null>(null);
   const [shippingCostValue, setShippingCostValue] = useState<number | null>(null);
 
-  const shippingCost = shippingCostValue ?? (subtotal >= 15000 ? 0 : 1500);
+  const shippingCost = shippingCostValue ?? (subtotal >= sc.freeShippingThreshold ? 0 : sc.standardShippingRate);
 
   const goToStep = useCallback((s: Step) => setStep(s), []);
 
@@ -557,8 +558,9 @@ export default function CheckoutPage() {
         if (value.trim().length < 2) return "City name is too short";
         return "";
       case "phone": {
+        if (!sc.requirePhone && !value) return "";
         const digits = value.replace(/[^\d]/g, "");
-        if (!value || digits.length < 7) return "Enter a valid phone number";
+        if (!value || digits.length < 7) return sc.requirePhone ? "Enter a valid phone number" : "";
         if (digits.length > 15) return "Phone number is too long";
         return "";
       }
@@ -636,7 +638,7 @@ export default function CheckoutPage() {
       setStep(2);
       setShippingOptions([]);
       setSelectedShippingOption("standard");
-      setShippingCostValue(subtotal >= 15000 ? 0 : 1500);
+      setShippingCostValue(subtotal >= sc.freeShippingThreshold ? 0 : sc.standardShippingRate);
     } finally {
       setCartCreating(false);
     }
@@ -1134,21 +1136,21 @@ export default function CheckoutPage() {
                           <ShippingOptionRadio
                             name={tCo("standardShipping")}
                             description={tCo("standardDays")}
-                            price={subtotal >= 15000 ? t("free") : "€15.00"}
+                            price={subtotal >= sc.freeShippingThreshold ? t("free") : formatPrice(sc.standardShippingRate)}
                             selected={!selectedShippingOption || selectedShippingOption === "standard"}
                             onSelect={() => {
                               setSelectedShippingOption("standard");
-                              setShippingCostValue(subtotal >= 15000 ? 0 : 1500);
+                              setShippingCostValue(subtotal >= sc.freeShippingThreshold ? 0 : sc.standardShippingRate);
                             }}
                           />
                           <ShippingOptionRadio
                             name={tCo("expressShipping")}
                             description={tCo("expressDays")}
-                            price="€30.00"
+                            price={formatPrice(sc.expressShippingRate)}
                             selected={selectedShippingOption === "express"}
                             onSelect={() => {
                               setSelectedShippingOption("express");
-                              setShippingCostValue(3000);
+                              setShippingCostValue(sc.expressShippingRate);
                             }}
                           />
                         </>
@@ -1157,6 +1159,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {/* Order note */}
+                  {sc.orderNotes && (
                   <div className="mb-8">
                     <h2 className="text-sm font-medium text-charcoal mb-2">
                       {tCo("orderNote")}
@@ -1169,6 +1172,7 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-3 text-sm border border-soft-gray/50 rounded-xl bg-white placeholder:text-charcoal/30 focus:border-gold focus:outline-none transition-colors resize-none"
                     />
                   </div>
+                  )}
 
                   {/* Navigation */}
                   <div className="flex items-center justify-between">
@@ -1270,11 +1274,11 @@ export default function CheckoutPage() {
 
                       {/* Payment methods */}
                       <div className="space-y-2.5 mb-5">
-                        {[
-                          { icon: "🏦", label: tCo("bankTransfer") },
-                          { icon: "💸", label: tCo("westernUnion") },
-                          { icon: "🏪", label: tCo("cashOnPickup") },
-                        ].map((method) => (
+                        {([
+                          sc.paymentBankTransfer ? { icon: "🏦", label: tCo("bankTransfer") } : null,
+                          sc.paymentWesternUnion ? { icon: "💸", label: tCo("westernUnion") } : null,
+                          sc.paymentCashPickup ? { icon: "🏪", label: tCo("cashOnPickup") } : null,
+                        ].filter((m): m is { icon: string; label: string } => m !== null)).map((method) => (
                           <div
                             key={method.label}
                             className="flex items-center gap-3 px-4 py-3 bg-cream/60 rounded-lg"

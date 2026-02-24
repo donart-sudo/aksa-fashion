@@ -1,17 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase-admin'
 import { sendOrderConfirmationEmail } from '@/lib/email'
+import { fetchStoreSettings } from '@/lib/data/supabase-products'
 
 // UUID v4 regex for validating product IDs from Supabase
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-// Shipping costs in cents — single source of truth
-const STANDARD_SHIPPING = 1500  // €15
-const EXPRESS_SHIPPING = 3000   // €30
-const FREE_SHIPPING_THRESHOLD = 15000 // €150
-
 export async function POST(request: Request) {
   try {
+    // Load shipping/tax settings from admin dashboard
+    const settings = await fetchStoreSettings()
+    const STANDARD_SHIPPING = settings.standardRate
+    const EXPRESS_SHIPPING = settings.expressRate
+    const FREE_SHIPPING_THRESHOLD = settings.freeShippingThreshold
+
     const body = await request.json()
     const { email, items, shippingAddress, shippingOptionId, orderNote } = body
 
@@ -222,6 +224,9 @@ export async function POST(request: Request) {
         total,
         shippingAddress: normalizedAddress,
         shippingMethod: shippingMethodName,
+        senderName: settings.senderName,
+        senderEmail: settings.senderEmail,
+        storeName: settings.storeName,
       })
     } catch (err) {
       // Email failure should not block the order — log and continue

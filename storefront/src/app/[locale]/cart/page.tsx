@@ -20,23 +20,24 @@ import { CheckIcon } from "@heroicons/react/24/solid";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
 import { formatPrice } from "@/lib/utils";
+import { useSiteConstants } from "@/lib/site-constants";
 import EditableSection from "@/components/editor/EditableSection";
-
-const FREE_SHIPPING_THRESHOLD = 15000; // €150 in cents
 
 /* ── Free Shipping Progress Bar ── */
 function ShippingProgress({
   subtotal,
+  threshold,
   t,
 }: {
   subtotal: number;
+  threshold: number;
   t: ReturnType<typeof useTranslations>;
 }) {
-  const reached = subtotal >= FREE_SHIPPING_THRESHOLD;
-  const progress = Math.min(1, subtotal / FREE_SHIPPING_THRESHOLD);
+  const reached = subtotal >= threshold;
+  const progress = Math.min(1, subtotal / threshold);
   const remaining = Math.max(
     0,
-    Math.ceil((FREE_SHIPPING_THRESHOLD - subtotal) / 100)
+    Math.ceil((threshold - subtotal) / 100)
   );
 
   return (
@@ -62,7 +63,7 @@ function ShippingProgress({
         </div>
         {!reached && (
           <span className="text-[10px] text-charcoal/25 tabular-nums">
-            {formatPrice(subtotal)} / {formatPrice(FREE_SHIPPING_THRESHOLD)}
+            {formatPrice(subtotal)} / {formatPrice(threshold)}
           </span>
         )}
       </div>
@@ -328,6 +329,8 @@ function TrustBadges({ t }: { t: ReturnType<typeof useTranslations> }) {
 export default function CartPage() {
   const t = useTranslations();
   const locale = useLocale();
+  const sc = useSiteConstants();
+  const FREE_SHIPPING_THRESHOLD = sc.freeShippingThreshold;
   const { items, removeItem, updateQuantity, subtotal, itemCount, clearCart } =
     useCart();
   const { toggleItem } = useWishlist();
@@ -387,7 +390,7 @@ export default function CartPage() {
       </motion.div>
 
       {/* Free shipping progress */}
-      <ShippingProgress subtotal={subtotal} t={t} />
+      <ShippingProgress subtotal={subtotal} threshold={FREE_SHIPPING_THRESHOLD} t={t} />
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-8 lg:gap-12">
         {/* ── Left: Cart Items ── */}

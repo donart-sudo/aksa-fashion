@@ -21,6 +21,7 @@ import { StorefrontAdminProvider } from "@/lib/storefront-admin";
 import EditModeToggle from "@/components/editor/EditModeToggle";
 import { getSiteConstants } from "@/lib/data/content-blocks";
 import { SiteConstantsProvider } from "@/lib/site-constants";
+import { fetchBrandSettings } from "@/lib/data/supabase-products";
 
 export const viewport: Viewport = {
   viewportFit: "cover",
@@ -109,9 +110,17 @@ export default async function LocaleLayout({
     notFound();
   }
 
-  const messages = await getMessages();
+  const [messages, siteConstants, brand] = await Promise.all([
+    getMessages(),
+    getSiteConstants(),
+    fetchBrandSettings(),
+  ]);
   const rtl = isRtl(locale as Locale);
-  const siteConstants = await getSiteConstants();
+
+  // Build CSS variable overrides from admin brand settings
+  const brandStyle: Record<string, string> = {};
+  if (brand.primaryColor !== '#2D2D2D') brandStyle['--color-charcoal'] = brand.primaryColor;
+  if (brand.accentColor !== '#B8926A') brandStyle['--color-gold'] = brand.accentColor;
 
   return (
     <html lang={locale} dir={rtl ? "rtl" : "ltr"}>
@@ -124,6 +133,7 @@ export default async function LocaleLayout({
       </head>
       <body
         className={`${inter.variable} ${cormorant.variable} font-sans antialiased bg-cream text-charcoal overflow-x-hidden`}
+        style={Object.keys(brandStyle).length > 0 ? brandStyle as React.CSSProperties : undefined}
       >
         <NextIntlClientProvider messages={messages}>
           <SiteConstantsProvider value={siteConstants}>

@@ -612,6 +612,41 @@ class SupabaseAdminClient {
     return {}
   }
 
+  // ── Store Settings ──────────────────────────────────────────────────
+
+  async getStoreSettings() {
+    const { data, error } = await this.client
+      .from('store_settings')
+      .select('*')
+      .limit(1)
+      .single()
+
+    if (error) throw new Error(error.message)
+    return data as { id: string; name: string; default_currency_code: string; metadata: Record<string, unknown> | null }
+  }
+
+  async updateStoreSettings(metadata: Record<string, unknown>) {
+    // Fetch the single row's ID first, then update by ID
+    const row = await this.getStoreSettings()
+    const { data } = await this.adminQuery({
+      table: 'store_settings',
+      operation: 'update',
+      data: { metadata, updated_at: new Date().toISOString() },
+      match: { id: row.id },
+    })
+    return data
+  }
+
+  async getAdminUsers() {
+    const { data } = await this.adminQuery({
+      table: 'admin_users',
+      operation: 'select',
+      select: 'id, email, role, created_at',
+      order: { column: 'created_at', ascending: true },
+    })
+    return (data as unknown[]) || []
+  }
+
   // ── Store API (public products) ──────────────────────────────────────
 
   async getStoreProducts(params?: Record<string, string>) {

@@ -1,6 +1,7 @@
 import { createServerSupabaseClient } from "@/lib/supabase-server";
 import type { SectionKey, SectionContentMap, ContentBlockRow, TranslationOverrideContent, SiteConstantsContent } from "@/types/content-blocks";
-import { SOCIAL_LINKS, CONTACT_INFO, SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
+import { SOCIAL_LINKS, CONTACT_INFO, SITE_NAME, SITE_DESCRIPTION, FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
+import { fetchStoreSettings } from "@/lib/data/supabase-products";
 
 /**
  * Fetch a content block from Supabase. Returns null if not found or on error.
@@ -119,18 +120,72 @@ const SITE_DEFAULTS: SiteConstantsContent = {
   facebook: SOCIAL_LINKS.facebook,
   tiktok: SOCIAL_LINKS.tiktok,
   whatsapp: SOCIAL_LINKS.whatsapp,
+  freeShippingThreshold: FREE_SHIPPING_THRESHOLD,
+  standardShippingRate: 1500,
+  standardShippingDays: "3-5",
+  expressShippingRate: 3000,
+  expressShippingDays: "1-2",
+  processingTime: "2-5 business days",
+  taxEnabled: true,
+  taxRate: 18,
+  taxIncludedInPrices: true,
+  requirePhone: true,
+  orderNotes: true,
+  logoUrl: "",
+  paymentBankTransfer: true,
+  paymentCashPickup: true,
+  paymentWesternUnion: false,
+  paymentWhatsapp: true,
 };
 
 /**
- * Fetch site constants (social links, contact info) from Supabase.
+ * Fetch site constants (social links, contact info, store settings) from Supabase.
+ * Merges content_blocks overrides + store_settings.metadata from admin dashboard.
  * Falls back to hardcoded constants.ts if not saved or on error.
- * Locale-independent — always fetches "en" row.
  */
 export async function getSiteConstants(): Promise<SiteConstantsContent> {
   try {
-    const saved = await getContentBlock("site.constants", "en");
-    if (!saved) return SITE_DEFAULTS;
-    return { ...SITE_DEFAULTS, ...saved };
+    const [saved, storeSettings] = await Promise.all([
+      getContentBlock("site.constants", "en").catch(() => null),
+      fetchStoreSettings().catch(() => null),
+    ]);
+
+    let result = { ...SITE_DEFAULTS };
+
+    // Merge content_blocks overrides (social links, contact info edited via CMS)
+    if (saved) {
+      result = { ...result, ...saved };
+    }
+
+    // Merge admin dashboard store_settings (these take priority for fields they manage)
+    if (storeSettings) {
+      result.freeShippingThreshold = storeSettings.freeShippingThreshold;
+      result.standardShippingRate = storeSettings.standardRate;
+      result.standardShippingDays = storeSettings.standardDays;
+      result.expressShippingRate = storeSettings.expressRate;
+      result.expressShippingDays = storeSettings.expressDays;
+      result.processingTime = storeSettings.processingTime;
+      result.taxEnabled = storeSettings.taxEnabled;
+      result.taxRate = storeSettings.taxRate;
+      result.taxIncludedInPrices = storeSettings.taxIncludedInPrices;
+      result.requirePhone = storeSettings.requirePhone;
+      result.orderNotes = storeSettings.orderNotes;
+      result.logoUrl = storeSettings.logoUrl;
+      result.paymentBankTransfer = storeSettings.paymentBankTransfer;
+      result.paymentCashPickup = storeSettings.paymentCashPickup;
+      result.paymentWesternUnion = storeSettings.paymentWesternUnion;
+      result.paymentWhatsapp = storeSettings.paymentWhatsapp;
+      // Override contact/social if admin has set them (non-empty)
+      if (storeSettings.email) result.email = storeSettings.email;
+      if (storeSettings.phone) result.phone = storeSettings.phone;
+      if (storeSettings.address) result.address = storeSettings.address;
+      if (storeSettings.socialInstagram) result.instagram = storeSettings.socialInstagram;
+      if (storeSettings.socialFacebook) result.facebook = storeSettings.socialFacebook;
+      if (storeSettings.socialTiktok) result.tiktok = storeSettings.socialTiktok;
+      if (storeSettings.socialWhatsapp) result.whatsapp = storeSettings.socialWhatsapp;
+    }
+
+    return result;
   } catch {
     return SITE_DEFAULTS;
   }

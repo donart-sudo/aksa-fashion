@@ -752,12 +752,16 @@ export default function Header() {
               className="flex-shrink-0 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2"
               aria-label="Aksa Fashion — Home"
             >
-              <span className={`leading-none block text-[26px] lg:text-[28px] transition-colors duration-300 ${
-                transparentMode ? "text-white" : "text-charcoal"
-              }`}>
-                <span className="font-black tracking-tight">aksa</span>
-                <span className="font-extralight tracking-tight">fashion</span>
-              </span>
+              {sc.logoUrl ? (
+                <img src={sc.logoUrl} alt={sc.siteName || "Aksa Fashion"} className="h-8 lg:h-9 w-auto object-contain" />
+              ) : (
+                <span className={`leading-none block text-[26px] lg:text-[28px] transition-colors duration-300 ${
+                  transparentMode ? "text-white" : "text-charcoal"
+                }`}>
+                  <span className="font-black tracking-tight">aksa</span>
+                  <span className="font-extralight tracking-tight">fashion</span>
+                </span>
+              )}
             </Link>
 
             {/* ── Right: Search + Icons ── */}

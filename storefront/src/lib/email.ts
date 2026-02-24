@@ -7,7 +7,7 @@ function getResend(): Resend | null {
   return _resend
 }
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Aksa Fashion <orders@aksa-fashion.com>'
+const DEFAULT_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Aksa Fashion <orders@aksa-fashion.com>'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://aksa-fashion.vercel.app'
 
 interface OrderItem {
@@ -39,6 +39,9 @@ interface OrderEmailData {
   total: number
   shippingAddress: ShippingAddress
   shippingMethod: string
+  senderName?: string
+  senderEmail?: string
+  storeName?: string
 }
 
 function formatPrice(amount: number): string {
@@ -56,7 +59,7 @@ function escapeHtml(text: string): string {
   return text.replace(/[&<>"']/g, char => map[char])
 }
 
-function buildOrderConfirmationHtml(data: OrderEmailData): string {
+function buildOrderConfirmationHtml(data: OrderEmailData & { _storeName: string }): string {
   const itemRows = data.items.map(item => `
     <tr>
       <td style="padding: 12px 0; border-bottom: 1px solid #E8E5E0;">
@@ -84,7 +87,7 @@ function buildOrderConfirmationHtml(data: OrderEmailData): string {
 
     <!-- Header -->
     <div style="text-align: center; margin-bottom: 32px;">
-      <h1 style="font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #2D2D2D; margin: 0; font-weight: 400;">Aksa Fashion</h1>
+      <h1 style="font-family: Georgia, 'Times New Roman', serif; font-size: 28px; color: #2D2D2D; margin: 0; font-weight: 400;">${escapeHtml(data._storeName)}</h1>
     </div>
 
     <!-- Main card -->
@@ -162,7 +165,7 @@ function buildOrderConfirmationHtml(data: OrderEmailData): string {
     <!-- Footer -->
     <div style="text-align: center; margin-top: 32px; font-size: 12px; color: #888;">
       <p style="margin: 0 0 4px 0;">Handcrafted with love in Prishtina, Kosovo</p>
-      <p style="margin: 0;">© ${new Date().getFullYear()} Aksa Fashion. All rights reserved.</p>
+      <p style="margin: 0;">© ${new Date().getFullYear()} ${escapeHtml(data._storeName)}. All rights reserved.</p>
     </div>
 
   </div>
@@ -177,12 +180,17 @@ export async function sendOrderConfirmationEmail(data: OrderEmailData): Promise<
     return { success: false, error: 'RESEND_API_KEY not configured' }
   }
 
+  const storeName = data.storeName || 'Aksa Fashion'
+  const fromEmail = data.senderName && data.senderEmail
+    ? `${data.senderName} <${data.senderEmail}>`
+    : DEFAULT_FROM_EMAIL
+
   try {
     const { error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: fromEmail,
       to: data.email,
-      subject: `Order Confirmed — ${data.orderNumber} | Aksa Fashion`,
-      html: buildOrderConfirmationHtml(data),
+      subject: `Order Confirmed — ${data.orderNumber} | ${storeName}`,
+      html: buildOrderConfirmationHtml({ ...data, _storeName: storeName }),
     })
 
     if (error) {

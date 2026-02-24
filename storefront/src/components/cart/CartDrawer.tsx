@@ -17,7 +17,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/utils";
-import { FREE_SHIPPING_THRESHOLD } from "@/lib/constants";
+import { useSiteConstants } from "@/lib/site-constants";
 
 /* ── Swipeable cart item (mobile gesture to reveal delete) ── */
 
@@ -178,6 +178,7 @@ function CartItemRow({
 export default function CartDrawer() {
   const t = useTranslations();
   const locale = useLocale();
+  const sc = useSiteConstants();
   const {
     items,
     isOpen,
@@ -188,14 +189,15 @@ export default function CartDrawer() {
     subtotal,
   } = useCart();
 
+  const freeThreshold = sc.freeShippingThreshold;
   const shippingProgress = Math.min(
-    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+    (subtotal / freeThreshold) * 100,
     100
   );
-  const hasFreeShipping = subtotal >= FREE_SHIPPING_THRESHOLD;
+  const hasFreeShipping = subtotal >= freeThreshold;
   const amountToFreeShipping = Math.max(
     0,
-    (FREE_SHIPPING_THRESHOLD - subtotal) / 100
+    (freeThreshold - subtotal) / 100
   );
 
   return (
