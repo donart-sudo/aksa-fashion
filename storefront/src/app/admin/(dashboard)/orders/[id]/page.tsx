@@ -319,7 +319,7 @@ export default function OrderDetailPage() {
   const isShipped = order.fulfillment_status === 'shipped' || order.fulfillment_status === 'partially_shipped' || order.fulfillment_status === 'fulfilled'
   const isDelivered = order.fulfillment_status === 'delivered' || isCompleted
   const isPaid = order.payment_status === 'captured'
-  const canComplete = isShipped && isPaid && !isDelivered && !isCancelled && !isCompleted
+  const canComplete = (isShipped || isDelivered) && isPaid && !isCancelled && !isCompleted
   const hasTracking = order.fulfillments?.some(f => f.labels?.length)
   const trackingInfo = order.fulfillments?.flatMap(f => f.labels || []) || []
 

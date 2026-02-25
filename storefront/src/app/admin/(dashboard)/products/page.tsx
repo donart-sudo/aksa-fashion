@@ -32,7 +32,9 @@ export default function AdminProductsPage() {
   const [delId, setDelId] = useState<string | null>(null)
   const [menuId, setMenuId] = useState<string | null>(null)
   const [menuUp, setMenuUp] = useState(false)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const perPage = 25
 
   const toggleMenu = useCallback((id: string, e: React.MouseEvent) => {
     if (menuId === id) { setMenuId(null); return }
@@ -48,7 +50,7 @@ export default function AdminProductsPage() {
 
     async function load() {
       try {
-        const storeRes = await adminMedusa.getStoreProducts({ limit: '100' })
+        const storeRes = await adminMedusa.getStoreProducts({ limit: '1000' })
         if (cancel) return
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         setList(storeRes.products.map((p: any) => ({
@@ -66,7 +68,7 @@ export default function AdminProductsPage() {
       } catch {
         if (!demo) {
           try {
-            const res = await adminMedusa.getProducts({ limit: '100' })
+            const res = await adminMedusa.getProducts({ limit: '1000' })
             if (cancel) return
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setList(res.products.map((p: any) => ({
@@ -102,11 +104,17 @@ export default function AdminProductsPage() {
     return () => document.removeEventListener('click', handler)
   }, [menuId])
 
+  // Reset page when filters change
+  useEffect(() => { setPage(1) }, [filter, search])
+
   const filtered = useMemo(() => list.filter(p => {
     const ms = filter === 'all' || p.status === filter
     const mq = !search || p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase())
     return ms && mq
   }), [list, filter, search])
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage)
 
   const counts = useMemo(() => ({
     all: list.length,
@@ -178,7 +186,7 @@ export default function AdminProductsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(p => (
+              {paginated.map(p => (
                 <tr key={p.id} className="border-b border-[#f6f6f6] last:border-0 hover:bg-[#fafafa] transition-colors group cursor-pointer" onClick={() => router.push(`/admin/products/${p.id}`)}>
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
@@ -239,6 +247,43 @@ export default function AdminProductsPage() {
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          {filtered.length > perPage && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f0f0]">
+              <p className="text-[12px] text-[#8a8a8a]">
+                Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="h-[30px] px-3 rounded-[8px] text-[12px] font-medium border border-[#e3e3e3] text-[#616161] hover:bg-[#f6f6f6] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >Previous</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                  .reduce<(number | 'dots')[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1]) > 1) acc.push('dots')
+                    acc.push(p)
+                    return acc
+                  }, [])
+                  .map((p, i) =>
+                    p === 'dots' ? (
+                      <span key={`d${i}`} className="px-1 text-[12px] text-[#b5b5b5]">...</span>
+                    ) : (
+                      <button key={p} onClick={() => setPage(p)}
+                        className={`w-[30px] h-[30px] rounded-[8px] text-[12px] font-medium transition-colors ${page === p ? 'bg-[#1a1a1a] text-white' : 'text-[#616161] hover:bg-[#f6f6f6]'}`}
+                      >{p}</button>
+                    )
+                  )}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="h-[30px] px-3 rounded-[8px] text-[12px] font-medium border border-[#e3e3e3] text-[#616161] hover:bg-[#f6f6f6] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >Next</button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Delete confirm */}

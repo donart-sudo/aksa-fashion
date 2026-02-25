@@ -770,7 +770,7 @@ function toAdminOrder(row: any): MedusaOrder {
     display_id: row.display_id,
     status: row.status,
     fulfillment_status: row.fulfillment_status || 'not_fulfilled',
-    payment_status: row.payment_status || 'awaiting',
+    payment_status: row.payment_status || 'captured',
     total: row.total || 0,
     subtotal: row.subtotal || 0,
     tax_total: 0,

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, ChevronDown, Truck, CheckCircle, XCircle, Eye, Package, Clock, DollarSign, ShoppingCart, ArrowUpRight, CreditCard } from 'lucide-react'
 import Badge from '@/components/admin/Badge'
 import TopBar from '@/components/admin/TopBar'
@@ -9,11 +9,13 @@ import { useAdminAuth } from '@/lib/admin-auth'
 import { adminMedusa } from '@/lib/admin-supabase'
 import { formatCurrency, formatDate, type Order, type OrderStatus } from '@/data/adminSampleData'
 
-type TabValue = OrderStatus | 'all' | 'open'
+type TabValue = OrderStatus | 'all' | 'open' | 'unpaid' | 'unfulfilled'
 
 const tabs: { label: string; value: TabValue }[] = [
   { label: 'All', value: 'all' },
   { label: 'Open', value: 'open' },
+  { label: 'Unpaid', value: 'unpaid' },
+  { label: 'Unfulfilled', value: 'unfulfilled' },
   { label: 'Shipped', value: 'shipped' },
   { label: 'Completed', value: 'completed' },
   { label: 'Cancelled', value: 'cancelled' },
@@ -34,13 +36,17 @@ const pLabel: Record<string, string> = {
 
 export default function AdminOrdersPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { demo } = useAdminAuth()
   const [list, setList] = useState<Order[]>([])
-  const [filter, setFilter] = useState<TabValue>('all')
+  const initialFilter = (searchParams.get('filter') as TabValue) || 'all'
+  const [filter, setFilter] = useState<TabValue>(initialFilter)
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [bulkOpen, setBulkOpen] = useState(false)
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
+  const perPage = 25
 
   useEffect(() => {
     let cancel = false
@@ -48,7 +54,7 @@ export default function AdminOrdersPage() {
     async function load() {
       if (!demo) {
         try {
-          const res = await adminMedusa.getOrders({ limit: '100', order: '-created_at' })
+          const res = await adminMedusa.getOrders({ limit: '1000', order: '-created_at' })
           if (cancel) return
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           setList(res.orders.map((o: any) => ({
@@ -74,11 +80,16 @@ export default function AdminOrdersPage() {
     return () => { cancel = true }
   }, [demo])
 
+  // Reset page when filters change
+  useEffect(() => { setPage(1) }, [filter, search])
+
   const filtered = useMemo(() => list.filter(o => {
     let ms = false
     if (filter === 'all') ms = true
     else if (filter === 'open') ms = o.status === 'pending' || o.status === 'processing'
     else if (filter === 'completed') ms = o.status === 'completed' || o.status === 'delivered'
+    else if (filter === 'unpaid') ms = (o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid') && o.status !== 'cancelled'
+    else if (filter === 'unfulfilled') ms = o.fulfillment === 'unfulfilled' && o.status !== 'cancelled' && o.status !== 'completed' && o.status !== 'delivered'
     else ms = o.status === filter
     const mq = !search || o.orderNumber.toLowerCase().includes(search.toLowerCase()) || o.customer.toLowerCase().includes(search.toLowerCase())
     return ms && mq
@@ -87,15 +98,20 @@ export default function AdminOrdersPage() {
   const counts = useMemo(() => ({
     all: list.length,
     open: list.filter(o => o.status === 'pending' || o.status === 'processing').length,
+    unpaid: list.filter(o => (o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid') && o.status !== 'cancelled').length,
+    unfulfilled: list.filter(o => o.fulfillment === 'unfulfilled' && o.status !== 'cancelled' && o.status !== 'completed' && o.status !== 'delivered').length,
     shipped: list.filter(o => o.status === 'shipped').length,
     completed: list.filter(o => o.status === 'completed' || o.status === 'delivered').length,
     cancelled: list.filter(o => o.status === 'cancelled').length,
   }), [list])
 
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage))
+  const paginated = filtered.slice((page - 1) * perPage, page * perPage)
+
   const totalRevenue = list.reduce((s, o) => s + (o.status !== 'cancelled' ? o.total : 0), 0)
   const avgOrder = counts.all - counts.cancelled > 0 ? totalRevenue / (counts.all - counts.cancelled) : 0
-  const awaitingPayment = list.filter(o => o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid' || !o.paymentMethod).length
-  const needsFulfillment = list.filter(o => o.fulfillment === 'unfulfilled' && o.status !== 'cancelled').length
+  const awaitingPayment = list.filter(o => (o.paymentMethod === 'awaiting' || o.paymentMethod === 'not_paid') && o.status !== 'cancelled').length
+  const needsFulfillment = list.filter(o => o.fulfillment === 'unfulfilled' && o.status !== 'cancelled' && o.status !== 'completed' && o.status !== 'delivered').length
 
   function toggleSel(id: string) { setSelected(prev => { const n = new Set(prev); n.has(id) ? n.delete(id) : n.add(id); return n }) }
   function toggleAll() { setSelected(prev => prev.size === filtered.length ? new Set() : new Set(filtered.map(o => o.id))) }
@@ -205,7 +221,7 @@ export default function AdminOrdersPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map(o => (
+              {paginated.map(o => (
                 <tr key={o.id}
                   className={`border-b border-[#f6f6f6] last:border-0 transition-colors cursor-pointer ${selected.has(o.id) ? 'bg-[#eaf4ff]/40' : 'hover:bg-[#fafafa]'}`}
                   onClick={() => router.push(`/admin/orders/${o.id}`)}>
@@ -243,6 +259,43 @@ export default function AdminOrdersPage() {
               )}
             </tbody>
           </table>
+
+          {/* Pagination */}
+          {filtered.length > perPage && (
+            <div className="flex items-center justify-between px-5 py-3 border-t border-[#f0f0f0]">
+              <p className="text-[12px] text-[#8a8a8a]">
+                Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, filtered.length)} of {filtered.length}
+              </p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setPage(p => Math.max(1, p - 1))}
+                  disabled={page === 1}
+                  className="h-[30px] px-3 rounded-[8px] text-[12px] font-medium border border-[#e3e3e3] text-[#616161] hover:bg-[#f6f6f6] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >Previous</button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+                  .reduce<(number | 'dots')[]>((acc, p, idx, arr) => {
+                    if (idx > 0 && p - (arr[idx - 1]) > 1) acc.push('dots')
+                    acc.push(p)
+                    return acc
+                  }, [])
+                  .map((p, i) =>
+                    p === 'dots' ? (
+                      <span key={`d${i}`} className="px-1 text-[12px] text-[#b5b5b5]">...</span>
+                    ) : (
+                      <button key={p} onClick={() => setPage(p)}
+                        className={`w-[30px] h-[30px] rounded-[8px] text-[12px] font-medium transition-colors ${page === p ? 'bg-[#1a1a1a] text-white' : 'text-[#616161] hover:bg-[#f6f6f6]'}`}
+                      >{p}</button>
+                    )
+                  )}
+                <button
+                  onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                  disabled={page === totalPages}
+                  className="h-[30px] px-3 rounded-[8px] text-[12px] font-medium border border-[#e3e3e3] text-[#616161] hover:bg-[#f6f6f6] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >Next</button>
+              </div>
+            </div>
+          )}
         </div>
 
       </div>
