@@ -12,11 +12,11 @@ export default function FAQPage() {
 
   return (
     <EditableSection sectionKey="page.faq" label="FAQ">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
-        <h1 className="font-serif text-4xl lg:text-5xl text-charcoal mb-4 text-center">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
+        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal mb-4 text-center">
           {t("faqTitle")}
         </h1>
-        <p className="text-charcoal/60 text-center mb-12">
+        <p className="text-charcoal/60 text-center mb-8 sm:mb-12">
           {DEFAULT_FAQ.subtitle}
         </p>
 

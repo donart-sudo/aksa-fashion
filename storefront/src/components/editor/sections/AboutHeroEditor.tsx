@@ -4,6 +4,7 @@ import type { AboutHeroContent, AboutStat } from "@/types/content-blocks";
 import ImageUploader from "../ImageUploader";
 import EditorField from "../EditorField";
 import ArrayField from "../ArrayField";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: AboutHeroContent;
@@ -13,9 +14,7 @@ interface Props {
 export default function AboutHeroEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Hero */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Hero</p>
+      <FieldGroup label="Hero">
         <ImageUploader
           label="Hero Image"
           value={content.heroImage}
@@ -26,11 +25,9 @@ export default function AboutHeroEditor({ content, onChange }: Props) {
         <EditorField label="Heading" value={content.heading} onChange={(heading) => onChange({ ...content, heading })} placeholder="e.g. Born in Prishtina," />
         <EditorField label="Heading Accent" value={content.headingAccent} onChange={(headingAccent) => onChange({ ...content, headingAccent })} placeholder="e.g. Worn Around the World" />
         <EditorField label="Intro Paragraph" value={content.introParagraph} onChange={(introParagraph) => onChange({ ...content, introParagraph })} type="textarea" rows={3} />
-      </div>
+      </FieldGroup>
 
-      {/* Brand Story */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Brand Story</p>
+      <FieldGroup label="Brand Story">
         <EditorField label="Label" value={content.brandLabel} onChange={(brandLabel) => onChange({ ...content, brandLabel })} placeholder="e.g. The Beginning" />
         <EditorField label="Heading" value={content.brandHeading} onChange={(brandHeading) => onChange({ ...content, brandHeading })} />
         <EditorField label="Heading Accent" value={content.brandHeadingAccent} onChange={(brandHeadingAccent) => onChange({ ...content, brandHeadingAccent })} />
@@ -50,14 +47,12 @@ export default function AboutHeroEditor({ content, onChange }: Props) {
           onChange={(brandImage) => onChange({ ...content, brandImage })}
         />
         <EditorField label="Brand Image Alt" value={content.brandImageAlt} onChange={(brandImageAlt) => onChange({ ...content, brandImageAlt })} />
-      </div>
+      </FieldGroup>
 
-      {/* Year Badge */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Year Badge</p>
+      <FieldGroup label="Year Badge">
         <EditorField label="Year" value={content.yearBadge} onChange={(yearBadge) => onChange({ ...content, yearBadge })} />
         <EditorField label="Label" value={content.yearBadgeLabel} onChange={(yearBadgeLabel) => onChange({ ...content, yearBadgeLabel })} />
-      </div>
+      </FieldGroup>
 
       {/* Stats */}
       <ArrayField<AboutStat>

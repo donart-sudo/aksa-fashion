@@ -4,6 +4,8 @@ import type { FeaturedCollectionsContent, FeaturedCollectionItem } from "@/types
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
 import ImageUploader from "../ImageUploader";
+import FieldGroup from "../FieldGroup";
+import LinkField from "../LinkField";
 
 interface Props {
   content: FeaturedCollectionsContent;
@@ -13,9 +15,7 @@ interface Props {
 export default function FeaturedCollectionsEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Section Label"
           value={content.label || ""}
@@ -28,7 +28,7 @@ export default function FeaturedCollectionsEditor({ content, onChange }: Props) 
           onChange={(heading) => onChange({ ...content, heading })}
           placeholder="e.g. Shop by Category"
         />
-      </div>
+      </FieldGroup>
 
     <ArrayField<FeaturedCollectionItem>
       label="Collections"
@@ -46,7 +46,7 @@ export default function FeaturedCollectionsEditor({ content, onChange }: Props) 
             placeholder="e.g. Bridal Gowns"
           />
           <ImageUploader label="Cover Image" value={item.image} onChange={(image) => update({ ...item, image })} />
-          <EditorField label="Link" value={item.href} onChange={(href) => update({ ...item, href })} placeholder="/collections/bridal or https://example.com" />
+          <LinkField label="Link" value={item.href} onChange={(href) => update({ ...item, href })} placeholder="/collections/bridal or https://example.com" />
         </div>
       )}
     />

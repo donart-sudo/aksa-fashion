@@ -204,7 +204,7 @@ export default function CollectionsShowcase({
     <div>
       {/* ─── Hero Section ─── */}
       <section ref={heroRef} className="relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 lg:pt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8 lg:pt-12">
           {/* Breadcrumbs */}
           <motion.nav
             initial={{ opacity: 0 }}
@@ -269,7 +269,7 @@ export default function CollectionsShowcase({
               href={`/${locale}/collections/${heroCategory.handle}`}
               className="group block relative overflow-hidden"
             >
-              <div className="relative aspect-[4/5] sm:aspect-[16/9] lg:aspect-[2.2/1] overflow-hidden">
+              <div className="relative aspect-[3/4] sm:aspect-[16/9] lg:aspect-[2.2/1] overflow-hidden">
                 <Image
                   src={heroCategory.image}
                   alt={heroCategory.title}

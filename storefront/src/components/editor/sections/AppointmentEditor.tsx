@@ -3,6 +3,8 @@
 import type { AppointmentContent } from "@/types/content-blocks";
 import ImageUploader from "../ImageUploader";
 import EditorField from "../EditorField";
+import FieldGroup from "../FieldGroup";
+import LinkField from "../LinkField";
 
 interface Props {
   content: AppointmentContent;
@@ -22,16 +24,14 @@ export default function AppointmentEditor({ content, onChange }: Props) {
         value={content.location}
         onChange={(location) => onChange({ ...content, location })}
       />
-      <EditorField
+      <LinkField
         label="WhatsApp URL"
         value={content.whatsappUrl}
         onChange={(whatsappUrl) => onChange({ ...content, whatsappUrl })}
-        type="url"
+        placeholder="https://wa.me/383..."
       />
 
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Heading"
           value={content.heading || ""}
@@ -52,7 +52,7 @@ export default function AppointmentEditor({ content, onChange }: Props) {
           onChange={(buttonText) => onChange({ ...content, buttonText })}
           placeholder="e.g. Book Appointment"
         />
-      </div>
+      </FieldGroup>
     </div>
   );
 }

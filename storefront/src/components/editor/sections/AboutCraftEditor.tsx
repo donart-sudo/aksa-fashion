@@ -3,6 +3,7 @@
 import type { AboutCraftContent, CraftStep, AboutValue } from "@/types/content-blocks";
 import EditorField from "../EditorField";
 import ArrayField from "../ArrayField";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: AboutCraftContent;
@@ -12,14 +13,12 @@ interface Props {
 export default function AboutCraftEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Craft Section */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Craftsmanship</p>
+      <FieldGroup label="Craftsmanship">
         <EditorField label="Label" value={content.craftLabel} onChange={(craftLabel) => onChange({ ...content, craftLabel })} placeholder="e.g. The Craft" />
         <EditorField label="Heading" value={content.craftHeading} onChange={(craftHeading) => onChange({ ...content, craftHeading })} />
         <EditorField label="Heading Accent" value={content.craftHeadingAccent} onChange={(craftHeadingAccent) => onChange({ ...content, craftHeadingAccent })} />
         <EditorField label="Description" value={content.craftDescription} onChange={(craftDescription) => onChange({ ...content, craftDescription })} type="textarea" rows={2} />
-      </div>
+      </FieldGroup>
 
       {/* Craft Steps */}
       <ArrayField<CraftStep>
@@ -38,12 +37,10 @@ export default function AboutCraftEditor({ content, onChange }: Props) {
         )}
       />
 
-      {/* Values Section */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Values</p>
+      <FieldGroup label="Values">
         <EditorField label="Label" value={content.valuesLabel} onChange={(valuesLabel) => onChange({ ...content, valuesLabel })} placeholder="e.g. What We Stand For" />
         <EditorField label="Heading" value={content.valuesHeading} onChange={(valuesHeading) => onChange({ ...content, valuesHeading })} />
-      </div>
+      </FieldGroup>
 
       <ArrayField<AboutValue>
         label="Values"

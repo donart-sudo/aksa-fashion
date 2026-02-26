@@ -35,18 +35,24 @@ export default function EditableSection({ sectionKey, label, children }: Editabl
   // Clear timer on unmount
   useEffect(() => () => { if (hideTimer.current) clearTimeout(hideTimer.current); }, []);
 
-  const show = useCallback(() => {
+  const show = useCallback((e?: React.MouseEvent) => {
     if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; }
     setHovered(true);
     if (wrapperRef.current) {
       const rect = wrapperRef.current.getBoundingClientRect();
-      setBadgePos({ top: rect.top + 8, left: rect.left + rect.width / 2 });
+      // Position badge near cursor Y, clamped within section bounds
+      const mouseY = e ? e.clientY : rect.top + 8;
+      const top = Math.max(rect.top + 4, Math.min(mouseY - 16, rect.bottom - 32));
+      setBadgePos({ top, left: rect.left + rect.width / 2 });
     }
   }, []);
 
+  const keepVisible = useCallback(() => {
+    if (hideTimer.current) { clearTimeout(hideTimer.current); hideTimer.current = null; }
+  }, []);
+
   const hide = useCallback(() => {
-    // Delay hide so user can reach the portalled badge
-    hideTimer.current = setTimeout(() => setHovered(false), 250);
+    hideTimer.current = setTimeout(() => setHovered(false), 400);
   }, []);
 
   // Inject live content into children if available
@@ -65,7 +71,8 @@ export default function EditableSection({ sectionKey, label, children }: Editabl
       ref={wrapperRef}
       data-section-key={sectionKey}
       className="relative"
-      onMouseEnter={show}
+      onMouseEnter={(e) => show(e)}
+      onMouseMove={(e) => { if (hovered && wrapperRef.current) { const rect = wrapperRef.current.getBoundingClientRect(); const top = Math.max(rect.top + 4, Math.min(e.clientY - 16, rect.bottom - 32)); setBadgePos({ top, left: rect.left + rect.width / 2 }); } }}
       onMouseLeave={hide}
     >
       {rendered}
@@ -88,7 +95,7 @@ export default function EditableSection({ sectionKey, label, children }: Editabl
       {hovered && typeof document !== "undefined" &&
         createPortal(
           <button
-            onMouseEnter={show}
+            onMouseEnter={keepVisible}
             onMouseLeave={hide}
             onClick={() => setDrawerOpen(true)}
             style={{ top: badgePos.top, left: badgePos.left }}

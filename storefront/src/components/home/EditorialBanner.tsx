@@ -8,6 +8,14 @@ import { isRtl } from "@/i18n/config";
 import { HERO_IMAGES } from "@/lib/cdn-image-urls";
 import type { HeroContent, HeroSlide } from "@/types/content-blocks";
 
+function isExternalUrl(url: string): boolean {
+  return /^https?:\/\//.test(url) || url.startsWith("www.") || url.startsWith("mailto:") || url.startsWith("tel:");
+}
+
+function normalizeHref(url: string): string {
+  return url.startsWith("www.") ? `https://${url}` : url;
+}
+
 const SLIDE_DURATION = 6000;
 
 const HERO_SLIDES_DEFAULT: HeroSlide[] = HERO_IMAGES;
@@ -92,7 +100,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
   const clipTo = "inset(0)";
 
   return (
-    <section className="relative h-[100svh] min-h-[600px] overflow-hidden flex flex-col-reverse lg:flex-row">
+    <section className="relative h-[80svh] min-h-[480px] lg:h-[100svh] lg:min-h-[600px] overflow-hidden flex flex-col-reverse lg:flex-row">
       {/* ═══ Left: Text panel ═══ */}
       <div className="relative flex-shrink-0 w-full lg:w-[45%] bg-[#1a1a1a] flex items-center">
         {/* Decorative radial glow */}
@@ -103,11 +111,11 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           }}
         />
 
-        <div className="relative z-10 w-full px-8 sm:px-12 lg:px-16 xl:px-20 py-10 lg:py-0">
+        <div className="relative z-10 w-full px-5 sm:px-8 lg:px-16 xl:px-20 py-6 sm:py-8 lg:py-0">
           {/* Gold accent line */}
           <div
             key={`accent-${animKey}`}
-            className="w-[2px] h-16 bg-gold mb-8 animate-accent-grow"
+            className="w-[2px] h-10 lg:h-16 bg-gold mb-5 lg:mb-8 animate-accent-grow"
             style={{
               animationDelay: "50ms",
               boxShadow: "0 0 12px rgba(184,146,106,0.3)",
@@ -123,7 +131,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           </p>
 
           {/* Heading — two-line split reveal */}
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-5">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-3 sm:mb-5">
             <span className="block overflow-hidden">
               <span
                 key={`h1a-${animKey}`}
@@ -147,41 +155,46 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           {/* Description */}
           <p
             key={`desc-${animKey}`}
-            className="text-white/50 text-sm sm:text-base leading-relaxed max-w-md mb-8 animate-hero-fade-up"
+            className="text-white/50 text-[13px] sm:text-sm lg:text-base leading-relaxed max-w-md mb-5 sm:mb-6 lg:mb-8 animate-hero-fade-up"
             style={{ animationDelay: "350ms" }}
           >
             {slide.description || t(`${slide.key}Desc`)}
           </p>
 
-          {/* CTA button */}
+          {/* CTA buttons */}
           <div
             key={`cta-${animKey}`}
-            className="animate-hero-fade-up mb-10 lg:mb-12"
+            className="animate-hero-fade-up mb-6 sm:mb-8 lg:mb-12 flex flex-wrap items-center gap-3"
             style={{ animationDelay: "500ms" }}
           >
-            {/^https?:\/\//.test(slide.ctaLink) ? (
-              <a
-                href={slide.ctaLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
-              >
-                {slide.ctaText || t(`${slide.key}Cta`)}
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </a>
-            ) : (
-              <Link
-                href={`/${locale}/${slide.ctaLink.replace(/^\//, "")}`}
-                className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group"
-              >
-                {slide.ctaText || t(`${slide.key}Cta`)}
-                <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-              </Link>
-            )}
+            {(() => {
+              const isExt = isExternalUrl(slide.ctaLink);
+              const Tag = isExt ? "a" : Link;
+              const props = isExt
+                ? { href: normalizeHref(slide.ctaLink), target: "_blank" as const, rel: "noopener noreferrer" }
+                : { href: `/${locale}/${slide.ctaLink.replace(/^\//, "")}` };
+              return (
+                <Tag {...props} className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[11px] sm:text-[12px] lg:text-[13px] tracking-[0.2em] uppercase font-medium px-6 py-3 sm:px-8 sm:py-4 transition-colors duration-300 group">
+                  {slide.ctaText || t(`${slide.key}Cta`)}
+                  <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                  </svg>
+                </Tag>
+              );
+            })()}
+            {slide.buttonSecondaryText && (() => {
+              const secLink = slide.buttonSecondaryLink || slide.ctaLink;
+              const isExt = isExternalUrl(secLink);
+              const Tag = isExt ? "a" : Link;
+              const props = isExt
+                ? { href: normalizeHref(secLink), target: "_blank" as const, rel: "noopener noreferrer" }
+                : { href: `/${locale}/${secLink.replace(/^\//, "")}` };
+              return (
+                <Tag {...props} className="inline-flex items-center gap-3 border border-white/30 hover:border-white/60 text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group">
+                  {slide.buttonSecondaryText}
+                </Tag>
+              );
+            })()}
           </div>
 
           {/* Slide indicators */}
@@ -214,7 +227,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
       {/* ═══ Right: Image panel with clip-path transitions ═══ */}
       <div
         ref={imageContainerRef}
-        className="relative flex-1 h-[55vh] lg:h-auto overflow-hidden"
+        className="relative flex-1 h-[45vh] lg:h-auto overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseMove={handleMouseMove}
@@ -281,7 +294,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
             className="pointer-events-auto absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 group"
             aria-label="Previous slide"
           >
-            <span className="flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
+            <span className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
               <svg
                 className="w-5 h-5 lg:w-6 lg:h-6 text-white/70 group-hover:text-gold transition-all duration-500 group-hover:-translate-x-0.5"
                 fill="none"
@@ -312,7 +325,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
             className="pointer-events-auto absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 group"
             aria-label="Next slide"
           >
-            <span className="flex items-center justify-center w-12 h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
+            <span className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-full border border-white/20 hover:border-gold/60 bg-black/10 hover:bg-black/30 backdrop-blur-sm transition-all duration-500 group-hover:scale-110">
               <svg
                 className="w-5 h-5 lg:w-6 lg:h-6 text-white/70 group-hover:text-gold transition-all duration-500 group-hover:translate-x-0.5"
                 fill="none"

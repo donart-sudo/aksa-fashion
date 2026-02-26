@@ -7,6 +7,7 @@ interface EditorFieldProps {
   type?: "text" | "url" | "number" | "textarea";
   placeholder?: string;
   rows?: number;
+  hint?: string;
 }
 
 export default function EditorField({
@@ -16,6 +17,7 @@ export default function EditorField({
   type = "text",
   placeholder,
   rows = 3,
+  hint,
 }: EditorFieldProps) {
   return (
     <div>
@@ -38,6 +40,9 @@ export default function EditorField({
           placeholder={placeholder}
           className="w-full px-3 py-2 text-[13px] border border-soft-gray/50 rounded bg-white focus:outline-none focus:border-gold/50 transition-colors"
         />
+      )}
+      {hint && (
+        <p className="mt-1 text-[10px] text-charcoal/40 leading-relaxed">{hint}</p>
       )}
     </div>
   );

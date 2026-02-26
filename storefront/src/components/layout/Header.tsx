@@ -1326,7 +1326,7 @@ export default function Header() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.25 }}
-              className="fixed inset-0 z-[60] bg-black/30 backdrop-blur-[2px]"
+              className="fixed inset-0 z-[80] bg-black/30 backdrop-blur-[2px]"
               onClick={() => setMobileMenuOpen(false)}
             />
 
@@ -1335,7 +1335,7 @@ export default function Header() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="fixed top-0 left-0 bottom-0 z-[61] w-[85%] max-w-[380px] bg-cream flex flex-col"
+              className="fixed top-0 left-0 bottom-0 z-[81] w-[85%] max-w-[380px] bg-cream flex flex-col"
             >
               {/* Menu header */}
               <div className="flex items-center justify-between px-6 sm:px-7 h-[64px] sm:h-[72px] flex-shrink-0">
@@ -1348,7 +1348,7 @@ export default function Header() {
                 </Link>
                 <button
                   onClick={() => setMobileMenuOpen(false)}
-                  className="p-2 -mr-2 text-charcoal/50 hover:text-charcoal transition-colors"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center -mr-2 text-charcoal/50 hover:text-charcoal transition-colors"
                 >
                   <XMarkIcon className="w-6 h-6" />
                 </button>

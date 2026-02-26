@@ -8,7 +8,11 @@ import { DEFAULT_CONTACT_CTA } from "@/lib/data/content-defaults";
 import { useSiteConstants } from "@/lib/site-constants";
 
 function isExternal(url: string): boolean {
-  return /^https?:\/\//.test(url) || url.startsWith("mailto:") || url.startsWith("tel:");
+  return /^https?:\/\//.test(url) || url.startsWith("www.") || url.startsWith("mailto:") || url.startsWith("tel:");
+}
+
+function normalizeHref(url: string): string {
+  return url.startsWith("www.") ? `https://${url}` : url;
 }
 
 interface Props {
@@ -92,7 +96,7 @@ export default function ContactCtaSection({ content }: Props) {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3 md:gap-4">
               {isExternal(c.explorePrimaryLink) ? (
                 <a
-                  href={c.explorePrimaryLink}
+                  href={normalizeHref(c.explorePrimaryLink)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 bg-charcoal text-white text-[10px] sm:text-[11px] tracking-[0.2em] uppercase hover:bg-gold transition-colors duration-500 sm:min-w-[200px] min-h-[44px] sm:min-h-[48px]"
@@ -115,7 +119,7 @@ export default function ContactCtaSection({ content }: Props) {
               )}
               {isExternal(c.exploreSecondaryLink) ? (
                 <a
-                  href={c.exploreSecondaryLink}
+                  href={normalizeHref(c.exploreSecondaryLink)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 sm:px-8 md:px-10 py-3 sm:py-3.5 md:py-4 border border-charcoal/15 text-charcoal text-[10px] sm:text-[11px] tracking-[0.2em] uppercase hover:border-gold hover:text-gold transition-all duration-500 sm:min-w-[200px] min-h-[44px] sm:min-h-[48px]"

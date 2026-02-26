@@ -3,6 +3,7 @@
 import type { FooterContent, FooterLink } from "@/types/content-blocks";
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
+import LinkField from "../LinkField";
 
 interface Props {
   content: FooterContent;
@@ -29,7 +30,7 @@ export default function FooterEditor({ content, onChange }: Props) {
         renderItem={(link, _i, update) => (
           <div className="grid grid-cols-2 gap-2">
             <EditorField label="Label" value={link.label} onChange={(label) => update({ ...link, label })} />
-            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/collections or https://..." />
+            <LinkField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/collections or https://..." />
           </div>
         )}
       />
@@ -43,7 +44,7 @@ export default function FooterEditor({ content, onChange }: Props) {
         renderItem={(link, _i, update) => (
           <div className="grid grid-cols-2 gap-2">
             <EditorField label="Label" value={link.label} onChange={(label) => update({ ...link, label })} />
-            <EditorField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/faq or https://..." />
+            <LinkField label="URL" value={link.href} onChange={(href) => update({ ...link, href })} placeholder="/faq or https://..." />
           </div>
         )}
       />

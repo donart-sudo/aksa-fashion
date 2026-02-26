@@ -3,6 +3,8 @@
 import type { EditorialBandContent } from "@/types/content-blocks";
 import ImageUploader from "../ImageUploader";
 import EditorField from "../EditorField";
+import FieldGroup from "../FieldGroup";
+import LinkField from "../LinkField";
 
 interface Props {
   content: EditorialBandContent;
@@ -23,9 +25,7 @@ export default function EditorialBandEditor({ content, onChange }: Props) {
         onChange={(alt) => onChange({ ...content, alt })}
       />
 
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Top Label"
           value={content.topLabel || ""}
@@ -50,13 +50,13 @@ export default function EditorialBandEditor({ content, onChange }: Props) {
           onChange={(buttonText) => onChange({ ...content, buttonText })}
           placeholder="e.g. Discover Our Story"
         />
-        <EditorField
+        <LinkField
           label="Button Link"
           value={content.buttonLink || ""}
           onChange={(buttonLink) => onChange({ ...content, buttonLink })}
           placeholder="/collections or https://example.com"
         />
-      </div>
+      </FieldGroup>
     </div>
   );
 }

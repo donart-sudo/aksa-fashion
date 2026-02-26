@@ -4,6 +4,7 @@ import type { NewsletterContent, NewsletterImage } from "@/types/content-blocks"
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
 import ImageUploader from "../ImageUploader";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: NewsletterContent;
@@ -13,9 +14,7 @@ interface Props {
 export default function NewsletterEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Heading"
           value={content.heading || ""}
@@ -42,7 +41,7 @@ export default function NewsletterEditor({ content, onChange }: Props) {
           onChange={(placeholder) => onChange({ ...content, placeholder })}
           placeholder="e.g. Enter your email"
         />
-      </div>
+      </FieldGroup>
 
     <ArrayField<NewsletterImage>
       label="Marquee Images"

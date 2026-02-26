@@ -4,6 +4,7 @@ import type { TestimonialsContent, TestimonialStory } from "@/types/content-bloc
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
 import ImageUploader from "../ImageUploader";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: TestimonialsContent;
@@ -13,9 +14,7 @@ interface Props {
 export default function TestimonialsEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Section Heading"
           value={content.heading || ""}
@@ -28,7 +27,7 @@ export default function TestimonialsEditor({ content, onChange }: Props) {
           onChange={(subtitle) => onChange({ ...content, subtitle })}
           placeholder="e.g. Bride Stories"
         />
-      </div>
+      </FieldGroup>
 
     <ArrayField<TestimonialStory>
       label="Testimonials"
@@ -62,15 +61,14 @@ export default function TestimonialsEditor({ content, onChange }: Props) {
             />
           </div>
           <ImageUploader label="Image" value={story.image} onChange={(image) => update({ ...story, image })} />
-          <div className="border-t border-soft-gray/30 pt-2 mt-2">
-            <p className="text-[10px] font-medium text-charcoal/40 uppercase tracking-wide mb-2">Linked Product</p>
+          <FieldGroup label="Linked Product" variant="divider">
             <div className="grid grid-cols-2 gap-2">
               <EditorField label="Product Name" value={story.product.name} onChange={(name) => update({ ...story, product: { ...story.product, name } })} />
               <EditorField label="Handle" value={story.product.handle} onChange={(handle) => update({ ...story, product: { ...story.product, handle } })} />
               <EditorField label="Price (EUR)" value={String(story.product.price)} onChange={(p) => update({ ...story, product: { ...story.product, price: Number(p) || 0 } })} type="number" />
               <EditorField label="Category" value={story.product.category} onChange={(category) => update({ ...story, product: { ...story.product, category } })} />
             </div>
-          </div>
+          </FieldGroup>
         </div>
       )}
     />

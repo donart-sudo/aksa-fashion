@@ -2,6 +2,7 @@
 
 import type { ContactSidebarContent } from "@/types/content-blocks";
 import EditorField from "../EditorField";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: ContactSidebarContent;
@@ -11,22 +12,18 @@ interface Props {
 export default function ContactSidebarEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Atelier Header */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Atelier Header</p>
+      <FieldGroup label="Atelier Header">
         <EditorField label="Label" value={content.atelierLabel} onChange={(atelierLabel) => onChange({ ...content, atelierLabel })} />
         <EditorField label="Heading" value={content.atelierHeading} onChange={(atelierHeading) => onChange({ ...content, atelierHeading })} />
         <EditorField label="Heading Accent" value={content.atelierHeadingAccent} onChange={(atelierHeadingAccent) => onChange({ ...content, atelierHeadingAccent })} />
-      </div>
+      </FieldGroup>
 
-      {/* Info Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Info Text</p>
+      <FieldGroup label="Info Text">
         <EditorField label="Closed Day Text" value={content.closedDayText} onChange={(closedDayText) => onChange({ ...content, closedDayText })} placeholder="e.g. Sunday: Closed" />
         <EditorField label="Appointment Line 1" value={content.appointmentLine1} onChange={(appointmentLine1) => onChange({ ...content, appointmentLine1 })} />
         <EditorField label="Appointment Line 2" value={content.appointmentLine2} onChange={(appointmentLine2) => onChange({ ...content, appointmentLine2 })} />
         <EditorField label="Follow Us Label" value={content.followUsLabel} onChange={(followUsLabel) => onChange({ ...content, followUsLabel })} />
-      </div>
+      </FieldGroup>
 
       {/* Quote */}
       <EditorField

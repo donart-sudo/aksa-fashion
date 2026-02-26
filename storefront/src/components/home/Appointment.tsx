@@ -38,9 +38,9 @@ export default function Appointment({ content }: { content?: AppointmentContent 
 
   return (
     <section ref={sectionRef} className="bg-charcoal">
-      <div className="grid lg:grid-cols-2 min-h-[550px] lg:min-h-[620px]">
+      <div className="grid lg:grid-cols-2 min-h-[480px] lg:min-h-[620px]">
         {/* Left — atelier image */}
-        <div className="relative h-[420px] lg:h-auto overflow-hidden">
+        <div className="relative h-[340px] sm:h-[420px] lg:h-auto overflow-hidden">
           <Image
             src={appointmentImage}
             alt="Bride in Aksa Fashion gown at our Prishtina atelier"
@@ -69,9 +69,9 @@ export default function Appointment({ content }: { content?: AppointmentContent 
             }}
           />
 
-          <div className="relative z-10 px-8 sm:px-12 lg:px-16 xl:px-20 py-16 sm:py-20 lg:py-24 w-full">
+          <div className="relative z-10 px-5 sm:px-8 lg:px-16 xl:px-20 py-10 sm:py-16 lg:py-24 w-full">
             {/* Decorative frame */}
-            <div className="relative border border-white/[0.08] px-8 sm:px-10 py-12 sm:py-14">
+            <div className="relative border border-white/[0.08] px-5 sm:px-8 lg:px-10 py-8 sm:py-12 lg:py-14">
               {/* Corner accents */}
               <span className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-gold/40 -translate-x-px -translate-y-px" />
               <span className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-gold/40 translate-x-px -translate-y-px" />

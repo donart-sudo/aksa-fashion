@@ -339,7 +339,7 @@ export default function AccountPage() {
             transition={{ delay: 0.3 }}
           >
             <h2 className="font-serif text-lg text-charcoal mb-4">{t("quickLinks")}</h2>
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <QuickLinkCard
                 href={`/${locale}/account/orders`}
                 icon={ShoppingBagIcon}

@@ -4,6 +4,8 @@ import type { HeroContent, HeroSlide } from "@/types/content-blocks";
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
 import ImageUploader from "../ImageUploader";
+import FieldGroup from "../FieldGroup";
+import LinkField from "../LinkField";
 
 interface Props {
   content: HeroContent;
@@ -36,9 +38,7 @@ export default function HeroEditor({ content, onChange }: Props) {
           />
           <EditorField label="Alt Text" value={slide.alt} onChange={(alt) => update({ ...slide, alt })} />
 
-          {/* Slide Text */}
-          <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-            <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Slide Text</p>
+          <FieldGroup label="Slide Text">
             <EditorField
               label="Subtitle"
               value={slide.subtitle || ""}
@@ -71,41 +71,37 @@ export default function HeroEditor({ content, onChange }: Props) {
               onChange={(ctaText) => update({ ...slide, ctaText })}
               placeholder="e.g. Discover Now"
             />
-          </div>
+          </FieldGroup>
 
-          {/* Primary Button */}
-          <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-            <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Primary Button</p>
+          <FieldGroup label="Primary Button">
             <EditorField
               label="Button Text"
               value={slide.buttonText || ""}
               onChange={(buttonText) => update({ ...slide, buttonText })}
               placeholder="e.g. Shop Collection"
             />
-            <EditorField
+            <LinkField
               label="Button Link"
               value={slide.ctaLink}
               onChange={(ctaLink) => update({ ...slide, ctaLink })}
               placeholder="/collections/bridal or https://example.com"
             />
-          </div>
+          </FieldGroup>
 
-          {/* Secondary Button */}
-          <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-            <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Secondary Button (optional)</p>
+          <FieldGroup label="Secondary Button (optional)">
             <EditorField
               label="Button Text"
               value={slide.buttonSecondaryText || ""}
               onChange={(buttonSecondaryText) => update({ ...slide, buttonSecondaryText })}
               placeholder="e.g. View Bridal"
             />
-            <EditorField
+            <LinkField
               label="Button Link"
               value={slide.buttonSecondaryLink || ""}
               onChange={(buttonSecondaryLink) => update({ ...slide, buttonSecondaryLink })}
               placeholder="/collections/bridal or https://example.com"
             />
-          </div>
+          </FieldGroup>
 
         </div>
       )}

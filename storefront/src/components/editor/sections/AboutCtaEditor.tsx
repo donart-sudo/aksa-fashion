@@ -4,6 +4,8 @@ import type { AboutCtaContent } from "@/types/content-blocks";
 import ImageUploader from "../ImageUploader";
 import EditorField from "../EditorField";
 import ArrayField from "../ArrayField";
+import FieldGroup from "../FieldGroup";
+import LinkField from "../LinkField";
 
 interface Props {
   content: AboutCtaContent;
@@ -13,9 +15,7 @@ interface Props {
 export default function AboutCtaEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Atelier Section */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Atelier</p>
+      <FieldGroup label="Atelier">
         <EditorField label="Label" value={content.atelierLabel} onChange={(atelierLabel) => onChange({ ...content, atelierLabel })} />
         <EditorField label="Heading" value={content.atelierHeading} onChange={(atelierHeading) => onChange({ ...content, atelierHeading })} />
         <EditorField label="Heading Accent" value={content.atelierHeadingAccent} onChange={(atelierHeadingAccent) => onChange({ ...content, atelierHeadingAccent })} />
@@ -35,25 +35,21 @@ export default function AboutCtaEditor({ content, onChange }: Props) {
           onChange={(atelierImage) => onChange({ ...content, atelierImage })}
         />
         <EditorField label="Atelier Image Alt" value={content.atelierImageAlt} onChange={(atelierImageAlt) => onChange({ ...content, atelierImageAlt })} />
-      </div>
+      </FieldGroup>
 
-      {/* Promise Section */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Promise</p>
+      <FieldGroup label="Promise">
         <EditorField label="Label" value={content.promiseLabel} onChange={(promiseLabel) => onChange({ ...content, promiseLabel })} />
         <EditorField label="Heading" value={content.promiseHeading} onChange={(promiseHeading) => onChange({ ...content, promiseHeading })} />
         <EditorField label="Heading Accent" value={content.promiseHeadingAccent} onChange={(promiseHeadingAccent) => onChange({ ...content, promiseHeadingAccent })} />
         <EditorField label="Paragraph" value={content.promiseParagraph} onChange={(promiseParagraph) => onChange({ ...content, promiseParagraph })} type="textarea" rows={3} />
-      </div>
+      </FieldGroup>
 
-      {/* CTA Buttons */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">CTA Buttons</p>
+      <FieldGroup label="CTA Buttons">
         <EditorField label="Primary Text" value={content.ctaPrimaryText} onChange={(ctaPrimaryText) => onChange({ ...content, ctaPrimaryText })} />
-        <EditorField label="Primary Link" value={content.ctaPrimaryLink} onChange={(ctaPrimaryLink) => onChange({ ...content, ctaPrimaryLink })} placeholder="/collections or https://example.com" />
+        <LinkField label="Primary Link" value={content.ctaPrimaryLink} onChange={(ctaPrimaryLink) => onChange({ ...content, ctaPrimaryLink })} placeholder="/collections or https://example.com" />
         <EditorField label="Secondary Text" value={content.ctaSecondaryText} onChange={(ctaSecondaryText) => onChange({ ...content, ctaSecondaryText })} />
-        <EditorField label="Secondary Link" value={content.ctaSecondaryLink} onChange={(ctaSecondaryLink) => onChange({ ...content, ctaSecondaryLink })} placeholder="/about or https://wa.me/... (empty = site WhatsApp)" />
-      </div>
+        <LinkField label="Secondary Link" value={content.ctaSecondaryLink} onChange={(ctaSecondaryLink) => onChange({ ...content, ctaSecondaryLink })} placeholder="/about or https://wa.me/..." />
+      </FieldGroup>
     </div>
   );
 }

@@ -9,7 +9,11 @@ import { DEFAULT_ABOUT_CTA } from "@/lib/data/content-defaults";
 import { useSiteConstants } from "@/lib/site-constants";
 
 function isExternal(url: string): boolean {
-  return /^https?:\/\//.test(url) || url.startsWith("mailto:") || url.startsWith("tel:");
+  return /^https?:\/\//.test(url) || url.startsWith("www.") || url.startsWith("mailto:") || url.startsWith("tel:");
+}
+
+function normalizeHref(url: string): string {
+  return url.startsWith("www.") ? `https://${url}` : url;
 }
 
 interface Props {
@@ -108,7 +112,7 @@ export default function AboutCtaSection({ content }: Props) {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
               {isExternal(c.ctaPrimaryLink) ? (
                 <a
-                  href={c.ctaPrimaryLink}
+                  href={normalizeHref(c.ctaPrimaryLink)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 bg-charcoal text-white text-[10px] sm:text-[11px] tracking-[0.2em] uppercase hover:bg-gold transition-colors duration-500 sm:min-w-[220px]"
@@ -135,7 +139,7 @@ export default function AboutCtaSection({ content }: Props) {
                 const SecTag = secExternal ? "a" : Link;
                 return (
                   <SecTag
-                    href={secExternal ? secHref : `/${locale}${secHref}`}
+                    href={secExternal ? normalizeHref(secHref) : `/${locale}${secHref}`}
                     {...(secExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                     className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 sm:px-10 py-3.5 sm:py-4 border border-charcoal/15 text-charcoal text-[10px] sm:text-[11px] tracking-[0.2em] uppercase hover:border-gold hover:text-gold transition-all duration-500 sm:min-w-[220px]"
                   >

@@ -18,14 +18,14 @@ export default async function PrivacyPolicyPage({
   const CONTACT_INFO = { email: sc.email, phone: sc.phone, address: sc.address, hours: sc.hours };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-20">
       <p className="text-gold text-xs tracking-[0.4em] uppercase mb-4 text-center">
         Legal
       </p>
-      <h1 className="font-serif text-4xl lg:text-5xl text-charcoal mb-4 text-center">
+      <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl text-charcoal mb-4 text-center">
         Privacy Policy
       </h1>
-      <p className="text-charcoal/50 text-center mb-12">
+      <p className="text-charcoal/50 text-center mb-8 sm:mb-12">
         Last updated: February 16, 2026
       </p>
 

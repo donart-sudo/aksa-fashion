@@ -3,6 +3,7 @@
 import type { AsSeenInContent } from "@/types/content-blocks";
 import ArrayField from "../ArrayField";
 import EditorField from "../EditorField";
+import FieldGroup from "../FieldGroup";
 
 interface Props {
   content: AsSeenInContent;
@@ -12,16 +13,14 @@ interface Props {
 export default function AsSeenInEditor({ content, onChange }: Props) {
   return (
     <div className="space-y-4">
-      {/* Section Text */}
-      <div className="rounded-lg border border-[#e3e3e3] p-3 space-y-2 bg-[#fafafa]">
-        <p className="text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wide">Section Text</p>
+      <FieldGroup label="Section Text">
         <EditorField
           label="Section Heading"
           value={content.heading || ""}
           onChange={(heading) => onChange({ ...content, heading })}
           placeholder="e.g. As Seen In"
         />
-      </div>
+      </FieldGroup>
 
     <ArrayField<string>
       label="Press Names"
