@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { useTranslations } from "next-intl";
 import { PRICE_RANGES, ColorSwatch } from "./CollectionClient";
@@ -34,6 +35,12 @@ export default function FilterSheet({
   onClear,
   resultCount,
 }: FilterSheetProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Lock body scroll when open
   useEffect(() => {
     if (isOpen) {
@@ -48,21 +55,21 @@ export default function FilterSheet({
 
   const t = useTranslations("common");
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   const hasFilters =
     selectedSizes.length > 0 || selectedColors.length > 0 || selectedPrice;
 
-  return (
+  const content = (
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/40 z-50 md:hidden animate-fade-in"
+        className="fixed inset-0 bg-black/40 z-[60] lg:hidden animate-fade-in"
         onClick={onClose}
       />
 
       {/* Sheet */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white z-50 md:hidden rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
+      <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] lg:hidden rounded-t-2xl max-h-[85vh] flex flex-col animate-slide-up">
         {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1">
           <span className="w-10 h-1 rounded-full bg-charcoal/15" />
@@ -175,7 +182,7 @@ export default function FilterSheet({
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 px-5 py-4 border-t border-charcoal/[0.06] bg-white">
+        <div className="flex gap-3 px-5 py-4 border-t border-charcoal/[0.06] bg-white safe-area-pb">
           <button
             onClick={onClear}
             className={`flex-1 py-3.5 text-[13px] font-medium tracking-wide border transition-colors min-h-[48px] ${
@@ -197,4 +204,6 @@ export default function FilterSheet({
       </div>
     </>
   );
+
+  return createPortal(content, document.body);
 }

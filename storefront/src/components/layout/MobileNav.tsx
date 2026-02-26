@@ -96,9 +96,7 @@ export default function MobileNav() {
               <div className="relative w-6 h-6 flex items-center justify-center">
                 <Icon className="w-5 h-5" />
                 {tab.badge && tab.badge > 0 && (
-                  <span className="absolute -top-2 -right-2.5 bg-gold text-white text-[9px] min-w-[16px] px-0.5 font-medium rounded-full h-4 flex items-center justify-center">
-                    {tab.badge > 9 ? "9+" : tab.badge}
-                  </span>
+                  <span className="absolute -top-1.5 -right-1.5 bg-gold rounded-full w-2 h-2" />
                 )}
               </div>
               <span className="text-[10px] font-medium">{tab.label}</span>

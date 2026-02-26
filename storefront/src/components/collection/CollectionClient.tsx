@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { motion, useInView, AnimatePresence } from "framer-motion";
@@ -757,14 +758,14 @@ export default function CollectionClient({
         resultCount={filtered.length}
       />
 
-      {/* Mobile sort bottom sheet */}
-      {mobileSortOpen && (
+      {/* Mobile sort bottom sheet — portaled to body to escape transform context */}
+      {mobileSortOpen && createPortal(
         <>
           <div
-            className="fixed inset-0 bg-black/40 z-50 lg:hidden animate-fade-in"
+            className="fixed inset-0 bg-black/40 z-[60] lg:hidden animate-fade-in"
             onClick={() => setMobileSortOpen(false)}
           />
-          <div className="fixed bottom-0 left-0 right-0 bg-white z-50 lg:hidden rounded-t-2xl animate-slide-up">
+          <div className="fixed bottom-0 left-0 right-0 bg-white z-[60] lg:hidden rounded-t-2xl animate-slide-up">
             {/* Drag handle */}
             <div className="flex justify-center pt-3 pb-1">
               <span className="w-10 h-1 rounded-full bg-charcoal/15" />
@@ -802,7 +803,8 @@ export default function CollectionClient({
               ))}
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </div>
   );
@@ -828,26 +830,44 @@ export const PRICE_RANGES = [
 
 export const COLOR_HEX: Record<string, string> = {
   white: "#FFFFFF",
+  "off white": "#FAF0E6",
   ivory: "#FFFFF0",
   cream: "#FFFDD0",
   champagne: "#F7E7CE",
   nude: "#E8BEAC",
   blush: "#DE98AB",
   pink: "#F4C2C2",
+  "light pink": "#FFB6C1",
+  "baby pink": "#F4C2C2",
   rose: "#C08081",
   red: "#C41E3A",
+  "cherry red": "#C41E3A",
+  cherry: "#DE3163",
   burgundy: "#800020",
   wine: "#722F37",
+  fuchsia: "#FF00FF",
   coral: "#FF7F50",
+  orange: "#E8712B",
+  yellow: "#E8C840",
+  "sand yellow": "#D2B48C",
   gold: "#D4AF37",
   green: "#2D5F2D",
+  "dark green": "#1B4D2E",
+  "light green": "#90C98E",
+  "emerald green": "#50C878",
   emerald: "#50C878",
+  mint: "#98FF98",
   sage: "#B2AC88",
   teal: "#008080",
+  turquoise: "#40E0D0",
   blue: "#2B4F81",
+  "baby blue": "#89CFF0",
+  "dark blue": "#1B2A4A",
+  "navy blue": "#1B2A4A",
   navy: "#1B2A4A",
   lavender: "#B57EDC",
   purple: "#6A0DAD",
+  "light purple": "#B89ADB",
   lilac: "#C8A2C8",
   silver: "#C0C0C0",
   gray: "#808080",
@@ -887,14 +907,20 @@ export function ColorSwatch({
   const hex = COLOR_HEX[color.toLowerCase().trim()] ?? "#D9D9D9";
   const isLight =
     hex === "#FFFFFF" ||
+    hex === "#FAF0E6" ||
     hex === "#FFFFF0" ||
     hex === "#FFFDD0" ||
     hex === "#F7E7CE" ||
     hex === "#E8BEAC" ||
     hex === "#FFCBA4" ||
     hex === "#D9C5A0" ||
+    hex === "#D2B48C" ||
+    hex === "#E8C840" ||
     hex === "#C0C0C0" ||
-    hex === "#F4C2C2";
+    hex === "#F4C2C2" ||
+    hex === "#FFB6C1" ||
+    hex === "#98FF98" ||
+    hex === "#89CFF0";
   return (
     <span
       className={`relative inline-flex items-center justify-center flex-shrink-0 w-8 h-8 rounded-full transition-all duration-200 ${
