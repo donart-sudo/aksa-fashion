@@ -369,7 +369,7 @@ function SearchProductCard({
         {/* Wishlist */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center min-w-[28px] min-h-[28px]"
+          className="absolute top-2 right-2 z-10 w-8 h-8 flex items-center justify-center min-w-[32px] min-h-[32px]"
           aria-label={wishlisted ? tc("removeFromWishlist") : tc("addToWishlist")}
         >
           {wishlisted ? (
@@ -402,7 +402,7 @@ function SearchProductCard({
                 <button
                   key={size}
                   onClick={(e) => addToCartWithSize(e, size)}
-                  className="min-w-[32px] min-h-[30px] px-2 py-1 border border-charcoal/[0.1] text-[10px] font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
+                  className="min-w-[38px] min-h-[36px] px-2 py-1 border border-charcoal/[0.1] text-[10px] font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
                 >
                   {size}
                 </button>
@@ -445,7 +445,7 @@ function SearchProductCard({
         {!showSizes && (
           <button
             onClick={handleAddToCart}
-            className={`absolute bottom-2 right-2 z-10 sm:hidden w-7 h-7 min-w-[28px] min-h-[28px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+            className={`absolute bottom-2 right-2 z-10 sm:hidden w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
               added
                 ? "bg-charcoal text-white scale-110"
                 : "bg-white/90 backdrop-blur-sm text-charcoal active:scale-95"
@@ -536,13 +536,15 @@ export default function SearchModal() {
     if (isOpen) {
       // Check if super sticky header is visible (translated to Y=0)
       const superSticky = document.querySelector("[data-super-sticky]") as HTMLElement | null;
-      const header = document.querySelector("header");
+      const header = document.querySelector("[data-main-header]") as HTMLElement | null;
 
       if (superSticky && superSticky.getBoundingClientRect().top >= 0) {
         // Super sticky is visible — position below it
         setHeaderHeight(superSticky.getBoundingClientRect().bottom);
       } else if (header) {
-        setHeaderHeight(header.getBoundingClientRect().bottom);
+        // Use the actual visible bottom of the header, ensuring it's never negative
+        const bottom = header.getBoundingClientRect().bottom;
+        setHeaderHeight(Math.max(bottom, 0));
       }
       requestAnimationFrame(() => inputRef.current?.focus());
     } else {
@@ -701,32 +703,43 @@ export default function SearchModal() {
     <AnimatePresence>
       {isOpen && (
         <>
-          {/* Overlay — starts below header */}
+          {/* Overlay — full screen on mobile, below header on desktop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="fixed inset-x-0 bottom-0 z-[80] bg-black/20"
-            style={{ top: headerHeight }}
+            className="fixed inset-0 z-[90] bg-black/20"
             onClick={closeSearch}
           />
 
-          {/* Panel — positioned below the header */}
+          {/* Panel — full screen on mobile, below header on desktop */}
           <motion.div
             ref={panelRef}
             initial={{ y: -10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: -10, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="fixed inset-x-0 z-[80] bg-cream shadow-[0_12px_50px_rgba(0,0,0,0.1)] flex flex-col"
+            className="fixed inset-0 z-[90] bg-cream flex flex-col sm:inset-auto sm:inset-x-0 sm:top-[var(--search-top)] sm:bottom-auto sm:max-h-[var(--search-max-h)] sm:shadow-[0_12px_50px_rgba(0,0,0,0.1)]"
             style={{
-              top: headerHeight,
-              maxHeight: `calc(85vh - ${headerHeight}px)`,
-            }}
+              "--search-top": `${headerHeight}px`,
+              "--search-max-h": `calc(85vh - ${headerHeight}px)`,
+            } as React.CSSProperties}
           >
             {/* Input bar */}
-            <div className="flex-shrink-0 px-5 sm:px-8 pt-5 pb-2">
+            {/* Mobile close button */}
+            <div className="flex-shrink-0 flex items-center justify-between px-5 pt-4 pb-1 sm:hidden">
+              <span className="text-[11px] tracking-[0.15em] uppercase text-charcoal/40 font-medium">{tc("search")}</span>
+              <button
+                onClick={closeSearch}
+                className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-charcoal/40 hover:text-charcoal transition-colors -mr-2"
+                aria-label={tc("close")}
+              >
+                <XMarkIcon className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="flex-shrink-0 px-5 sm:px-8 pt-2 sm:pt-5 pb-2">
               <div className="max-w-3xl mx-auto">
                 <div className="flex items-center gap-3 h-12 px-4 rounded-lg border border-charcoal/10 bg-charcoal/[0.02] transition-all">
                   <MagnifyingGlassIcon className="w-5 h-5 text-charcoal/30 flex-shrink-0" />

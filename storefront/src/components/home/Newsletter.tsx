@@ -200,7 +200,7 @@ export default function Newsletter({ content }: { content?: NewsletterContent })
               </div>
               <button
                 type="submit"
-                className="flex-shrink-0 px-8 py-3.5 bg-gold hover:bg-gold/90 text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-all duration-300 min-h-[48px]"
+                className="flex-shrink-0 w-full sm:w-auto px-8 py-3.5 bg-gold hover:bg-gold/90 text-[11px] font-bold tracking-[0.2em] uppercase text-white transition-all duration-300 min-h-[48px]"
               >
                 {content?.buttonText || t("newsletterButton")}
               </button>

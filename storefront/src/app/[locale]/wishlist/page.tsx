@@ -134,7 +134,7 @@ function WishlistCard({
         {/* Remove button — always visible on mobile, hover on desktop */}
         <button
           onClick={handleRemove}
-          className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-8 h-8 sm:w-9 sm:h-9 min-w-[32px] min-h-[32px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 cursor-pointer sm:opacity-0 sm:scale-90 ${
+          className={`absolute top-2 right-2 sm:top-3 sm:right-3 z-20 w-9 h-9 sm:w-9 sm:h-9 min-w-[36px] min-h-[36px] sm:min-w-[36px] sm:min-h-[36px] flex items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-sm transition-all duration-300 cursor-pointer sm:opacity-0 sm:scale-90 ${
             hovered ? "sm:opacity-100 sm:scale-100" : ""
           }`}
           aria-label={t("removeFromWishlist")}
@@ -173,7 +173,7 @@ function WishlistCard({
         {/* Move to bag — mobile icon overlay */}
         <button
           onClick={handleMove}
-          className={`absolute bottom-2 right-2 z-10 sm:hidden w-8 h-8 min-w-[32px] min-h-[32px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+          className={`absolute bottom-2 right-2 z-10 sm:hidden w-9 h-9 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
             moved
               ? "bg-charcoal text-white scale-110"
               : "bg-white/90 backdrop-blur-sm text-charcoal active:scale-95"
@@ -192,7 +192,7 @@ function WishlistCard({
       <div className="mt-2 sm:mt-2.5 pb-1">
         {/* Title */}
         <Link href={`/${locale}/products/${item.handle}`}>
-          <h3 className="font-serif text-[13px] sm:text-[15px] lg:text-[16px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-1 sm:line-clamp-2">
+          <h3 className="font-serif text-[14px] sm:text-[15px] lg:text-[16px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-1 sm:line-clamp-2">
             {item.title}
           </h3>
         </Link>
@@ -223,7 +223,7 @@ function WishlistCard({
             onMoveToCart(item);
             setTimeout(() => setMoved(false), 2000);
           }}
-          className={`sm:hidden w-full flex items-center justify-center gap-1.5 mt-2.5 py-2 text-[9px] font-bold tracking-[0.12em] uppercase transition-all duration-200 cursor-pointer ${
+          className={`sm:hidden w-full flex items-center justify-center gap-1.5 mt-2.5 py-2.5 min-h-[40px] text-[10px] font-bold tracking-[0.12em] uppercase transition-all duration-200 cursor-pointer ${
             moved
               ? "bg-charcoal text-white border border-charcoal"
               : "border border-charcoal/10 text-charcoal active:bg-charcoal active:text-white active:border-charcoal"
@@ -455,7 +455,7 @@ export default function WishlistPage() {
           <AnimatePresence mode="popLayout">
             <motion.div
               layout
-              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-2.5 gap-y-5 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 lg:gap-y-10"
+              className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-5 sm:gap-x-4 sm:gap-y-8 lg:gap-x-5 lg:gap-y-10"
             >
               {items.map((item, i) => (
                 <WishlistCard

@@ -375,7 +375,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
               {/* Close button */}
               <button
                 onClick={() => setSizeGuideOpen(false)}
-                className="absolute top-4 right-4 z-10 w-9 h-9 flex items-center justify-center text-charcoal/30 hover:text-charcoal transition-colors cursor-pointer"
+                className="absolute top-4 right-4 z-10 w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center text-charcoal/30 hover:text-charcoal transition-colors cursor-pointer"
               >
                 <XMarkIcon className="w-5 h-5" />
               </button>
@@ -818,7 +818,7 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
                       <button
                         key={color}
                         onClick={() => setSelectedColor(color)}
-                        className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs tracking-wider transition-all duration-300 min-h-[38px] sm:min-h-[40px] ${
+                        className={`px-3.5 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-xs tracking-wider transition-all duration-300 min-h-[40px] sm:min-h-[40px] ${
                           selectedColor === color
                             ? "bg-charcoal text-white"
                             : "border border-charcoal/[0.08] text-charcoal/50 hover:border-charcoal/25 hover:text-charcoal"

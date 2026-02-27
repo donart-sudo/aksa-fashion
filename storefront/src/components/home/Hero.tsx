@@ -59,18 +59,19 @@ export default function Hero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4 sm:px-0"
         >
-          <Link href={`/${locale}/collections`}>
-            <Button variant="primary" size="lg">
+          <Link href={`/${locale}/collections`} className="w-full sm:w-auto">
+            <Button variant="primary" size="lg" mobileFullWidth className="h-[52px] sm:h-auto sm:min-h-[44px]">
               {t("heroCta")}
             </Button>
           </Link>
-          <Link href={`/${locale}/collections/bridal`}>
+          <Link href={`/${locale}/collections/bridal`} className="w-full sm:w-auto">
             <Button
               variant="outline"
               size="lg"
-              className="border-white text-white hover:bg-white hover:text-charcoal"
+              mobileFullWidth
+              className="border-white text-white hover:bg-white hover:text-charcoal h-[52px] sm:h-auto sm:min-h-[44px]"
             >
               {t("bridalCta")}
             </Button>

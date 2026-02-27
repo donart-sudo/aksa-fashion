@@ -176,7 +176,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
         {/* Wishlist — always visible */}
         <button
           onClick={handleToggleWishlist}
-          className="absolute top-3 right-3 z-10 w-9 h-9 flex items-center justify-center min-w-[36px] min-h-[36px]"
+          className="absolute top-3 right-3 z-10 w-10 h-10 flex items-center justify-center min-w-[40px] min-h-[40px] sm:w-9 sm:h-9 sm:min-w-[36px] sm:min-h-[36px]"
           aria-label={wishlisted ? t("removeFromWishlist") : t("addToWishlist")}
         >
           {wishlisted ? (
@@ -209,7 +209,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
                 <button
                   key={size}
                   onClick={(e) => addToCartWithSize(e, size)}
-                  className="min-w-[38px] sm:min-w-[42px] min-h-[36px] sm:min-h-[40px] px-2.5 sm:px-3 py-1.5 sm:py-2 border border-charcoal/[0.1] text-[11px] sm:text-xs font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
+                  className="min-w-[42px] sm:min-w-[42px] min-h-[40px] sm:min-h-[40px] px-2.5 sm:px-3 py-1.5 sm:py-2 border border-charcoal/[0.1] text-[11px] sm:text-xs font-medium text-charcoal hover:bg-charcoal hover:text-white transition-all duration-200"
                 >
                   {size}
                 </button>
@@ -252,7 +252,7 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
         {!showSizes && (
           <button
             onClick={handleAddToCart}
-            className={`absolute bottom-2.5 right-2.5 z-10 sm:hidden w-9 h-9 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
+            className={`absolute bottom-2.5 right-2.5 z-10 sm:hidden w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-full shadow-md transition-all duration-200 cursor-pointer ${
               added
                 ? "bg-charcoal text-white scale-110"
                 : "bg-white/90 backdrop-blur-sm text-charcoal active:scale-95"
@@ -260,9 +260,9 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
             aria-label={added ? t("added") : t("addToCart")}
           >
             {added ? (
-              <CheckIcon className="w-4 h-4" />
+              <CheckIcon className="w-[18px] h-[18px]" />
             ) : (
-              <ShoppingBagIcon className="w-4 h-4" />
+              <ShoppingBagIcon className="w-[18px] h-[18px]" />
             )}
           </button>
         )}

@@ -104,7 +104,7 @@ export default async function FeaturedCollections({
             {collections.map((col, i) => (
               <div
                 key={col.key}
-                className="flex-shrink-0 w-[72vw] snap-start"
+                className="flex-shrink-0 w-[75vw] snap-start"
               >
                 <CollectionCard
                   collection={col}

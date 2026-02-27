@@ -94,7 +94,7 @@ export default function NewArrivals({
           <div className="text-center mt-10 lg:mt-12">
             <button
               onClick={() => setVisible((v) => v + ITEMS_PER_PAGE)}
-              className="inline-flex items-center gap-2 px-8 py-3.5 border border-charcoal/20 text-sm tracking-wide text-charcoal hover:border-charcoal hover:bg-charcoal hover:text-white transition-all duration-300"
+              className="inline-flex items-center justify-center gap-2 w-full sm:w-auto min-h-[48px] px-8 py-3.5 border border-charcoal/20 text-sm tracking-wide text-charcoal hover:border-charcoal hover:bg-charcoal hover:text-white transition-all duration-300"
             >
               {tCommon("loadMore")}
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>

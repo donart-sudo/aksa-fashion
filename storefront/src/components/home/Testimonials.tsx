@@ -352,11 +352,11 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
               <div className="flex items-center gap-2">
                 <button
                   onClick={goPrev}
-                  className="w-10 h-10 flex items-center justify-center border border-white/[0.12] text-white/40 hover:border-white/30 hover:text-white transition-all duration-300"
+                  className="w-11 h-11 sm:w-10 sm:h-10 flex items-center justify-center border border-white/[0.12] text-white/40 hover:border-white/30 hover:text-white transition-all duration-300"
                   aria-label="Previous story"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-4.5 h-4.5 sm:w-4 sm:h-4"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -371,11 +371,11 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
                 </button>
                 <button
                   onClick={goNext}
-                  className="w-10 h-10 flex items-center justify-center border border-white/[0.12] text-white/40 hover:border-white/30 hover:text-white transition-all duration-300"
+                  className="w-11 h-11 sm:w-10 sm:h-10 flex items-center justify-center border border-white/[0.12] text-white/40 hover:border-white/30 hover:text-white transition-all duration-300"
                   aria-label="Next story"
                 >
                   <svg
-                    className="w-4 h-4"
+                    className="w-4.5 h-4.5 sm:w-4 sm:h-4"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -396,9 +396,9 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
                   <button
                     key={i}
                     onClick={() => goTo(i)}
-                    className={`relative h-[3px] rounded-full transition-all duration-500 ${
+                    className={`relative h-1 sm:h-[3px] rounded-full transition-all duration-500 ${
                       i === active
-                        ? "w-8 bg-gold"
+                        ? "w-9 sm:w-8 bg-gold"
                         : "w-3 bg-white/15 hover:bg-white/30"
                     }`}
                     aria-label={`Go to story ${i + 1}`}

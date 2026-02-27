@@ -345,7 +345,7 @@ export default function CollectionClient({
                 <button
                   key={`ms-${s}`}
                   onClick={() => toggleSize(s)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[32px]"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[36px]"
                 >
                   {s}
                   <XMarkIcon className="w-3 h-3 text-charcoal/40" />
@@ -355,7 +355,7 @@ export default function CollectionClient({
                 <button
                   key={`mc-${c}`}
                   onClick={() => toggleColor(c)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[32px]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[36px]"
                 >
                   <ColorDot color={c} />
                   {c}
@@ -365,7 +365,7 @@ export default function CollectionClient({
               {selectedPrice && (
                 <button
                   onClick={() => handlePriceChange("")}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[32px]"
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full border border-charcoal/15 text-xs text-charcoal font-medium min-h-[36px]"
                 >
                   {PRICE_RANGES.find((r) => r.value === selectedPrice)?.label}
                   <XMarkIcon className="w-3 h-3 text-charcoal/40" />
@@ -673,7 +673,7 @@ export default function CollectionClient({
             {visible.length > 0 ? (
               <>
                 <div
-                  className={`grid grid-cols-2 gap-x-3 gap-y-8 sm:gap-y-10 ${
+                  className={`grid grid-cols-2 gap-x-3.5 gap-y-8 sm:gap-y-10 ${
                     hasAnyFilter
                       ? "sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-4 lg:gap-y-12"
                       : "sm:grid-cols-3 lg:grid-cols-4 lg:gap-x-5 lg:gap-y-12"

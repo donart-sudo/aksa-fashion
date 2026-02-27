@@ -129,20 +129,20 @@ function CartItemRow({
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
                 disabled={item.quantity <= 1}
-                className="w-8 h-8 flex items-center justify-center text-charcoal/40 hover:text-charcoal disabled:opacity-20 transition-colors"
+                className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-charcoal/40 hover:text-charcoal disabled:opacity-20 transition-colors"
                 aria-label="Decrease quantity"
               >
-                <MinusIcon className="w-3 h-3" />
+                <MinusIcon className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
               </button>
-              <span className="w-8 h-8 flex items-center justify-center text-[13px] font-semibold text-charcoal border-x border-charcoal/[0.08]">
+              <span className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-[13px] font-semibold text-charcoal border-x border-charcoal/[0.08]">
                 {item.quantity}
               </span>
               <button
                 onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                className="w-8 h-8 flex items-center justify-center text-charcoal/40 hover:text-charcoal transition-colors"
+                className="w-10 h-10 sm:w-8 sm:h-8 flex items-center justify-center text-charcoal/40 hover:text-charcoal transition-colors"
                 aria-label="Increase quantity"
               >
-                <PlusIcon className="w-3 h-3" />
+                <PlusIcon className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
               </button>
             </div>
 

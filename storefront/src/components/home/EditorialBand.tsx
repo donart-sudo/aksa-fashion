@@ -104,8 +104,9 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           </span>
         </div>
 
-        {/* Thick gold line above heading */}
+        {/* Thick gold line above heading — hidden on mobile */}
         <div
+          className="hidden sm:block"
           style={{
             opacity: visible ? 1 : 0,
             transform: visible ? "scaleX(1)" : "scaleX(0)",
@@ -157,7 +158,7 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
           {(() => {
             const btnLink = content?.buttonLink || `/${locale}/collections`;
             const btnText = content?.buttonText || t("discoverStory");
-            const cls = "inline-flex items-center gap-3 px-8 py-3.5 border border-white/40 text-[11px] font-bold tracking-[0.2em] uppercase text-white hover:bg-white hover:text-charcoal transition-all duration-400";
+            const cls = "inline-flex items-center gap-3 w-full sm:w-auto justify-center min-h-[48px] px-8 py-3.5 border border-white/40 text-[11px] font-bold tracking-[0.2em] uppercase text-white hover:bg-white hover:text-charcoal transition-all duration-400";
             const arrow = <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>;
             const isExt = /^https?:\/\//.test(btnLink) || btnLink.startsWith("www.");
             const extHref = btnLink.startsWith("www.") ? `https://${btnLink}` : btnLink;
