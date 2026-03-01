@@ -269,15 +269,15 @@ export default function ProductCard({ product, priority }: ProductCardProps) {
       </Link>
 
       {/* Info */}
-      <div className="mt-3 sm:mt-4 pb-1">
+      <div className="mt-2 sm:mt-3.5 pb-1">
         <Link href={`/${locale}/products/${product.handle}`}>
-          <h3 className="font-serif text-[17px] sm:text-[18px] lg:text-[20px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-2">
+          <h3 className="font-serif text-[14px] sm:text-[17px] lg:text-[20px] font-medium text-charcoal leading-snug group-hover:underline decoration-charcoal/30 underline-offset-2 transition-all duration-300 line-clamp-1 sm:line-clamp-2">
             {product.title}
           </h3>
         </Link>
 
-        <div className="flex items-baseline gap-1.5 mt-1.5">
-          <span className="text-[16px] text-gold font-semibold">
+        <div className="flex items-baseline gap-1.5 mt-1">
+          <span className="text-[14px] sm:text-[16px] text-gold font-semibold">
             {formatPrice(product.price)}
           </span>
           {product.originalPrice && (

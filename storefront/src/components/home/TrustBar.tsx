@@ -82,8 +82,8 @@ export default function TrustBar({ content }: { content?: TrustBarContent }) {
                   transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 100}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 100}ms`,
                 }}
               >
-                <item.Icon className="w-4 h-4 text-gold/70 flex-shrink-0" />
-                <span className="text-[11px] tracking-[0.2em] uppercase text-charcoal/50 whitespace-nowrap">
+                <item.Icon className="w-4 h-4 md:w-[18px] md:h-[18px] text-gold/70 flex-shrink-0" />
+                <span className="text-[11px] md:text-xs tracking-[0.2em] uppercase text-charcoal/50 whitespace-nowrap">
                   {item.text || t(item.key)}
                 </span>
               </div>
@@ -91,26 +91,28 @@ export default function TrustBar({ content }: { content?: TrustBarContent }) {
           ))}
         </div>
 
-        {/* Mobile: horizontal scroll strip */}
-        <div className="sm:hidden -mx-4">
-          <div className="flex items-center gap-5 overflow-x-auto scrollbar-hide px-4 py-1">
-            {trustItems.map((item, i) => (
-              <div
-                key={item.key}
-                className="flex items-center gap-2 flex-shrink-0"
-                style={{
-                  opacity: visible ? 1 : 0,
-                  transform: visible ? "none" : "translateY(8px)",
-                  transition: `opacity 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms, transform 600ms cubic-bezier(0.16, 1, 0.3, 1) ${i * 80}ms`,
-                }}
-              >
+        {/* Mobile: marquee */}
+        <div className="sm:hidden -mx-4 overflow-hidden">
+          <div className="flex w-max animate-marquee">
+            {[...trustItems, ...trustItems].map((item, i) => (
+              <div key={`${item.key}-${i}`} className="flex items-center gap-2 flex-shrink-0 px-4">
                 <item.Icon className="w-3.5 h-3.5 text-gold/70 flex-shrink-0" />
                 <span className="text-[10px] tracking-[0.15em] uppercase text-charcoal/50 whitespace-nowrap">
                   {item.text || t(item.key)}
                 </span>
+                <span className="ml-4 text-charcoal/10">✦</span>
               </div>
             ))}
           </div>
+          <style jsx>{`
+            @keyframes marquee {
+              0% { transform: translateX(0); }
+              100% { transform: translateX(-50%); }
+            }
+            .animate-marquee {
+              animation: marquee 20s linear infinite;
+            }
+          `}</style>
         </div>
       </div>
     </section>

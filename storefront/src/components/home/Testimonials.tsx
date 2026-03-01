@@ -72,6 +72,7 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
   const [direction, setDirection] = useState<"next" | "prev">("next");
   const [isAnimating, setIsAnimating] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const touchStartX = useRef(0);
   const [paused, setPaused] = useState(false);
 
   const story = BRIDE_STORIES[active];
@@ -132,9 +133,16 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <div className="grid lg:grid-cols-2 min-h-[600px] lg:min-h-[700px]">
+      <div className="grid md:grid-cols-2 min-h-[600px] md:min-h-[650px] lg:min-h-[700px]">
         {/* ── Left — Bride image ── */}
-        <div className="relative h-[420px] sm:h-[500px] lg:h-auto overflow-hidden">
+        <div
+          className="relative h-[420px] sm:h-[500px] md:h-auto overflow-hidden"
+          onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+          onTouchEnd={(e) => {
+            const diff = touchStartX.current - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 60) { diff > 0 ? goNext() : goPrev(); }
+          }}
+        >
           {BRIDE_STORIES.map((s, i) => (
             <div
               key={s.id}
@@ -159,11 +167,11 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
           ))}
 
           {/* Gradient overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent lg:hidden" />
-          <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-transparent via-transparent to-charcoal/30" />
+          <div className="absolute inset-0 bg-gradient-to-t from-charcoal/60 via-transparent to-transparent md:hidden" />
+          <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-transparent via-transparent to-charcoal/30" />
 
           {/* Product tag on image — bottom-left */}
-          <div className="absolute bottom-6 left-6 z-10 hidden lg:block">
+          <div className="absolute bottom-6 left-6 z-10 hidden md:block">
             <Link
               href={`/${locale}/products/${story.product.handle}`}
               className="group flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-3 border border-white/10 hover:border-white/25 transition-all duration-300"
@@ -396,7 +404,7 @@ export default function Testimonials({ content }: { content?: TestimonialsConten
                   <button
                     key={i}
                     onClick={() => goTo(i)}
-                    className={`relative h-1 sm:h-[3px] rounded-full transition-all duration-500 ${
+                    className={`relative h-1.5 sm:h-[3px] rounded-full transition-all duration-500 ${
                       i === active
                         ? "w-9 sm:w-8 bg-gold"
                         : "w-3 bg-white/15 hover:bg-white/30"

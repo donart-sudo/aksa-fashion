@@ -248,16 +248,16 @@ function EditorialCard({
       </Link>
 
       {/* Info below image — editorial style */}
-      <div className="mt-3.5 space-y-1.5">
+      <div className="mt-2 sm:mt-3.5 space-y-1">
         {product.collection && (
-          <span className="text-[10px] tracking-[0.3em] uppercase text-gold/70 block">
+          <span className="text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-gold/70 block">
             {product.collection}
           </span>
         )}
-        <h3 className="font-serif text-base sm:text-[17px] lg:text-lg font-medium text-charcoal leading-snug line-clamp-1 group-hover:underline decoration-charcoal/20 underline-offset-2 transition-all duration-300">
+        <h3 className="font-serif text-[13px] sm:text-[17px] lg:text-lg font-medium text-charcoal leading-snug line-clamp-1 group-hover:underline decoration-charcoal/20 underline-offset-2 transition-all duration-300">
           {product.title}
         </h3>
-        <span className="text-[15px] text-charcoal/80 font-semibold">
+        <span className="text-[13px] sm:text-[15px] text-charcoal/80 font-semibold">
           {formatPrice(product.price)}
         </span>
       </div>
@@ -336,10 +336,10 @@ export default function MoreToDiscover({ products }: MoreToDiscoverProps) {
   const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28">
+    <section ref={sectionRef} className="py-12 sm:py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="mb-12 lg:mb-14">
+        <div className="mb-8 sm:mb-12 lg:mb-14">
           <div className="flex items-center gap-4 mb-6">
             <span className="block h-[1.5px] w-10 bg-gold" />
             <span className="text-[11px] tracking-[0.35em] uppercase text-gold font-medium">
@@ -414,11 +414,11 @@ export default function MoreToDiscover({ products }: MoreToDiscoverProps) {
 
       {/* Carousel — 4 columns on desktop */}
       <div className="overflow-hidden" ref={emblaRef}>
-        <div className="flex ml-4 sm:ml-6 lg:ml-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]">
+        <div className="flex ml-6 sm:ml-6 lg:ml-[max(1.5rem,calc((100vw-80rem)/2+1.5rem))]">
           {products.map((product, i) => (
             <div
               key={product.id}
-              className="flex-[0_0_72vw] sm:flex-[0_0_42vw] lg:flex-[0_0_25%] min-w-0 pr-3.5 sm:pr-4 lg:pr-5"
+              className="flex-[0_0_55vw] sm:flex-[0_0_42vw] lg:flex-[0_0_25%] min-w-0 pr-3 sm:pr-4 lg:pr-5"
               style={{
                 opacity: visible ? 1 : 0,
                 transform: visible ? "none" : "translateY(24px)",
@@ -448,24 +448,24 @@ export default function MoreToDiscover({ products }: MoreToDiscoverProps) {
             <button
               onClick={scrollPrev}
               disabled={!canScrollLeft}
-              className={`w-8 h-8 flex items-center justify-center transition-colors duration-200 ${
+              className={`w-11 h-11 flex items-center justify-center transition-colors duration-200 ${
                 canScrollLeft ? "text-charcoal" : "text-charcoal/15"
               }`}
               aria-label="Previous"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
               </svg>
             </button>
             <button
               onClick={scrollNext}
               disabled={!canScrollRight}
-              className={`w-8 h-8 flex items-center justify-center transition-colors duration-200 ${
+              className={`w-11 h-11 flex items-center justify-center transition-colors duration-200 ${
                 canScrollRight ? "text-charcoal" : "text-charcoal/15"
               }`}
               aria-label="Next"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </button>

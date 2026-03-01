@@ -127,7 +127,7 @@ export default function EditorialBand({ content }: { content?: EditorialBandCont
               "opacity 1000ms cubic-bezier(0.16, 1, 0.3, 1) 350ms, transform 1000ms cubic-bezier(0.16, 1, 0.3, 1) 350ms",
           }}
         >
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-[1.05] mb-4">
+          <h2 className="font-serif text-4xl sm:text-5xl md:text-[3.25rem] lg:text-6xl xl:text-7xl font-bold text-white leading-[1.05] mb-4">
             {content?.heading || t("editorialLine")}
           </h2>
         </div>

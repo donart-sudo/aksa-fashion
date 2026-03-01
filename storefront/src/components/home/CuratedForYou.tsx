@@ -253,10 +253,10 @@ export default function CuratedForYou({ products }: CuratedForYouProps) {
   if (!hero) return null;
 
   return (
-    <section ref={sectionRef} className="py-20 lg:py-28 bg-cream">
+    <section ref={sectionRef} className="py-12 sm:py-20 lg:py-28 bg-cream">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="mb-12 lg:mb-16">
+        <div className="mb-8 sm:mb-12 lg:mb-16">
           {/* Top row: line + label */}
           <div
             className="flex items-center gap-4 mb-6"
@@ -303,7 +303,7 @@ export default function CuratedForYou({ products }: CuratedForYouProps) {
         </div>
 
         {/* ── Desktop: hero + 2x2 grid ── */}
-        <div className="hidden lg:grid lg:grid-cols-2 gap-5" style={{ minHeight: "720px" }}>
+        <div className="hidden md:grid md:grid-cols-2 gap-5 min-h-[560px] lg:min-h-[720px]">
           {/* Left — hero feature card */}
           <div
             style={{
@@ -334,12 +334,12 @@ export default function CuratedForYou({ products }: CuratedForYouProps) {
         </div>
 
         {/* ── Mobile/Tablet: horizontal swipe carousel ── */}
-        <div className="lg:hidden -mx-4">
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 pb-2">
+        <div className="md:hidden">
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-2">
             {mobileItems.map((product, i) => (
               <div
                 key={product.id}
-                className="flex-shrink-0 w-[65vw] snap-start"
+                className="flex-shrink-0 w-[55vw] snap-start"
                 style={{
                   opacity: visible ? 1 : 0,
                   transform: visible ? "none" : "translateY(30px) scale(0.97)",

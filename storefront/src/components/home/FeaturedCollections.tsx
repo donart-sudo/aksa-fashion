@@ -33,10 +33,10 @@ export default async function FeaturedCollections({
   };
 
   return (
-    <section className="py-20 lg:py-28 bg-warm-white">
+    <section className="py-12 sm:py-20 lg:py-28 bg-warm-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section header */}
-        <div className="mb-12 lg:mb-16">
+        <div className="mb-8 sm:mb-12 lg:mb-16">
           <div className="flex items-center gap-4 mb-6">
             <span className="block h-[1.5px] w-10 bg-gold" />
             <span className="text-[11px] tracking-[0.35em] uppercase text-gold font-medium">
@@ -99,12 +99,12 @@ export default async function FeaturedCollections({
         </div>
 
         {/* Mobile: horizontal scroll */}
-        <div className="sm:hidden -mx-4">
-          <div className="flex gap-3.5 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide px-4">
+        <div className="sm:hidden">
+          <div className="flex gap-3.5 overflow-x-auto overflow-y-hidden snap-x snap-mandatory scrollbar-hide">
             {collections.map((col, i) => (
               <div
                 key={col.key}
-                className="flex-shrink-0 w-[75vw] snap-start"
+                className="flex-shrink-0 w-[65vw] snap-start"
               >
                 <CollectionCard
                   collection={col}

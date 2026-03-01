@@ -50,7 +50,8 @@ const COLLECTION_LINKS = [
 
 const ANNOUNCEMENTS = ["ann1", "ann2", "ann3", "ann4"] as const;
 const ANN_INTERVAL = 4000;
-const TOPBAR_H = 44; // px — announcement bar height
+const TOPBAR_H_MOBILE = 36; // px — mobile announcement bar height
+const TOPBAR_H = 44; // px — desktop announcement bar height
 
 /* ── Inline search engine ── */
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
@@ -229,11 +230,18 @@ export default function Header() {
 
   // Transparent header on homepage
   const isHomePage = pathname === `/${locale}` || pathname === `/${locale}/`;
-  const transparentMode = isHomePage && !pastHero;
+  const [isLg, setIsLg] = useState(false);
+  useEffect(() => {
+    const check = () => setIsLg(window.innerWidth >= 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  const transparentMode = isHomePage && !pastHero && isLg;
   const showTopBar = !topBarDismissed;
 
   // Height offset for homepage absolute positioning
-  const topBarOffset = showTopBar ? TOPBAR_H : 0;
+  const topBarOffset = showTopBar ? (isLg ? TOPBAR_H : TOPBAR_H_MOBILE) : 0;
 
   const collectionImages: Record<string, string> = {
     newCollection: HEADER_IMAGES["all-collections"],
@@ -270,13 +278,10 @@ export default function Header() {
     setScrolled(y > 80);
     setShowSuperSticky(y > 100);
     setPastHero(y > window.innerHeight - 80);
-    if (searchOpen) closeSearch();
+    if (searchOpen && window.innerWidth >= 1024) closeSearch();
 
     // Mobile: hide header on scroll down, show on scroll up
     if (window.innerWidth < 1024) {
-      // Auto-dismiss announcement bar on mobile
-      if (y > 150) setTopBarDismissed(true);
-
       if (y > 80) {
         const diff = y - lastScrollY.current;
         // Reset accumulator on direction change
@@ -415,11 +420,11 @@ export default function Header() {
     }
   }, [searchOpen]);
 
-  // Close search on click outside
+  // Close search on click outside (desktop only — mobile uses full-screen overlay with X button)
   useEffect(() => {
     if (!searchOpen) return;
     function handleClick(e: MouseEvent) {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+      if (window.innerWidth >= 1024 && searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         closeSearch();
       }
     }
@@ -538,17 +543,16 @@ export default function Header() {
           ═══════════════════════════════════════════════ */}
       {showTopBar && (
         <div
-          className={`z-[71] transition-all duration-300 ${
+          className={`z-[71] transition-all duration-300 h-9 lg:h-11 ${
             isHomePage
-              ? "absolute top-0 left-0 right-0"
+              ? "relative lg:absolute lg:top-0 lg:left-0 lg:right-0"
               : ""
           }`}
-          style={{ height: TOPBAR_H }}
         >
           <div className={`h-full transition-colors duration-300 ${
             transparentMode
               ? "bg-black/30 backdrop-blur-md"
-              : "bg-[#111111]"
+              : "bg-charcoal lg:bg-[#2D2D2D]"
           }`}>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
               <div className="flex items-center justify-between h-full gap-4">
@@ -575,7 +579,7 @@ export default function Header() {
                       animate={{ y: 0, opacity: 1 }}
                       exit={{ y: -12, opacity: 0 }}
                       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-                      className="text-[11px] sm:text-[12px] tracking-[0.12em] uppercase text-center whitespace-nowrap text-white/80"
+                      className="text-[10px] sm:text-[12px] tracking-[0.1em] sm:tracking-[0.12em] uppercase text-center whitespace-nowrap text-white/70 sm:text-white/80"
                     >
                       {t(`topBar.${ANNOUNCEMENTS[annIndex]}`)}
                     </motion.p>
@@ -647,16 +651,11 @@ export default function Header() {
         data-main-header
         className={`z-[70] transition-all duration-300 ${
           isHomePage
-            ? `fixed left-0 right-0 lg:absolute border-b ${
-                pastHero
-                  ? "bg-white/95 backdrop-blur-md border-charcoal/[0.08] lg:bg-transparent lg:backdrop-blur-none lg:border-transparent"
-                  : "bg-transparent border-transparent"
-              }`
-            : `sticky top-0 lg:static border-b ${scrolled ? "bg-white/95 backdrop-blur-md border-charcoal/[0.08]" : "bg-cream border-soft-gray/60"}`
+            ? `relative border-b bg-cream border-soft-gray/60 lg:absolute lg:left-0 lg:right-0 lg:bg-transparent lg:border-transparent`
+            : `static border-b bg-cream border-soft-gray/60`
         }`}
         style={{
-          ...(isHomePage ? { top: topBarOffset } : {}),
-          ...(mobileHeaderHidden ? { transform: `translateY(calc(-100% - ${isHomePage ? topBarOffset : 0}px))` } : {}),
+          ...(isHomePage ? {} : {}),
         }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -952,22 +951,21 @@ export default function Header() {
         </AnimatePresence>
       </header>
 
-      {/* ── Mobile search dropdown (below header, full width) ── */}
+      {/* ── Mobile search overlay (full screen) ── */}
       <AnimatePresence>
         {searchOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden fixed left-0 right-0 z-[69] bg-white shadow-lg border-t border-charcoal/[0.06]"
-            style={{ top: "auto" }}
+            className="lg:hidden fixed inset-0 z-[80] bg-white flex flex-col"
           >
-            <div className="px-4 pt-3 pb-2">
+            <div className="px-4 pt-4 pb-2">
               <div className="flex items-center gap-2 px-3 h-11 rounded-lg border border-charcoal/10 bg-charcoal/[0.02]">
                 <MagnifyingGlassIcon className="w-5 h-5 text-charcoal/30 flex-shrink-0" />
                 <input
-                  type="search"
+                  type="text"
                   placeholder={t("search.placeholder")}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -982,17 +980,12 @@ export default function Header() {
                   autoComplete="off"
                   autoFocus
                 />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="p-1 text-charcoal/25 hover:text-charcoal">
-                    <XMarkIcon className="w-5 h-5" />
-                  </button>
-                )}
-                <button onClick={closeSearch} className="p-1 text-charcoal/30 hover:text-charcoal">
+                <button onClick={() => { setSearchQuery(""); closeSearch(); }} className="p-1 text-charcoal/30 hover:text-charcoal">
                   <XMarkIcon className="w-5 h-5" />
                 </button>
               </div>
             </div>
-            <div className="max-h-[60vh] overflow-y-auto px-4 pb-4">
+            <div className="flex-1 overflow-y-auto px-4 pb-4">
               {/* Mobile: collection links */}
               {searchQuery.trim() && matchedCollections.length > 0 && (
                 <div className="pt-1 pb-2 border-b border-charcoal/[0.04] mb-2">

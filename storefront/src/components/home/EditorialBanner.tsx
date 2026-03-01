@@ -23,6 +23,7 @@ const HERO_SLIDES_DEFAULT: HeroSlide[] = HERO_IMAGES;
 export default function EditorialBanner({ content }: { content?: HeroContent }) {
   const HERO_SLIDES = content?.slides ?? HERO_SLIDES_DEFAULT;
   const t = useTranslations("home");
+  const tCommon = useTranslations("common");
   const locale = useLocale();
   const rtl = isRtl(locale as "sq" | "en" | "tr" | "ar");
 
@@ -100,9 +101,9 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
   const clipTo = "inset(0)";
 
   return (
-    <section className="relative h-[80svh] min-h-[480px] lg:h-[100svh] lg:min-h-[600px] overflow-hidden flex flex-col-reverse lg:flex-row">
+    <section className="relative h-[80svh] min-h-[480px] md:h-[90svh] md:min-h-[550px] lg:h-[100svh] lg:min-h-[600px] overflow-hidden flex flex-col-reverse md:flex-row">
       {/* ═══ Left: Text panel ═══ */}
-      <div className="relative flex-shrink-0 w-full lg:w-[45%] bg-[#1a1a1a] flex items-center">
+      <div className="relative flex-shrink-0 w-full md:w-[45%] bg-[#1a1a1a] flex items-center">
         {/* Decorative radial glow */}
         <div
           className="absolute inset-0 pointer-events-none opacity-30"
@@ -111,11 +112,11 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           }}
         />
 
-        <div className="relative z-10 w-full px-5 sm:px-8 lg:px-16 xl:px-20 py-6 sm:py-8 lg:py-0">
-          {/* Gold accent line */}
+        <div className="relative z-10 w-full px-5 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8 md:py-0">
+          {/* Gold accent line — hidden on mobile */}
           <div
             key={`accent-${animKey}`}
-            className="w-[2px] h-10 lg:h-16 bg-gold mb-5 lg:mb-8 animate-accent-grow"
+            className="hidden md:block w-[2px] h-10 lg:h-16 bg-gold mb-5 lg:mb-8 animate-accent-grow"
             style={{
               animationDelay: "50ms",
               boxShadow: "0 0 12px rgba(184,146,106,0.3)",
@@ -131,7 +132,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           </p>
 
           {/* Heading — two-line split reveal */}
-          <h1 className="font-serif text-2xl sm:text-3xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-3 sm:mb-5">
+          <h1 className="font-serif text-[1.75rem] sm:text-3xl lg:text-5xl xl:text-6xl font-bold text-white leading-[1.1] mb-3 sm:mb-5">
             <span className="block overflow-hidden">
               <span
                 key={`h1a-${animKey}`}
@@ -155,7 +156,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           {/* Description */}
           <p
             key={`desc-${animKey}`}
-            className="text-white/50 text-[13px] sm:text-sm lg:text-base leading-relaxed max-w-md mb-5 sm:mb-6 lg:mb-8 animate-hero-fade-up"
+            className="text-white/50 text-[11px] sm:text-sm lg:text-base leading-relaxed max-w-md min-h-[3rem] sm:min-h-0 mb-5 sm:mb-6 lg:mb-8 animate-hero-fade-up"
             style={{ animationDelay: "350ms" }}
           >
             {slide.description || t(`${slide.key}Desc`)}
@@ -164,7 +165,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           {/* CTA buttons */}
           <div
             key={`cta-${animKey}`}
-            className="animate-hero-fade-up mb-6 sm:mb-8 lg:mb-12 flex flex-wrap items-center gap-3"
+            className="animate-hero-fade-up mb-6 sm:mb-8 lg:mb-12 flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2.5 sm:gap-3"
             style={{ animationDelay: "500ms" }}
           >
             {(() => {
@@ -174,7 +175,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
                 ? { href: normalizeHref(slide.ctaLink), target: "_blank" as const, rel: "noopener noreferrer" }
                 : { href: `/${locale}/${slide.ctaLink.replace(/^\//, "")}` };
               return (
-                <Tag {...props} className="inline-flex items-center gap-3 bg-gold hover:bg-gold-dark text-white text-[11px] sm:text-[12px] lg:text-[13px] tracking-[0.2em] uppercase font-medium px-6 py-3 sm:px-8 sm:py-4 transition-colors duration-300 group">
+                <Tag {...props} className="inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-gold hover:bg-gold-dark text-white text-[10px] sm:text-[12px] lg:text-[13px] tracking-[0.2em] uppercase font-medium px-5 py-2.5 sm:px-8 sm:py-4 transition-colors duration-300 group">
                   {slide.ctaText || t(`${slide.key}Cta`)}
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
@@ -182,7 +183,8 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
                 </Tag>
               );
             })()}
-            {slide.buttonSecondaryText && (() => {
+            {(() => {
+              const secText = slide.buttonSecondaryText || tCommon("viewAll");
               const secLink = slide.buttonSecondaryLink || slide.ctaLink;
               const isExt = isExternalUrl(secLink);
               const Tag = isExt ? "a" : Link;
@@ -190,8 +192,8 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
                 ? { href: normalizeHref(secLink), target: "_blank" as const, rel: "noopener noreferrer" }
                 : { href: `/${locale}/${secLink.replace(/^\//, "")}` };
               return (
-                <Tag {...props} className="inline-flex items-center gap-3 border border-white/30 hover:border-white/60 text-white text-[12px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-8 py-4 transition-colors duration-300 group">
-                  {slide.buttonSecondaryText}
+                <Tag {...props} className="inline-flex items-center justify-center gap-3 w-full sm:w-auto border border-white/30 hover:border-white/60 text-white text-[10px] sm:text-[13px] tracking-[0.2em] uppercase font-medium px-5 py-2.5 sm:px-8 sm:py-4 transition-colors duration-300 group">
+                  {secText}
                 </Tag>
               );
             })()}
@@ -227,7 +229,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
       {/* ═══ Right: Image panel with clip-path transitions ═══ */}
       <div
         ref={imageContainerRef}
-        className="relative flex-1 h-[45vh] lg:h-auto overflow-hidden"
+        className="relative flex-1 h-[45vh] md:h-auto overflow-hidden"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         onMouseMove={handleMouseMove}
@@ -269,10 +271,10 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
         })}
 
         {/* Subtle edge vignette */}
-        <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-black/10 lg:bg-gradient-to-r lg:from-[#1a1a1a]/30 lg:via-transparent lg:to-transparent" />
+        <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-t from-black/20 via-transparent to-black/10 md:bg-gradient-to-r md:from-[#1a1a1a]/30 md:via-transparent md:to-transparent" />
 
         {/* Mobile dot indicators */}
-        <div className="lg:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
+        <div className="md:hidden absolute bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
           {HERO_SLIDES.map((_, i) => (
             <button
               key={i}
@@ -350,7 +352,7 @@ export default function EditorialBanner({ content }: { content?: HeroContent }) 
           </button>
 
           {/* Slide counter — bottom left */}
-          <div className="pointer-events-none absolute bottom-6 left-6 hidden lg:flex items-baseline gap-1 text-white/40">
+          <div className="pointer-events-none absolute bottom-6 left-6 hidden md:flex items-baseline gap-1 text-white/40">
             <span className="text-[22px] font-light text-white/80 tabular-nums">{String(current + 1).padStart(2, "0")}</span>
             <span className="text-[13px] font-light">/</span>
             <span className="text-[13px] font-light tabular-nums">{String(HERO_SLIDES.length).padStart(2, "0")}</span>

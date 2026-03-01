@@ -38,9 +38,9 @@ export default function Appointment({ content }: { content?: AppointmentContent 
 
   return (
     <section ref={sectionRef} className="bg-charcoal">
-      <div className="grid lg:grid-cols-2 min-h-[480px] lg:min-h-[620px]">
+      <div className="grid md:grid-cols-2 min-h-[480px] md:min-h-[560px] lg:min-h-[620px]">
         {/* Left — atelier image */}
-        <div className="relative h-[340px] sm:h-[420px] lg:h-auto overflow-hidden">
+        <div className="relative h-[340px] sm:h-[420px] md:h-auto overflow-hidden">
           <Image
             src={appointmentImage}
             alt="Bride in Aksa Fashion gown at our Prishtina atelier"
@@ -56,7 +56,7 @@ export default function Appointment({ content }: { content?: AppointmentContent 
             }}
           />
           {/* Mobile bottom gradient */}
-          <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent" />
+          <div className="absolute inset-0 md:hidden bg-gradient-to-t from-charcoal via-charcoal/40 to-transparent" />
         </div>
 
         {/* Right — content */}
@@ -69,7 +69,7 @@ export default function Appointment({ content }: { content?: AppointmentContent 
             }}
           />
 
-          <div className="relative z-10 px-5 sm:px-8 lg:px-16 xl:px-20 py-10 sm:py-16 lg:py-24 w-full">
+          <div className="relative z-10 px-5 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-10 sm:py-16 lg:py-24 w-full">
             {/* Decorative frame */}
             <div className="relative border-0 sm:border sm:border-white/[0.08] px-5 sm:px-8 lg:px-10 py-8 sm:py-12 lg:py-14">
               {/* Corner accents — hidden on mobile */}
