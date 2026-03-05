@@ -1402,33 +1402,62 @@ export default function Header() {
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                         className="overflow-hidden"
                       >
-                        <div className="pt-1 pb-2 pl-3 sm:pl-4">
+                        <div className="pt-3 pb-2">
+                          {/* All Collections link */}
                           <Link
                             href={`/${locale}/collections`}
                             onClick={() => setMobileMenuOpen(false)}
-                            className={`block py-2 sm:py-2.5 text-[13px] sm:text-[14px] transition-colors border-l-2 pl-3 ${
+                            className={`flex items-center gap-3 px-3 py-2.5 rounded-lg mb-1 transition-colors ${
                               isActive("collections")
-                                ? "text-gold border-gold font-medium"
-                                : "text-charcoal/50 border-charcoal/[0.08] hover:text-charcoal hover:border-charcoal/20"
+                                ? "bg-gold/10 text-gold"
+                                : "text-charcoal/60 hover:bg-charcoal/[0.04] hover:text-charcoal"
                             }`}
                           >
-                            {t("common.allCollections")}
+                            <span className="w-8 h-8 rounded-md bg-charcoal/[0.06] flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-charcoal/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                              </svg>
+                            </span>
+                            <span className="text-[13px] font-medium tracking-[0.02em]">{t("common.allCollections")}</span>
                           </Link>
-                          {COLLECTION_LINKS.map((link) => {
+
+                          {/* Collection links with thumbnails */}
+                          {COLLECTION_LINKS.map((link, i) => {
                             const active = isActive(link.handle);
+                            const imgSrc = collectionImages[link.key];
                             return (
-                              <Link
+                              <motion.div
                                 key={link.key}
-                                href={`/${locale}/${link.handle}`}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`block py-2 sm:py-2.5 text-[13px] sm:text-[14px] transition-colors border-l-2 pl-3 ${
-                                  active
-                                    ? "text-gold border-gold font-medium"
-                                    : "text-charcoal/50 border-charcoal/[0.08] hover:text-charcoal hover:border-charcoal/20"
-                                }`}
+                                initial={{ opacity: 0, x: -8 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: i * 0.03, duration: 0.25 }}
                               >
-                                {getLabel(link.key)}
-                              </Link>
+                                <Link
+                                  href={`/${locale}/${link.handle}`}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                                    active
+                                      ? "bg-gold/10 text-gold"
+                                      : "text-charcoal/60 hover:bg-charcoal/[0.04] hover:text-charcoal"
+                                  }`}
+                                >
+                                  {imgSrc ? (
+                                    <span className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0 bg-[#f0eeeb]">
+                                      <Image
+                                        src={imgSrc}
+                                        alt={getLabel(link.key)}
+                                        width={32}
+                                        height={32}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </span>
+                                  ) : (
+                                    <span className="w-8 h-8 rounded-md bg-charcoal/[0.06] flex-shrink-0" />
+                                  )}
+                                  <span className="text-[13px] tracking-[0.02em]">{getLabel(link.key)}</span>
+                                  {active && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-gold" />}
+                                </Link>
+                              </motion.div>
                             );
                           })}
                         </div>

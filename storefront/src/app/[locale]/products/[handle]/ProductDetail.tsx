@@ -17,7 +17,6 @@ import { HeartIcon as HeartIconSolid } from "@heroicons/react/24/solid";
 import { formatPrice } from "@/lib/utils";
 import { useCart } from "@/lib/cart";
 import { useWishlist } from "@/lib/wishlist";
-import StickyAddToCart from "@/components/product/StickyAddToCart";
 import type { ScrapedProduct } from "@/lib/data/products";
 
 /* ── Accordion sub-component ── */
@@ -982,24 +981,24 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
               </div>
 
               {/* Trust signals */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-0 sm:divide-x sm:divide-charcoal/[0.06] py-5 sm:py-6 border-t border-charcoal/[0.06]">
-                <div className="flex items-center gap-2.5 sm:pr-4 lg:pr-3 xl:pr-4">
-                  <svg className="w-[18px] h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <div className="flex items-center gap-4 sm:gap-0 sm:divide-x sm:divide-charcoal/[0.06] py-4 sm:py-6 border-t border-charcoal/[0.06]">
+                <div className="flex items-center gap-1.5 sm:gap-2.5 sm:pr-4 lg:pr-3 xl:pr-4">
+                  <svg className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.455 2.456L21.75 6l-1.036.259a3.375 3.375 0 00-2.455 2.456z" />
                   </svg>
-                  <span className="text-[11px] sm:text-[10px] text-charcoal/40">Handcrafted</span>
+                  <span className="text-[10px] sm:text-[10px] text-charcoal/40">Handcrafted</span>
                 </div>
-                <div className="flex items-center gap-2.5 sm:px-4 lg:px-3 xl:px-4">
-                  <svg className="w-[18px] h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div className="flex items-center gap-1.5 sm:gap-2.5 sm:px-4 lg:px-3 xl:px-4">
+                  <svg className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
                   </svg>
-                  <span className="text-[11px] sm:text-[10px] text-charcoal/40">Worldwide Shipping</span>
+                  <span className="text-[10px] sm:text-[10px] text-charcoal/40">Shipping</span>
                 </div>
-                <div className="flex items-center gap-2.5 sm:pl-4 lg:pl-3 xl:pl-4">
-                  <svg className="w-[18px] h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <div className="flex items-center gap-1.5 sm:gap-2.5 sm:pl-4 lg:pl-3 xl:pl-4">
+                  <svg className="w-3.5 h-3.5 sm:w-[18px] sm:h-[18px] text-gold/40 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
                   </svg>
-                  <span className="text-[11px] sm:text-[10px] text-charcoal/40">WhatsApp Support</span>
+                  <span className="text-[10px] sm:text-[10px] text-charcoal/40">WhatsApp</span>
                 </div>
               </div>
 
@@ -1053,16 +1052,6 @@ export default function ProductDetail({ product }: { product: ScrapedProduct }) 
         </div>
       </div>
 
-      {/* Mobile sticky CTA */}
-      <StickyAddToCart
-        productId={String(product.id)}
-        handle={product.slug}
-        title={product.name}
-        thumbnail={images[0]}
-        price={priceInCents}
-        inStock={product.inStock}
-        targetRef={addToCartRef}
-      />
     </div>
   );
 }
